@@ -1,0 +1,27 @@
+
+<h1>Challenges</h1>
+
+<table class="table table-striped table-bordered table-hover">
+  <thead class="thead-dark">
+    <tr>
+      <th>No.</th>
+      <th>Description</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @challenges.each do |challenge| %>
+      <tr>
+        <td><%= challenge.number %></td>
+        <td><%= challenge.description %></td>
+        <td><%= challenge.points %></td>
+        <td><%= link_to "Edit", edit_challenge_path(challenge), class:"btn btn-secondary" %></td>
+        <td><%= link_to 'Delete', challenge, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger" %> </td>
+   
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "New challenge", new_challenge_path, class: "btn btn-secondary" %>

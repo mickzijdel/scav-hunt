@@ -1,0 +1,8 @@
+<%= render @challenge %>
+
+<div>
+  <%= link_to "Edit this challenge", edit_challenge_path(@challenge), class: "btn btn-secondary" %>
+  <%= link_to "Back to challenges", challenges_path, class: "btn btn-secondary" %>
+  <br><br>
+  <%= button_to "Destroy this challenge", @challenge, method: :delete, class: "btn btn-secondary" %>
+</div>
