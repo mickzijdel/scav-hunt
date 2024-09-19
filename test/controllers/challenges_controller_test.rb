@@ -39,10 +39,24 @@ class ChallengesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should destroy challenge" do
+    challenge = FactoryBot.create(:challenge)
+    assert_empty challenge.results
+
     assert_difference("Challenge.count", -1) do
-      delete challenge_url(@challenge)
+      delete challenge_url(challenge)
     end
 
     assert_redirected_to challenges_url
+  end
+
+  test "should not destroy challenge if there is a result attached" do
+    FactoryBot.create(:result, challenge: @challenge)
+    assert @challenge.results.any?
+
+    assert_no_difference("Challenge.count", -1) do
+      delete challenge_url(@challenge)
+    end
+
+    assert_response 500
   end
 end
