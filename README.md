@@ -1,24 +1,25 @@
-# README
+# Introduction
+Welcome to the Bedlam Theatre Scavenger Hunt scoring website.
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+# Setup
+## System Dependencies
+1) Install Ruby (see gemfile for version)
+2) Install Node.js/Yarn (most recent probably fine)
+3) Install MySQL.
 
-Things you may want to cover:
+## Instructions
+1) Create a database user with the username `scav_hunt` and an empty password who has access to all schemas matching the pattern `scav\_hunt\_%`. You can set the access restriction to `localhost` for extra security. 
+2) Clone the repository
+3) Copy the master.key file to your local repository
+4) Run `rails db:setup`
 
-* Ruby version
+# Development
+1) Run `rails s` and check if the website loads at `localhost:3000`
+2) You might need to run `yarn build` and `yarn build:css` if changes you make do not automatically reload.
 
-* System dependencies
+# Testing
+1) Run `rails test -d`. You can use `rails test -h` for more details, for example, how to run a specific test file only.
+2) You can view test coverage by opening `coverage/index.html` using a browser of your choice.
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+# Deployment
+TBD
