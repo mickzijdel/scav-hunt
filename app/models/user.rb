@@ -10,9 +10,11 @@ class User < ApplicationRecord
   has_many :results
   has_many :challenges, through: :results
 
-  enum role: {
+  enum :role, {
      team: 0,
      scorer: 1,
      admin: 2
   }
+
+  # TODO: views for users.
 end

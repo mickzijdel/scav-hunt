@@ -1,16 +1,18 @@
 <h1>Challenges</h1>
 
-<%# TODO: If the user is a team, this should display the "Max Points" (the points on the challenge), "Obtained Points" (from the result that matches their user and the challenge). Remember to do includes to prevent N+1 problem. %>
-
-
 <table class="table">
   <thead>
     <tr>
       <th>Number</th>
       <th>Description</th>
-      <th>Points</th>
-      <%# TODO: Actions is shown even when empty. Probably remove. %>
-      <th>Actions</th>
+      <% if current_user&.team? %>
+        <th>Max Points</th>
+        <th>Obtained Points</th>
+        <th>Bonus Points</th>
+      <% else %>
+        <th>Points</th>
+        <th>Actions</th>
+      <% end %>
     </tr>
   </thead>
   <tbody>
@@ -19,6 +21,13 @@
         <td><%= challenge.number %></td>
         <td><%= challenge.description %></td>
         <td><%= challenge.points %></td>
+        <% if current_user&.team? %>
+          <% result = @results[challenge.id] %>
+
+          <td><%= result ? result.regular_points : 0 %></td>
+          <td><%= result ? result.bonus_points : 0 %></td>
+        <% end %>
+
         <td>
           <% if can? :show, challenge %>
             <%= link_to 'Show', challenge, class: 'btn btn-sm btn-info' %>
@@ -36,6 +45,10 @@
     <% end %>
   </tbody>
 </table>
+
+<% # TODO: Display score stats, like totals %>
+
+<% # TODO: Display the status of the task (not attempted, partially completed, completed), Unsure where the logic should live%>
 
 <% if can? :create, Challenge %>
   <%= link_to 'New Challenge', new_challenge_path, class: 'btn btn-primary' %>
