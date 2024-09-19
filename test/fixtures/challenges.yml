@@ -2,10 +2,10 @@
 
 one:
   number: 1
-  description: MyString
-  points: 1
+  description: Leave a pineapple in front of someone's door
+  points: 200
 
 two:
-  number: 1
-  description: MyString
-  points: 1
+  number: 2
+  description: Say hi to Finbar the Viking
+  points: 100
