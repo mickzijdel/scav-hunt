@@ -1,0 +1,23 @@
+challenge_one_by_team_one:
+  challenge: one
+  user: team_one
+  regular_points: 1500
+  bonus_points: 0
+
+challenge_two_by_team_one:
+  challenge: two
+  user: team_one
+  regular_points: -500
+  bonus_points: 100
+
+challenge_one_by_team_two:
+  challenge: one
+  user: team_two
+  regular_points: 800
+  bonus_points: 200
+
+challenge_two_by_team_two:
+  challenge: two
+  user: team_two
+  regular_points: 0
+  bonus_points: 100

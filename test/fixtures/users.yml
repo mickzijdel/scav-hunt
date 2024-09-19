@@ -5,8 +5,13 @@
 # below each fixture, per the syntax in the comments below
 #
 
-team: 
-  email: team@bedlamtheatre.test
+team_one: 
+  email: team_one@bedlamtheatre.test
+  encrypted_password: "NA"
+  role: team
+
+team_two: 
+  email: team_two@bedlamtheatre.test
   encrypted_password: "NA"
   role: team
 

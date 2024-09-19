@@ -7,6 +7,9 @@ class User < ApplicationRecord
   validates :email, uniqueness: true
   validates :email, :encrypted_password, :role, presence: true
 
+  has_many :results
+  has_many :challenges, through: :results
+
   enum role: {
      team: 0,
      scorer: 1,
