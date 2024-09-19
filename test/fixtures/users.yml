@@ -8,11 +8,14 @@
 team: 
   email: team@bedlamtheatre.test
   encrypted_password: "NA"
+  role: team
 
 scorer: 
   email: scorer@bedlamtheatre.test
   encrypted_password: "NA"
+  role: scorer
 
 admin: 
   email: admin@bedlamtheatre.test
   encrypted_password: "NA"
+  role: admin
