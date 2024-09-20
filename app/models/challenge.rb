@@ -5,4 +5,6 @@ class Challenge < ApplicationRecord
 
   has_many :results
   has_many :users, through: :results
+
+  # TODO: Properly implement deleting challenges that have results attached.
 end

@@ -38,7 +38,7 @@
           <% end %>
 
           <% if can? :destroy, challenge %>
-            <%= link_to 'Delete', challenge, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-sm btn-danger' %>
+            <%= link_to 'Delete', challenge, data: { turbo_confirm: 'Are you sure?', turbo_method: :delete }, class: 'btn btn-sm btn-danger' %>
           <% end %>
         </td>
       </tr>
