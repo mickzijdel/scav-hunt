@@ -83,7 +83,7 @@ export default class extends Controller {
     teams.forEach((team, index) => {
       const row = tableBody.insertRow()
       row.insertCell().textContent = index + 1
-      row.insertCell().textContent = team.username
+      row.insertCell().textContent = team.name
       row.insertCell().textContent = team.score
     })
   }
