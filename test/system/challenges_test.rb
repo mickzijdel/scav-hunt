@@ -16,19 +16,22 @@ class ChallengesTest < ApplicationSystemTestCase
   end
 
   test "visiting the index as team" do
-    sign_out :user
+    sign_out users(:admin)
     sign_in users(:team_one)
+
     visit challenges_url
     assert_selector "h1", text: "Challenges"
     assert_selector "th", text: "Max Points"
     assert_selector "th", text: "Obtained Points"
+
+    assert_no_selector "th", text: "Actions"
     assert_no_selector "a", text: "New Challenge"
   end
 
   test "should create challenge as admin" do
     visit challenges_url
     click_on "New Challenge"
-    fill_in "Number", with: @challenge.number + 1
+    fill_in "Number", with: 370323
     fill_in "Description", with: "New challenge description"
     fill_in "Points", with: @challenge.points
     click_on "Create Challenge"
