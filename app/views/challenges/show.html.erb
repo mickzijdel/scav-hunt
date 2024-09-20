@@ -1,8 +1,13 @@
 <%= render @challenge %>
 
-<div>
-  <%= link_to "Edit this challenge", edit_challenge_path(@challenge), class: "btn btn-secondary" %>
+<div class="d-flex justify-content-left">
+  <% if can? :update, @challenge %>
+    <%= link_to "Edit this challenge", edit_challenge_path(@challenge), class: "btn btn-warning me-2" %>
+  <% end %>
+
+  <% if can? :destroy, @challenge %>
+    <%= button_to "Destroy this challenge", @challenge, data: { turbo_confirm: 'Are you sure?', turbo_method: :delete }, class: "btn btn-danger me-2" %>
+  <% end %>
+
   <%= link_to "Back to challenges", challenges_path, class: "btn btn-secondary" %>
-  <br><br>
-  <%= button_to "Destroy this challenge", @challenge, method: :delete, class: "btn btn-secondary" %>
 </div>

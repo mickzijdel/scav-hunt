@@ -1,10 +1,19 @@
 class ChallengesController < ApplicationController
-  before_action :set_challenge, only: %i[ show edit update destroy ]
+  load_and_authorize_resource
+
+  # TODO: Make the views look nicer/standardise with the others.
 
   # GET /challenges or /challenges.json
   def index
-    @challenges = Challenge.all
+    @challenges = Challenge.all.order(:number)
+
+    # Include the results for this user if the user is a team.
+    if current_user.team?
+      @results = Result.where(user: current_user).index_by(&:challenge_id)
+    end
   end
+
+  # TODO: An overview where scorers and admin can assign the scores to the teams.
 
   # GET /challenges/1 or /challenges/1.json
   def show
@@ -58,13 +67,8 @@ class ChallengesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_challenge
-      @challenge = Challenge.find(params[:id])
-    end
-
-    # Only allow a list of trusted parameters through.
-    def challenge_params
-      params.require(:challenge).permit(:number, :description, :points)
-    end
+  # Only allow a list of trusted parameters through.
+  def challenge_params
+    params.require(:challenge).permit(:number, :description, :points)
+  end
 end

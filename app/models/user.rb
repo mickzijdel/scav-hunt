@@ -4,6 +4,17 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  validates :email, uniqueness: true
-  validates :email, :encrypted_password, presence: true
+  validates :email, :name, uniqueness: true
+  validates :email, :encrypted_password, :role, :name, presence: true
+
+  has_many :results
+  has_many :challenges, through: :results
+
+  enum :role, {
+     team: 0,
+     scorer: 1,
+     admin: 2
+  }
+
+  # TODO: views for users.
 end
