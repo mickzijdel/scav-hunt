@@ -19,6 +19,8 @@ class UsersController < ApplicationController
   end
 
   def create
+    # TODO: Issues with creating a user
+    #
     if @user.save(user_params)
       redirect_to @user, notice: "User was successfully created."
     else

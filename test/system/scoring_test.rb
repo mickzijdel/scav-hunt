@@ -36,7 +36,7 @@ class ScoringTest < ApplicationSystemTestCase
     sign_out @scorer
     sign_in @team
     visit scoring_url
-    assert_text "Access denied"
+    assert_text "I'm sorry, I can't let you do that"
     assert_current_path root_path
   end
 end
