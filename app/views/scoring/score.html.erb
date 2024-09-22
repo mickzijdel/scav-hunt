@@ -48,3 +48,11 @@
     </tbody>
   </table>
 </div>
+
+<nav aria-label="Navigate to other teams for scoring">
+  <ul class="pagination">
+    <% User.teams_by_name.each do |user| %>
+      <li class="page-item"><a class="page-link" href="<%= scoring_score_path(user) %>"><%= user.name %></a></li>
+    <% end %>
+  </ul>
+</nav>
