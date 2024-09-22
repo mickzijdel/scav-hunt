@@ -21,15 +21,18 @@ class ChallengesController < ApplicationController
 
   # GET /challenges/new
   def new
+    set_new_challenge_title
     @challenge = Challenge.new
   end
 
   # GET /challenges/1/edit
   def edit
+    set_edit_challenge_title
   end
 
   # POST /challenges or /challenges.json
   def create
+    set_new_challenge_title
     @challenge = Challenge.new(challenge_params)
 
     respond_to do |format|
@@ -45,6 +48,8 @@ class ChallengesController < ApplicationController
 
   # PATCH/PUT /challenges/1 or /challenges/1.json
   def update
+    set_edit_challenge_title
+
     respond_to do |format|
       if @challenge.update(challenge_params)
         format.html { redirect_to challenge_url(@challenge), notice: "Challenge was successfully updated." }
@@ -70,5 +75,13 @@ class ChallengesController < ApplicationController
   # Only allow a list of trusted parameters through.
   def challenge_params
     params.require(:challenge).permit(:number, :description, :points)
+  end
+
+  def set_edit_challenge_title
+    @title = "Editing Challenge #{@challenge.number} - \"#{@challenge.description}\""
+  end
+
+  def set_new_challenge_title
+    @title = "New Challenge"
   end
 end
