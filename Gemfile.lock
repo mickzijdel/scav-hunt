@@ -54,6 +54,8 @@ GEM
       activemodel (= 7.2.1)
       activesupport (= 7.2.1)
       timeout (>= 0.4.0)
+    activerecord-import (1.8.1)
+      activerecord (>= 4.2)
     activestorage (7.2.1)
       actionpack (= 7.2.1)
       activejob (= 7.2.1)
@@ -102,6 +104,7 @@ GEM
     crass (1.0.6)
     cssbundling-rails (1.4.1)
       railties (>= 6.0.0)
+    csv (3.3.0)
     date (3.3.4)
     debug (1.9.2)
       irb (~> 1.10)
@@ -312,12 +315,14 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  activerecord-import
   better_errors
   bootsnap
   brakeman
   cancancan
   capybara
   cssbundling-rails
+  csv
   debug
   devise (~> 4.9, >= 4.9.4)
   factory_bot_rails

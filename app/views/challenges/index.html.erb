@@ -1,14 +1,14 @@
 <table class="table">
   <thead>
     <tr>
-      <th>Number</th>
+      <th>#</th>
       <th>Description</th>
       <% if current_user&.team? %>
-        <th>Max Points</th>
+        <th>Points To Win</th>
         <th>Obtained Points</th>
         <th>Bonus Points</th>
       <% else %>
-        <th>Points</th>
+        <th>Points To Win</th>
         <th>Actions</th>
       <% end %>
     </tr>
@@ -39,4 +39,12 @@
 
 <% if can? :create, Challenge %>
   <%= link_to 'New Challenge', new_challenge_path, class: 'btn btn-primary' %>
+<% end %>
+
+<% if can? :import, Challenge %>
+  <%= link_to 'Import Challenges', import_form_challenges_path, class: 'btn btn-secondary' %>
+<% end %>
+
+<% if can? :export, Challenge %>
+  <%= link_to 'Export Challenges', export_challenges_path, class: 'btn btn-secondary' %>
 <% end %>

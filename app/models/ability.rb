@@ -18,6 +18,7 @@ class Ability
     if user.scorer?
       can :read, Challenge
       can :manage, Result
+      can :manage, :scoring
     end
 
     # Admins can do everything

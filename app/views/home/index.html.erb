@@ -14,11 +14,18 @@
         <th>Score</th>
       </tr>
     </thead>
+    <% # TODO: The link currently gets replaced on scoreboard update. Fix that. %>
     <tbody data-scoreboard-target="tableBody">
       <% @teams.each_with_index do |team, index| %>
         <tr>
           <td><%= index + 1 %></td>
-          <td><%= team.name %></td>
+          <td>
+            <% if can? :manage, :scoring %>
+              <%= link_to team.name, scoring_score_path(team) %>
+            <% else %>
+              <%= team.name %>
+            <% end %>
+          </td>
           <td><%= team.results.sum(&:total_points) %></td>
         </tr>
       <% end %>

@@ -16,5 +16,7 @@ class User < ApplicationRecord
      admin: 2
   }
 
-  # TODO: views for users.
+  def self.teams_ranked
+    self.where(role: :team).includes(:results).sort_by { |team| -team.results.sum(&:total_points) }
+  end
 end

@@ -15,11 +15,11 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: scav_hunt
   password:
-  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
 
 development:
   <<: *default
   database: scav_hunt_development
+  host: "localhost"
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -27,6 +27,7 @@ development:
 test:
   <<: *default
   database: scav_hunt_test
+  host: "localhost"
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -50,6 +51,7 @@ test:
 #
 production:
   <<: *default
-  database: scav_hunt_production
-  username: scav_hunt
+  database: <%= ENV["SCAV_HUNT_DATABASE_NAME"] %>
+  username: <%= ENV["SCAV_HUNT_DATABASE_USER"] %>
   password: <%= ENV["SCAV_HUNT_DATABASE_PASSWORD"] %>
+  host: <%= ENV["SCAV_HUNT_DATABASE_HOST"] %>

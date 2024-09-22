@@ -1,11 +1,22 @@
 Rails.application.routes.draw do
   devise_for :users
-  resources :challenges
+
+  resources :challenges do
+    collection do
+      get :import_form
+      post :import
+      get :export
+    end
+  end
   resources :users
 
+  get "scoring", to: "scoring#index"
+  get "scoring/:id", to: "scoring#score", as: :scoring_score
+  post "scoring/update"
+
   get "home/index"
-  root 'home#index' # Special case that sets this to the home page. 
-  
+  root "home#index" # Special case that sets this to the home page.
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -20,9 +31,7 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   # Allows user to sign out through a GET request
-  devise_scope :user do  
-    get '/users/sign_out' => 'devise/sessions#destroy'     
+  devise_scope :user do
+    get "/users/sign_out" => "devise/sessions#destroy"
   end
-
-
 end

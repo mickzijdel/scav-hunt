@@ -1,20 +1,18 @@
+require "csv"
+
 class ChallengesController < ApplicationController
   load_and_authorize_resource
-
-  # TODO: Make the views look nicer/standardise with the others.
 
   # GET /challenges or /challenges.json
   def index
     @title = "Challenges"
-    @challenges = Challenge.all.order(:number)
+    @challenges = Challenge.by_number
 
     # Include the results for this user if the user is a team.
     if current_user.team?
       @results = Result.where(user: current_user).index_by(&:challenge_id)
     end
   end
-
-  # TODO: An overview where scorers and admin can assign the scores to the teams.
 
   # GET /challenges/1 or /challenges/1.json
   def show
@@ -71,6 +69,47 @@ class ChallengesController < ApplicationController
       format.html { redirect_to challenges_url, notice: "Challenge was successfully destroyed." }
       format.json { head :no_content }
     end
+  end
+
+  def import_form
+    @title = "Import Challenges"
+  end
+
+  def import
+    # FIXME: This logic should live in a helper.
+    file = params.dig(:import, :file)
+    if file.present?
+      begin
+        imported_challenges = []
+        CSV.foreach(file.path, headers: true) do |row|
+          challenge = Challenge.find_or_initialize_by(number: row["Number"])
+          challenge.assign_attributes(
+            description: row["Description"],
+            points: row["Points"],
+          )
+          imported_challenges << challenge if challenge.changed?
+        end
+
+        Challenge.import imported_challenges, on_duplicate_key_update: [ :description, :points ]
+        redirect_to challenges_path, notice: "Challenges imported successfully."
+      rescue => e
+        # TODO: The alerts don't show up? Probably a turbo thing. Only show on page reload.
+        print(e)
+        flash[:alert] = "Error importing challenges: #{e.message}"
+        render "import_form"
+      end
+    else
+      flash[:alert] = "Please select a file to import."
+      render "import_form"
+    end
+  end
+
+  def export
+    @challenges = Challenge.order(:number)
+
+    response.headers["Content-Type"] = "text/csv"
+    response.headers["Content-Disposition"] = "attachment; filename=challenges-#{Date.today}.csv"
+    render template: "challenges/export", formats: :csv
   end
 
   private
