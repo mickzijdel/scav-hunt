@@ -7,29 +7,38 @@ class UsersController < ApplicationController
   end
 
   def show
-    @title = @user.name
+    @title = @user.name.presence || "User"
   end
 
   def new
+    set_new_user_title
   end
 
   def edit
+    set_edit_user_title
   end
 
   def create
-    # TODO: Password checks?
-
     if @user.save(user_params)
       redirect_to @user, notice: "User was successfully created."
     else
+      set_new_user_title
       render :new, status: :unprocessable_entity
     end
   end
 
   def update
-    if @user.update(user_params)
+    params = user_params
+
+    if params[:password].blank? && params[:password_confirmation].blank?
+      params.delete(:password)
+      params.delete(:password_confirmation)
+    end
+
+    if @user.update(params)
       redirect_to @user, notice: "User was successfully updated."
     else
+      set_edit_user_title
       render :edit, status: :unprocessable_entity
     end
   end
@@ -43,5 +52,13 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:email, :name, :role, :password, :password_confirmation)
+  end
+
+  def set_edit_user_title
+    @title = "Edit #{@user.name}"
+  end
+
+  def set_new_user_title
+    @title = "New User"
   end
 end

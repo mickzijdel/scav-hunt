@@ -22,9 +22,10 @@ class HomePageTest < ApplicationSystemTestCase
 
     assert_selector "nav.navbar" do
       assert_selector "a.nav-link", text: "Scoreboard"
-      assert_selector "a.btn", text: "Sign In"
-      assert_no_selector "a", text: "Sign Out"
+      assert_selector "a.nav-link", text: "Log In"
+      assert_no_selector "button.nav-link", text: "Log Out"
       assert_no_selector "a", text: "Challenges"
+      assert_no_selector "a", text: "Users"
     end
   end
 
@@ -37,10 +38,10 @@ class HomePageTest < ApplicationSystemTestCase
 
     assert_selector "nav.navbar" do
       assert_selector "a.nav-link", text: "Scoreboard"
-      assert_selector "a.nav-link", text: "Team Settings"
-      assert_selector "a.nav-link", text: "Scoreboard Settings"
       assert_selector "a.nav-link", text: "Challenges"
-      assert_selector "a.btn", text: "Sign Out"
+      assert_selector "button.nav-link", text: "Log Out"
+
+      assert_no_selector "a.nav-link", text: "Users"
     end
   end
 
@@ -67,7 +68,7 @@ class HomePageTest < ApplicationSystemTestCase
     assert_current_path challenges_path
 
     visit root_path
-    click_on "Sign Out"
+    click_on "Log Out"
     assert_current_path root_path
   end
 end
