@@ -51,7 +51,7 @@ class UsersTest < ApplicationSystemTestCase
     sign_out @admin
     sign_in @user
     visit users_url
-    assert_text "Access denied"
+    assert_text "I'm sorry, I can't let you do that"
     assert_current_path root_path
   end
 end

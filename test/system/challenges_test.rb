@@ -11,7 +11,9 @@ class ChallengesTest < ApplicationSystemTestCase
 
     visit challenges_url
     assert_selector "h1", text: "Challenges"
-    assert_selector "th", text: "Points"
+    assert_selector "th", text: "Points To Win"
+    assert_selector "th", text: "Actions"
+
     assert_selector "a", text: "New Challenge"
   end
 
@@ -21,7 +23,7 @@ class ChallengesTest < ApplicationSystemTestCase
 
     visit challenges_url
     assert_selector "h1", text: "Challenges"
-    assert_selector "th", text: "Max Points"
+    assert_selector "th", text: "Points To Win"
     assert_selector "th", text: "Obtained Points"
 
     assert_no_selector "th", text: "Actions"
