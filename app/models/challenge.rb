@@ -7,4 +7,8 @@ class Challenge < ApplicationRecord
   has_many :users, through: :results
 
   # TODO: Properly implement deleting challenges that have results attached.
+
+  def title
+    "Challenge #{number} - \"#{description}\""
+  end
 end

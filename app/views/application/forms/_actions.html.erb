@@ -1,0 +1,9 @@
+<%# locals: (f:) %>
+
+<%= f.button :submit, class: 'btn btn-primary' %>
+
+<% if f.object.persisted? %>
+  <%= link_to "Show this #{f.object.class.name.pluralize(1)}", url_for(f.object), class: "btn btn-secondary" %>
+<% end %>
+
+<%= link_to "Back to #{f.object.class.name.pluralize}", url_for(f.object.class), class: "btn btn-secondary" %>

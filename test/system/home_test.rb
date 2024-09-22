@@ -10,7 +10,7 @@ class HomePageTest < ApplicationSystemTestCase
   test "visiting the home page as guest" do
     visit root_path
 
-    assert_selector "h1", text: "Live Scoreboard"
+    assert_selector "h1", text: "Scoreboard"
     assert_selector "h2", text: "Time Remaining:"
     assert_selector "[data-scoreboard-target='timer']"
 
@@ -32,7 +32,7 @@ class HomePageTest < ApplicationSystemTestCase
     sign_in @team
     visit root_path
 
-    assert_selector "h1", text: "Live Scoreboard"
+    assert_selector "h1", text: "Scoreboard"
     assert_selector "span.navbar-text", text: "Welcome #{@team.name}"
 
     assert_selector "nav.navbar" do

@@ -1,0 +1,15 @@
+<%# locals: (object:) %>
+
+<div class="d-flex justify-content-left">
+    <% if can? :update, object %>
+        <%= link_to "Edit this #{object.class.name.pluralize(1)}", url_for([:edit, object]), class: "btn btn-warning me-1" %>
+    <% end %>
+
+    <% if can? :destroy, object %>
+        <%= button_to "Destroy this #{object.class.name.pluralize(1)}", url_for(object), data: { turbo_confirm: 'Are you sure?', turbo_method: :delete }, class: "btn btn-danger me-1" %>
+    <% end %>
+
+    <% if can? :index, object.class %>
+        <%= link_to "Back to #{object.class.name.pluralize}", url_for(object.class), class: "btn btn-secondary" %>
+    <% end %>
+</div>

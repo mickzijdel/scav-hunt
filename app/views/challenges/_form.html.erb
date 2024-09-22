@@ -1,20 +1,9 @@
 <%= simple_form_for(@challenge) do |f| %>
-  <%# TODO: Standardise the error message at the top in a shared partial %>
-  <% if challenge.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(challenge.errors.count, "error") %> prohibited this challenge from being saved:</h2>
-
-      <ul>
-        <% challenge.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render "application/forms/errors", errors: @challenge.errors %>
 
   <%= f.input :number, hint: "The official number of the challenge, as displayed to the teams and scorers" %>
   <%= f.input :description %>
   <%= f.input :points %>
 
-  <%= f.button :submit, class: 'btn btn-primary' %>
+  <%= render 'application/forms/actions', f: f %>
 <% end %>

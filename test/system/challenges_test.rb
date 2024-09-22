@@ -40,7 +40,7 @@ class ChallengesTest < ApplicationSystemTestCase
 
   test "should update Challenge as admin" do
     visit challenge_url(@challenge)
-    click_on "Edit this challenge", match: :first
+    click_on "Edit this Challenge", match: :first
     fill_in "Description", with: @challenge.description + " (updated)"
     click_on "Update Challenge"
     assert_text "Challenge was successfully updated"
@@ -49,7 +49,7 @@ class ChallengesTest < ApplicationSystemTestCase
   test "should destroy Challenge as admin" do
     visit challenge_url(@challenge)
     accept_confirm do
-      click_on "Destroy this challenge", match: :first
+      click_on "Destroy this Challenge", match: :first
     end
     assert_text "Challenge was successfully destroyed"
   end
