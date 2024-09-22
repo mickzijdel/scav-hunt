@@ -17,8 +17,6 @@ class UsersController < ApplicationController
   end
 
   def create
-    # TODO: Password checks?
-
     if @user.save(user_params)
       redirect_to @user, notice: "User was successfully created."
     else
@@ -27,7 +25,14 @@ class UsersController < ApplicationController
   end
 
   def update
-    if @user.update(user_params)
+    params = user_params
+
+    if params[:password].blank? && params[:password_confirmation].blank?
+      params.delete(:password)
+      params.delete(:password_confirmation)
+    end
+
+    if @user.update(params)
       redirect_to @user, notice: "User was successfully updated."
     else
       render :edit, status: :unprocessable_entity
