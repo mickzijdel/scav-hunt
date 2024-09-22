@@ -1,7 +1,13 @@
 Rails.application.routes.draw do
   devise_for :users
 
-  resources :challenges
+  resources :challenges do
+    collection do
+      get :import_form
+      post :import
+      get :export
+    end
+  end
   resources :users
 
   get "scoring", to: "scoring#index"

@@ -40,3 +40,11 @@
 <% if can? :create, Challenge %>
   <%= link_to 'New Challenge', new_challenge_path, class: 'btn btn-primary' %>
 <% end %>
+
+<% if can? :import, Challenge %>
+  <%= link_to 'Import Challenges', import_form_challenges_path, class: 'btn btn-secondary' %>
+<% end %>
+
+<% if can? :export, Challenge %>
+  <%= link_to 'Export Challenges', export_challenges_path, class: 'btn btn-secondary' %>
+<% end %>
