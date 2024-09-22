@@ -5,6 +5,7 @@ class ChallengesController < ApplicationController
 
   # GET /challenges or /challenges.json
   def index
+    @title = "Challenges"
     @challenges = Challenge.all.order(:number)
 
     # Include the results for this user if the user is a team.
@@ -17,6 +18,7 @@ class ChallengesController < ApplicationController
 
   # GET /challenges/1 or /challenges/1.json
   def show
+    @title = @challenge.title
   end
 
   # GET /challenges/new
@@ -78,7 +80,7 @@ class ChallengesController < ApplicationController
   end
 
   def set_edit_challenge_title
-    @title = "Editing Challenge #{@challenge.number} - \"#{@challenge.description}\""
+    @title = "Editing Challenge #{@challenge.title}"
   end
 
   def set_new_challenge_title
