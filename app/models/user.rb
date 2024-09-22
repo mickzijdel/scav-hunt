@@ -19,4 +19,12 @@ class User < ApplicationRecord
   def self.teams_ranked
     self.where(role: :team).includes(:results).sort_by { |team| -team.results.sum(&:total_points) }
   end
+
+  def self.teams_by_name
+    self.where(role: :team).order(:name)
+  end
+
+  def total_points
+    results.sum(&:total_points)
+  end
 end
