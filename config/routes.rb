@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   devise_for :users
   resources :challenges
+  resources :users
+
   get "home/index"
   root 'home#index' # Special case that sets this to the home page. 
   

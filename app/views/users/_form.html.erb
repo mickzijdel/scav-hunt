@@ -1,0 +1,12 @@
+<%= simple_form_for(@user) do |f| %>
+    <%= render "application/forms/errors", errors: @user.errors %>
+
+    <%= f.input :name %>
+    <%= f.input :email %>
+    <%= f.input :role # TODO: Does this dropdown work? %> 
+
+    <%= f.input :password %>
+    <%= f.input :password_confirmation %>
+
+    <%= render 'application/forms/actions', f: f %>
+<% end %>
