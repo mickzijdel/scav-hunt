@@ -1,0 +1,35 @@
+services:
+  rails:
+    build:
+      context: .
+      dockerfile:  ./Dockerfile
+    ports:
+     - "2024:3000"
+    links:
+      - database:database
+    environment:
+      RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
+      SCAV_HUNT_DATABASE_PASSWORD: "${DATABASE_PASSWORD}"
+      SCAV_HUNT_DATABASE_USER: root
+      SCAV_HUNT_DATABASE_NAME: "${DATABASE_NAME}"
+      SCAV_HUNT_DATABASE_HOST: database
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: always
+    pull_policy: build
+  database:
+    image: "mysql:8.3"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DATABASE_PASSWORD}"
+      MYSQL_DATABASE: "${DATABASE_NAME}"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+volumes:
+    mysql_data:
