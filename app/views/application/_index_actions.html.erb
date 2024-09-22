@@ -1,0 +1,11 @@
+<% if can? :show, item %>
+    <%= link_to 'Show', item, class: 'btn btn-sm btn-info' %>
+<% end %>
+
+<% if can? :update, item %>
+    <%= link_to 'Edit', url_for([:edit, item]), class: 'btn btn-sm btn-warning' %>
+<% end %>
+
+<% if can? :destroy, item %>
+    <%= link_to 'Delete', item, data: { turbo_confirm: 'Are you sure?', turbo_method: :delete }, class: 'btn btn-sm btn-danger' %>
+<% end %>
