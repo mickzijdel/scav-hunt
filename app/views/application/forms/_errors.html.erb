@@ -1,12 +1,18 @@
 <%# locals: (errors:) %>
 
 <% if errors.any? %>
-    <div id="error_explanation">
-    <h2><%= pluralize(errors.count, "error") %> prohibited this user from being saved:</h2>
-    <ul>
-        <% errors.full_messages.each do |message| %>
-        <li><%= message %></li>
+  <% field_errors = errors.attribute_names.map(&:to_s) %>
+  <% general_errors = errors.full_messages.reject { |msg| field_errors.any? { |field| msg.starts_with?("#{field.humanize} ") } } %>
+  
+  <% if general_errors.any? %>
+    <div id="error_explanation" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <h4 class="alert-heading"><%= pluralize(general_errors.count, "error") %> prohibited this user from being saved:</h4>
+      <ul class="list-unstyled mb-0">
+        <% general_errors.each do |message| %>
+          <li><i class="bi bi-exclamation-circle me-2"></i><%= message %></li>
         <% end %>
-    </ul>
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+  <% end %>
 <% end %>
