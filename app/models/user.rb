@@ -24,4 +24,7 @@ class User < ApplicationRecord
     self.where(role: :team).order(:name)
   end
 
+  def total_points
+    results.sum(&:total_points)
+  end
 end

@@ -26,7 +26,7 @@
               <%= team.name %>
             <% end %>
           </td>
-          <td><%= team.results.sum(&:total_points) %></td>
+          <td><%= team.total_points %></td>
         </tr>
       <% end %>
     </tbody>
