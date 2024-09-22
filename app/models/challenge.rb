@@ -8,6 +8,8 @@ class Challenge < ApplicationRecord
 
   # TODO: Properly implement deleting challenges that have results attached.
 
+  scope :by_number, -> { order(:number) }
+
   def title
     "Challenge #{number} - \"#{description}\""
   end

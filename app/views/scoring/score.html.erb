@@ -1,0 +1,50 @@
+<% # TODO: Add undo button for edits. %>
+<% # TODO: Add visual confirmation for edits. %>
+
+<div data-controller="scoring">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Description</th>
+        <th>Points To Win</th>
+        <th>Regular Points</th>
+        <th>Bonus Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @challenges.each do |challenge| %>
+        <tr>
+          <td><%= challenge.number %></td>
+          <td><%= challenge.description %></td>
+          <td><%= challenge.points %></td>
+          
+          <% result = @results[challenge.id] %>
+          <td>
+            <div class="input-group">
+              <input type="number" class="form-control form-control-sm" 
+                      data-scoring-target="regularPoints"
+                      data-action="change->scoring#updateScore"
+                      data-challenge-id="<%= challenge.id %>"
+                      data-user-id="<%= @team.id %>"
+                      value="<%= result&.regular_points || 0 %>">
+            </div>
+          </td>
+
+          <% # TODO: Add a button to award full points that just sets regular points to the points amount. %>
+
+          <td>
+            <div class="input-group">
+              <input type="number" class="form-control form-control-sm" 
+                      data-scoring-target="bonusPoints"
+                      data-action="change->scoring#updateScore"
+                      data-challenge-id="<%= challenge.id %>"
+                      data-user-id="<%= @team.id %>"
+                      value="<%= result&.bonus_points || 0 %>">
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

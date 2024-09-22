@@ -4,6 +4,7 @@ class HomePageTest < ApplicationSystemTestCase
   def setup
     @admin = users(:admin)
     @team = users(:team_one)
+    @scorer = users(:scorer)
     @result = results(:challenge_one_by_team_one)
   end
 
@@ -26,6 +27,7 @@ class HomePageTest < ApplicationSystemTestCase
       assert_no_selector "button.nav-link", text: "Log Out"
       assert_no_selector "a", text: "Challenges"
       assert_no_selector "a", text: "Users"
+      assert_no_selector "a", text: "Scoring"
     end
   end
 
@@ -42,7 +44,23 @@ class HomePageTest < ApplicationSystemTestCase
       assert_selector "button.nav-link", text: "Log Out"
 
       assert_no_selector "a.nav-link", text: "Users"
+      assert_no_selector "a.nav-link", text: "Scoring"
     end
+  end
+
+  test "visiting the home page as scorer user" do
+        sign_in @scorer
+        visit root_path
+
+        assert_selector "h1", text: "Scoreboard"
+        assert_selector "span.navbar-text", text: "Welcome #{@scorer.name}"
+
+        assert_selector "nav.navbar" do
+          assert_selector "a.nav-link", text: "Scoring"
+          assert_selector "a.nav-link", text: "Challenges"
+
+          assert_no_selector "a.nav-link", text: "Users"
+        end
   end
 
   test "scoreboard updates" do

@@ -1,20 +1,16 @@
 class ChallengesController < ApplicationController
   load_and_authorize_resource
 
-  # TODO: Make the views look nicer/standardise with the others.
-
   # GET /challenges or /challenges.json
   def index
     @title = "Challenges"
-    @challenges = Challenge.all.order(:number)
+    @challenges = Challenge.by_number
 
     # Include the results for this user if the user is a team.
     if current_user.team?
       @results = Result.where(user: current_user).index_by(&:challenge_id)
     end
   end
-
-  # TODO: An overview where scorers and admin can assign the scores to the teams.
 
   # GET /challenges/1 or /challenges/1.json
   def show
