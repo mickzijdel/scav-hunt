@@ -2,13 +2,7 @@ class ScoringController < ApplicationController
   authorize_resource class: :scoring
 
   def index
-    # TODO: Add extra features to the scorer side of the scoreboard, such as how many tasks each team has completed etc.
-    @title = "Scoreboard"
-    @teams = User.teams_ranked
-
-    respond_to do |format|
-      format.html { render "home/index" }
-    end
+    redirect_to root_path
   end
 
   def score

@@ -1,6 +1,7 @@
 <div data-controller="scoreboard"
      data-scoreboard-update-url-value="<%= home_index_path(format: :json) %>"
-     data-scoreboard-update-interval-value="5000">
+     data-scoreboard-update-interval-value="5000"
+     data-scoreboard-end-time-value="<%= @end_time %>">
   <div class="mb-4">
     <h2>Time Remaining:</h2>
     <div data-scoreboard-target="timer" class="fs-1 fw-bold"></div>
@@ -20,26 +21,25 @@
         <% end %>
       </tr>
     </thead>
-    <% # TODO: The link currently gets replaced on scoreboard update. Fix that. %>
     <tbody data-scoreboard-target="tableBody">
       <% @teams.each_with_index do |team, index| %>
-        <tr>
-          <td><%= index + 1 %></td>
+        <tr data-team-id="<%= team.id %>" class="<%= 'table-primary' if team == current_user %>">
+          <td data-rank><%= index + 1 %></td>
           <td>
             <% if can? :manage, :scoring %>
-              <%= link_to team.name, scoring_score_path(team) %>
+              <%= link_to team.name, scoring_score_path(team), data: { turbo: false } %>
             <% else %>
               <%= team.name %>
             <% end %>
           </td>
-          <td><%= team.total_points %></td>
+          <td data-score><%= team.total_points %></td>
 
           <% if can? :manage, :scoring %>
             <% stats = team.stats %>
-            <td><%= stats[:completed] %></td>
-            <td><%= stats[:partially_completed] %></td>
-            <td><%= stats[:not_attempted] %></td>
-        <% end %>
+            <td data-completed><%= stats[:completed] %></td>
+            <td data-partially-completed><%= stats[:partially_completed] %></td>
+            <td data-not-attempted><%= stats[:not_attempted] %></td>
+          <% end %>
         </tr>
       <% end %>
     </tbody>

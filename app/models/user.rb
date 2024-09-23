@@ -16,6 +16,15 @@ class User < ApplicationRecord
      admin: 2
   }
 
+  after_save :clear_scoreboard_cache
+
+  # If a result changes, the scoreboard needs updating.
+  # FIXME: Could be improved by caching on a per-team basis.
+  def clear_scoreboard_cache
+    Rails.cache.delete("teams_ranked")
+    Rails.cache.delete("teams_json")
+  end
+
   def self.teams_ranked
     self.where(role: :team).includes(:results).sort_by { |team| -team.results.sum(&:total_points) }
   end

@@ -32,9 +32,6 @@ export default class extends Controller {
   }
 
   startCountdownTimer() {
-    // TODO: Set the end time value.
-    this.endTimeValue = new Date("2024-09-28T15:00:00").toISOString()
-    
     this.countdownTimerId = setInterval(() => {
       this.updateCountdownTimer()
     }, 1000)
@@ -78,18 +75,19 @@ export default class extends Controller {
 
   updateTable(teams) {
     const tableBody = this.tableBodyTarget
-    tableBody.innerHTML = ''
-
+    
     teams.forEach((team, index) => {
-      const row = tableBody.insertRow()
-      row.insertCell().textContent = index + 1
-      row.insertCell().textContent = team.name
-      row.insertCell().textContent = team.score
+      const row = tableBody.querySelector(`tr[data-team-id="${team.id}"]`)
 
-      if (team.completed) {
-        row.insertCell().textContent = team.completed
-        row.insertCell().textContent= team.partially_completed
-        row.insertCell().textContent = team.not_attempted
+      // Find the existing row, and update it. 
+      if (row) {
+        row.querySelector('[data-rank]').textContent = index + 1
+        row.querySelector('[data-score]').textContent = team.score
+        if (team.completed) {
+          row.querySelector('[data-completed]').textContent = team.completed
+          row.querySelector('[data-partially-completed]').textContent = team.partially_completed
+          row.querySelector('[data-not-attempted]').textContent = team.not_attempted
+        }
       }
     })
   }
