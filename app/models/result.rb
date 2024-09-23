@@ -28,4 +28,15 @@ class Result < ApplicationRecord
       "Partially Completed"
     end
   end
+
+  def as_json
+        {
+          id: id,
+          user_id: user_id,
+          challenge_id: challenge_id,
+          regular_points: regular_points,
+          bonus_points: bonus_points,
+          status: status
+        }
+  end
 end

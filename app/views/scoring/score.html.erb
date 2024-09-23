@@ -1,5 +1,4 @@
 <% # TODO: Add undo button for edits. %>
-<% # TODO: Add visual confirmation for edits. %>
 
 <div data-controller="scoring">
   <table class="table table-striped">
@@ -10,7 +9,8 @@
         <th>Points To Win</th>
         <th>Regular Points</th>
         <th>Bonus Points</th>
-<th>Status</th>
+        <th>Status</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -19,41 +19,55 @@
           <td><%= challenge.number %></td>
           <td><%= challenge.description %></td>
           <td><%= challenge.points %></td>
-          
+         
           <% result = @results[challenge.id] %>
           <td>
             <div class="input-group">
-              <input type="number" class="form-control form-control-sm" 
+              <input type="number" class="form-control form-control-sm"
+                      id="regularPoints_<%= challenge.id %>"
                       data-scoring-target="regularPoints"
                       data-action="change->scoring#updateScore"
                       data-challenge-id="<%= challenge.id %>"
                       data-user-id="<%= @team.id %>"
+                      data-points-to-win="<%= challenge.points %>"
                       value="<%= result&.regular_points || 0 %>">
+              <button class="btn btn-sm btn-outline-secondary" type="button"
+                      data-action="scoring#undoRegularPoints"
+                      data-challenge-id="<%= challenge.id %>"
+                      data-user-id="<%= @team.id %>">Undo</button>
             </div>
           </td>
-
-          <% # TODO: Add a button to award full points that just sets regular points to the points amount. %>
-
           <td>
             <div class="input-group">
-              <input type="number" class="form-control form-control-sm" 
+              <input type="number" class="form-control form-control-sm"
+                      id="bonusPoints_<%= challenge.id %>"
                       data-scoring-target="bonusPoints"
                       data-action="change->scoring#updateScore"
                       data-challenge-id="<%= challenge.id %>"
                       data-user-id="<%= @team.id %>"
                       value="<%= result&.bonus_points || 0 %>">
+              <button class="btn btn-sm btn-outline-secondary" type="button"
+                      data-action="scoring#undoBonusPoints"
+                      data-challenge-id="<%= challenge.id %>"
+                      data-user-id="<%= @team.id %>">Undo</button>
             </div>
           </td>
-
-          <td><%= result&.status.presence || 'Not Attempted' %></td>
+          <td data-scoring-target="status" data-challenge-id="<%= challenge.id %>">
+            <%= result&.status.presence || 'Not Attempted' %>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-primary" type="button"
+                    data-action="scoring#awardFullPoints"
+                    data-challenge-id="<%= challenge.id %>"
+                    data-user-id="<%= @team.id %>">Full Points</button>
+          </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+
+  <p><strong>Total Points: <span data-scoring-target="totalPoints"><%= @team.total_points %></span></strong></p>
 </div>
-
-
-<p><strong>Total Points: <%= @team.total_points %></strong></p>
 
 <nav aria-label="Navigate to other teams for scoring">
   <ul class="pagination">
@@ -62,3 +76,14 @@
     <% end %>
   </ul>
 </nav>
+
+<style>
+  @keyframes flash-green {
+    0% { background-color: transparent; }
+    50% { background-color: #90EE90; }
+    100% { background-color: transparent; }
+  }
+  .flash-green {
+    animation: flash-green 1s;
+  }
+</style>

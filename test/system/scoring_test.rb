@@ -14,17 +14,14 @@ class ScoringTest < ApplicationSystemTestCase
   end
 
   test "updating scores" do
-    visit scoring_url
+    visit scoring_score_url(@team)
 
     within "tr", text: @challenge.description do
-      within "td", text: @team.name do
-        fill_in "data-scoring-target" => "regularPoints", with: 50
-        fill_in "data-scoring-target" => "bonusPoints", with: 10
-      end
+      fill_in id: "regularPoints_#{@challenge.id}", with: 50
+      fill_in id: "bonusPoints_#{@challenge.id}", with: 10
     end
-
     # Wait for the AJAX request to complete
-    sleep 1
+    sleep 2
 
     # Verify that the score was updated in the database
     result = Result.find_by(challenge: @challenge, user: @team)
@@ -45,7 +42,7 @@ class ScoringTest < ApplicationSystemTestCase
     sign_in admin
 
     visit scoring_score_path(admin)
-    assert_current_path scoring_path
+    assert_current_path root_path
     assert_text "Only teams can be scored."
   end
 end

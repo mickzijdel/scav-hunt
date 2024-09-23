@@ -24,7 +24,7 @@ class ScoringController < ApplicationController
     @result.bonus_points = params[:bonus_points]
 
     if @result.save
-      render json: { status: "success", result: @result }
+      render json: { status: "success", result: @result.as_json }
     else
       render json: { status: "error", errors: @result.errors.full_messages }, status: :unprocessable_entity
     end
