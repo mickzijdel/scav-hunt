@@ -105,6 +105,7 @@ class ChallengesController < ApplicationController
   end
 
   def export
+    # TODO: This should also export the points for each team for each challenge.
     @challenges = Challenge.order(:number)
 
     response.headers["Content-Type"] = "text/csv"

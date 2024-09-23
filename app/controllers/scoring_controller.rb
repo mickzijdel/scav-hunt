@@ -14,7 +14,6 @@ class ScoringController < ApplicationController
   def score
     @team = User.find(params[:id])
 
-    # TODO: Test this case.
     if !@team.team?
       redirect_to scoring_path, notice: "Only teams can be scored."
     end
