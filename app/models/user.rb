@@ -48,7 +48,6 @@ class User < ApplicationRecord
     }
   end
 
-  # TODO: Test this
   def scoreboard_data(ability = nil)
     out = {
       id: id,
