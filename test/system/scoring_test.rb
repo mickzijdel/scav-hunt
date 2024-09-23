@@ -39,4 +39,13 @@ class ScoringTest < ApplicationSystemTestCase
     assert_text "I'm sorry, I can't let you do that"
     assert_current_path root_path
   end
+
+  test "non-team user cannot be scored" do
+    admin = users(:admin)
+    sign_in admin
+
+    visit scoring_score_path(admin)
+    assert_current_path scoring_path
+    assert_text "Only teams can be scored."
+  end
 end
