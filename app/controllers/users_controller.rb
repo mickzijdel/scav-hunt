@@ -19,7 +19,6 @@ class UsersController < ApplicationController
   end
 
   def create
-    # TODO: Issues with creating a user. Gives error: " You are already signed in. "
     @user = User.new(user_params)
 
     if @user.save
