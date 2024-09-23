@@ -4,16 +4,14 @@
     <title><%= "#{@title} | " unless @title.nil? %>Scav Hunt</title>
 
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
     <link rel="manifest" href="/manifest.json">
-    <% # TODO: Set favicon %>
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="icon" href="<%= image_url('scoreboard_icon.png') %>" type="image/png">
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
