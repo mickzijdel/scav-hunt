@@ -21,7 +21,7 @@ class ScoringController < ApplicationController
     @title = "Scoring #{@team.name}"
 
     @challenges = Challenge.by_number
-    @results = Result.where(user: @team).index_by(&:challenge_id)
+    @results = Result.includes(:challenge).where(user: @team).index_by(&:challenge_id)
   end
 
   def update

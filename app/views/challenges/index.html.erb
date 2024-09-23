@@ -8,10 +8,11 @@
       <% if current_user&.team? %>
         <th>Obtained Points</th>
         <th>Bonus Points</th>
+        <th>Status</th>
       <% else %>        
       <th>Actions</th>
-      <% end %>
-    </tr>
+      <% end %>    
+      </tr>
   </thead>
   <tbody>
     <% @challenges.each do |challenge| %>
@@ -19,12 +20,13 @@
         <td><%= challenge.number %></td>
         <td><%= challenge.description %></td>
         <td><%= challenge.points %></td>
-
+        
         <% if current_user&.team? %>
           <% result = @results[challenge.id] %>
 
           <td><%= result ? result.regular_points : 0 %></td>
           <td><%= result ? result.bonus_points : 0 %></td>
+          <td><%= result&.status.presence || 'Not Attempted' %></td>
         <% else %>
           <td><%= render 'application/index_actions', item: challenge %></td>
         <% end %>
@@ -33,9 +35,9 @@
   </tbody>
 </table>
 
-<% # TODO: Display score stats, like totals %>
-
-<% # TODO: Display the status of the task (not attempted, partially completed, completed), Unsure where the logic should live%>
+<% if current_user.team? %>
+  <p><strong>Total Points: <%= current_user.total_points %></strong></p>
+<% end %>
 
 <% if can? :create, Challenge %>
   <%= link_to 'New Challenge', new_challenge_path, class: 'btn btn-primary' %>

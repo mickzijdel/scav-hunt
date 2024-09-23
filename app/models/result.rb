@@ -9,4 +9,14 @@ class Result < ApplicationRecord
   def total_points
     regular_points + bonus_points
   end
+
+  def status
+    if total_points == 0
+      "Not Attempted"
+    elsif regular_points >= challenge.points
+      "Completed"
+    else
+      "Partially Completed"
+    end
+  end
 end

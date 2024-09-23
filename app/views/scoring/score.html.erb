@@ -10,6 +10,7 @@
         <th>Points To Win</th>
         <th>Regular Points</th>
         <th>Bonus Points</th>
+<th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -43,11 +44,16 @@
                       value="<%= result&.bonus_points || 0 %>">
             </div>
           </td>
+
+          <td><%= result&.status.presence || 'Not Attempted' %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
 </div>
+
+
+<p><strong>Total Points: <%= @team.total_points %></strong></p>
 
 <nav aria-label="Navigate to other teams for scoring">
   <ul class="pagination">
