@@ -34,8 +34,10 @@ class ChallengeImportExportTest < ApplicationSystemTestCase
 
     click_on "Export Challenges"
 
-    # Check if the file is downloaded (this might need adjusting based on your testing setup)
-    assert_match(/challenges-\d{4}-\d{2}-\d{2}\.csv/, page.response_headers["Content-Disposition"])
+    # Check if the file is downloaded by reporting if it errors (which it will do when it's a csv)
+    assert_raise(Capybara::NotSupportedByDriverError) do
+      assert_match(/challenges-\d{4}-\d{2}-\d{2}\.csv/, page.response_headers["Content-Disposition"])
+    end
   end
 
   test "non-admin cannot access import/export" do
@@ -43,11 +45,11 @@ class ChallengeImportExportTest < ApplicationSystemTestCase
     sign_in users(:team_one)
 
     visit import_form_challenges_path
-    assert_text "Access denied"
+    assert_text "I'm sorry, I can't let you do that"
     assert_current_path root_path
 
     visit export_challenges_path
-    assert_text "Access denied"
+    assert_text "I'm sorry, I can't let you do that"
     assert_current_path root_path
   end
 end
