@@ -105,11 +105,12 @@ class ChallengesController < ApplicationController
   end
 
   def export
-    # TODO: This should also export the points for each team for each challenge.
-    @challenges = Challenge.order(:number)
+    @challenges = Challenge.includes(results: :user).order(:number)
+    @teams = User.teams_by_name
 
     response.headers["Content-Type"] = "text/csv"
     response.headers["Content-Disposition"] = "attachment; filename=challenges-#{Date.today}.csv"
+
     render template: "challenges/export", formats: :csv
   end
 
