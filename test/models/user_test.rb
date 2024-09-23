@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
   def setup
@@ -38,5 +38,42 @@ class UserTest < ActiveSupport::TestCase
   test "role should be present" do
     @user.role = nil
     assert_not @user.valid?
+  end
+
+  test "total_points calculates correctly" do
+    user = users(:team_one)
+    expected_total = user.results.sum(&:total_points)
+    assert_equal expected_total, user.total_points
+  end
+
+  test "stats returns correct values" do
+    user = users(:team_one)
+    stats = user.stats
+
+    assert_includes stats.keys, :completed
+    assert_includes stats.keys, :partially_completed
+    assert_includes stats.keys, :not_attempted
+
+    total_challenges = Challenge.count
+    assert_equal total_challenges, stats[:completed] + stats[:partially_completed] + stats[:not_attempted]
+  end
+
+  test "scoreboard_data returns expected structure" do
+    user = users(:team_one)
+    data = user.scoreboard_data
+
+    assert_equal user.id, data[:id]
+    assert_equal user.name, data[:name]
+    assert_equal user.total_points, data[:score]
+  end
+
+  test "scoreboard_data includes stats for admin" do
+    user = users(:team_one)
+    admin_ability = Ability.new(users(:admin))
+    data = user.scoreboard_data(admin_ability)
+
+    assert_includes data.keys, :completed
+    assert_includes data.keys, :partially_completed
+    assert_includes data.keys, :not_attempted
   end
 end

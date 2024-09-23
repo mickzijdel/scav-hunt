@@ -10,7 +10,7 @@ class ChallengesController < ApplicationController
 
     # Include the results for this user if the user is a team.
     if current_user.team?
-      @results = Result.where(user: current_user).index_by(&:challenge_id)
+      @results = Result.includes(:challenge).where(user: current_user).index_by(&:challenge_id)
     end
   end
 
@@ -105,10 +105,12 @@ class ChallengesController < ApplicationController
   end
 
   def export
-    @challenges = Challenge.order(:number)
+    @challenges = Challenge.includes(results: :user).order(:number)
+    @teams = User.teams_by_name
 
     response.headers["Content-Type"] = "text/csv"
     response.headers["Content-Disposition"] = "attachment; filename=challenges-#{Date.today}.csv"
+
     render template: "challenges/export", formats: :csv
   end
 
