@@ -85,6 +85,12 @@ export default class extends Controller {
       row.insertCell().textContent = index + 1
       row.insertCell().textContent = team.name
       row.insertCell().textContent = team.score
+
+      if (team.completed) {
+        row.insertCell().textContent = team.completed
+        row.insertCell().textContent= team.partially_completed
+        row.insertCell().textContent = team.not_attempted
+      }
     })
   }
 }

@@ -12,6 +12,12 @@
         <th>Rank</th>
         <th>Team</th>
         <th>Score</th>
+
+        <% if can? :manage, :scoring %>
+          <th>Completed</th>
+          <th>Partially Completed</th>
+          <th>Not Attempted</th>
+        <% end %>
       </tr>
     </thead>
     <% # TODO: The link currently gets replaced on scoreboard update. Fix that. %>
@@ -27,6 +33,13 @@
             <% end %>
           </td>
           <td><%= team.total_points %></td>
+
+          <% if can? :manage, :scoring %>
+            <% stats = team.stats %>
+            <td><%= stats[:completed] %></td>
+            <td><%= stats[:partially_completed] %></td>
+            <td><%= stats[:not_attempted] %></td>
+        <% end %>
         </tr>
       <% end %>
     </tbody>

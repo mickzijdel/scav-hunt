@@ -27,4 +27,28 @@ class User < ApplicationRecord
   def total_points
     results.sum(&:total_points)
   end
+
+  def stats
+    not_attempted = Result.where(user: self).where("regular_points = 0 AND bonus_points = 0").count
+    completed = Result.where(user: self).where("regular_points >= challenges.points").joins(:challenge).count
+
+    {
+      completed: completed,
+      partially_completed: Challenge.count - not_attempted - completed,
+      not_attempted: not_attempted
+    }
+  end
+
+  # TODO: Test this
+  def scoreboard_data(ability = nil)
+    out = {
+      id: id,
+      name: name,
+      score: results.sum(&:total_points)
+    }
+
+    out.merge!(stats) if ability.can?(:manage, :scoring)
+
+    out
+  end
 end

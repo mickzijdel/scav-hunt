@@ -19,7 +19,29 @@ class HomePageTest < ApplicationSystemTestCase
       assert_selector "th", text: "Rank"
       assert_selector "th", text: "Team"
       assert_selector "th", text: "Score"
+      assert_no_selector "th", text: "Completed"
+      assert_no_selector "th", text: "Partially Completed"
+      assert_no_selector "th", text: "Not Attempted"
+
+      all("thead tr").each do |row|
+        assert_equal 3, row.all("th").count, "Header row does not have 3 td elements"
+      end
+
+      all("tbody tr").each do |row|
+        assert_equal 3, row.all("td").count, "Content row does not have 3 td elements"
+      end
     end
+
+    # Assert it is still correct after an update
+    sleep(6)
+
+    all("table tbody tr").each do |row|
+      assert_equal 3, row.all("td").count, "Content row does not have 3 td elements"
+    end
+  end
+
+  test "Checking the navbar as a guest" do
+    visit root_path
 
     assert_selector "nav.navbar" do
       assert_selector "a.nav-link", text: "Scoreboard"
@@ -38,6 +60,34 @@ class HomePageTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Scoreboard"
     assert_selector "span.navbar-text", text: "Welcome #{@team.name}"
 
+    assert_selector "table" do
+      assert_selector "th", text: "Rank"
+      assert_selector "th", text: "Team"
+      assert_selector "th", text: "Score"
+      assert_no_selector "th", text: "Completed"
+      assert_no_selector "th", text: "Partially Completed"
+      assert_no_selector "th", text: "Not Attempted"
+
+      all("thead tr").each do |row|
+        assert_equal 3, row.all("th").count, "Header row does not have 3 td elements"
+      end
+
+      all("tbody tr").each do |row|
+        assert_equal 3, row.all("td").count, "Content row does not have 3 td elements"
+      end
+    end
+
+    # Assert it is still correct after an update
+    sleep(6)
+
+    all("table tbody tr").each do |row|
+      assert_equal 3, row.all("td").count, "Content row does not have 3 td elements"
+    end
+  end
+
+  test "checking the navbar as team user" do
+    sign_in @team
+    visit root_path
     assert_selector "nav.navbar" do
       assert_selector "a.nav-link", text: "Scoreboard"
       assert_selector "a.nav-link", text: "Challenges"
@@ -49,18 +99,49 @@ class HomePageTest < ApplicationSystemTestCase
   end
 
   test "visiting the home page as scorer user" do
-        sign_in @scorer
-        visit root_path
+    sign_in @scorer
+    visit root_path
 
-        assert_selector "h1", text: "Scoreboard"
-        assert_selector "span.navbar-text", text: "Welcome #{@scorer.name}"
+    assert_selector "h1", text: "Scoreboard"
+    assert_selector "span.navbar-text", text: "Welcome #{@scorer.name}"
 
-        assert_selector "nav.navbar" do
-          assert_selector "a.nav-link", text: "Scoring"
-          assert_selector "a.nav-link", text: "Challenges"
+    assert_selector "table" do
+      assert_selector "th", text: "Rank"
+      assert_selector "th", text: "Team"
+      assert_selector "th", text: "Score"
+      assert_selector "th", text: "Completed"
+      assert_selector "th", text: "Partially Completed"
+      assert_selector "th", text: "Not Attempted"
 
-          assert_no_selector "a.nav-link", text: "Users"
-        end
+      all("table thead tr").each do |row|
+        assert_equal 6, row.all("th").count, "Header row does not have 6 td elements"
+       end
+
+       all("table tbody tr").each do |row|
+         assert_equal 6, row.all("td").count, "Content row does not have 6 td elements"
+       end
+    end
+
+    # Assert it is still correct after an update
+    sleep(6)
+
+    all("table tbody tr").each do |row|
+      assert_equal 6, row.all("td").count, "Content row does not have 6 td elements"
+    end
+  end
+
+  test "checking the navbar as a scorer user" do
+    sign_in @scorer
+    visit root_path
+
+    assert_selector "nav.navbar" do
+      assert_selector "a.nav-link", text: "Scoreboard"
+      assert_selector "a.nav-link", text: "Scoring"
+      assert_selector "a.nav-link", text: "Challenges"
+      assert_selector "button.nav-link", text: "Log Out"
+
+      assert_no_selector "a.nav-link", text: "Users"
+    end
   end
 
   test "scoreboard updates" do

@@ -5,7 +5,7 @@ class HomeController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.json { render json: @teams.map { |team| { id: team.id, name: team.name, score: team.results.sum(&:total_points) } } }
+      format.json { render json: @teams.map { |team| team.scoreboard_data(current_ability) } }
     end
   end
 end
