@@ -25,4 +25,21 @@ Welcome to the Bedlam Theatre Scavenger Hunt scoring website.
 2) You can view test coverage by opening `coverage/index.html` using a browser of your choice.
 
 # Deployment
-TBD
+Currently it is deployed on the EUSA VM using Docker, with the nginx file used to route incoming traffic for scavhunt.bedlamtheatre.co.uk to port 2024, which is the port that Docker has exposed the server on.
+
+## Upgrading
+If you want to upgrade, that means you have to `sudo docker compose down` the current image to stop it, and follow the deploy steps.
+
+## Deploying
+The deploy steps are:
+1) Clone this repository
+2) Navigate into the repository
+3) Add a `.env` file with the contents below.
+4) Run `sudo docker compose -f docker-compose.yml up -d` (this will create new containers and start them detached so it will still run when you log out. You might need to add the `--build rails` or `--force-recreate` options when upgrading)
+5) That's it! You can check if it is running using `sudo docker ps`
+
+## Environment Variables
+Ensure that the environment variables are specified in Portainer or in an `.env` file as follows:
+- `RAILS_MASTER_KEY`: the master key.
+- `DATABASE_NAME`: `scav_hunt_production`
+- `DATABASE_PASSWORD`: Anything you want
