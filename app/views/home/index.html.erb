@@ -4,7 +4,14 @@
      data-scoreboard-end-time-value="<%= @end_time %>">
   <div class="mb-4">
     <h2>Time Remaining:</h2>
-    <div data-scoreboard-target="timer" class="fs-1 fw-bold"></div>
+    <div data-scoreboard-target="timer" class="fs-1 fw-bold">
+      <% time_left = (@end_time - DateTime.current) * 24 * 60 * 60 %>
+      <% if time_left > 0 %>
+        <%= "#{(time_left / 1.hour).floor} hours, #{(time_left / 1.minute).floor % 60} minutes, #{(time_left / 1.second).floor % 60} seconds" %>
+      <% else %>
+        Time's up!
+      <% end %>
+    </div>
   </div>
 
   <table class="table">
@@ -45,3 +52,4 @@
     </tbody>
   </table>
 </div>
+
