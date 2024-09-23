@@ -3,13 +3,13 @@
     <tr>
       <th>#</th>
       <th>Description</th>
+      <th>Points To Win</th>
+
       <% if current_user&.team? %>
-        <th>Points To Win</th>
         <th>Obtained Points</th>
         <th>Bonus Points</th>
-      <% else %>
-        <th>Points To Win</th>
-        <th>Actions</th>
+      <% else %>        
+      <th>Actions</th>
       <% end %>
     </tr>
   </thead>
@@ -18,6 +18,7 @@
       <tr>
         <td><%= challenge.number %></td>
         <td><%= challenge.description %></td>
+        <td><%= challenge.points %></td>
 
         <% if current_user&.team? %>
           <% result = @results[challenge.id] %>
@@ -25,7 +26,6 @@
           <td><%= result ? result.regular_points : 0 %></td>
           <td><%= result ? result.bonus_points : 0 %></td>
         <% else %>
-          <td><%= challenge.points %></td>
           <td><%= render 'application/index_actions', item: challenge %></td>
         <% end %>
       </tr>
