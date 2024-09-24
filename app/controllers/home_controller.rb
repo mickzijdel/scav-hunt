@@ -5,7 +5,8 @@ class HomeController < ApplicationController
       User.teams_ranked
     end
 
-    @end_time = DateTime.new(2024, 9, 27, 14, 0, 0, "+01:00")
+    @end_time = Setting.get("scoreboard_end_time")
+    @scoreboard_visible = Setting.get("scoreboard_visible")
 
     respond_to do |format|
       format.html

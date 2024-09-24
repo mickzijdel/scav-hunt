@@ -16,6 +16,10 @@ Rails.application.routes.draw do
 
   resources :group_permissions, only: [ :index, :update ]
 
+  resources :settings, only: [ :index ] do
+    patch :update, on: :collection
+  end
+
   get "home/index"
   root "home#index" # Special case that sets this to the home page.
 

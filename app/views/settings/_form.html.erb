@@ -1,0 +1,13 @@
+<%# locals:(setting:) %>
+<%= simple_form_for(setting, url: settings_path, method: :patch, key: setting[:key], html: { id: "settings_form_#{setting[:key]}" }) do |f| %>
+  <div class="row mb-3">
+    <div class="col">
+      <%= f.input :key, as: :hidden %>
+      <%= f.input :value, label: Setting::KEYS[setting[:key]][:title] %>
+    </div>
+    <div class="col-auto">
+      <%= f.submit 'Update', class: "btn btn-sm btn-primary" %>
+    </div>
+  </div>
+<% end %>
+<hr>
