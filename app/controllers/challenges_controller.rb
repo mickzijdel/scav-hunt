@@ -6,7 +6,7 @@ class ChallengesController < ApplicationController
   # GET /challenges or /challenges.json
   def index
     @title = "Challenges"
-    @challenges = Challenge.by_number
+    @challenges = Challenge.accessible_by(current_ability).by_number
 
     # Include the results for this user if the user is a team.
     if current_user.team?

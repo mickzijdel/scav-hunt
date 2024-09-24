@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import GroupPermissionsController from "./group_permissions_controller"
+application.register("group-permissions", GroupPermissionsController)
+
 import ScoreboardController from "./scoreboard_controller"
 application.register("scoreboard", ScoreboardController)
 

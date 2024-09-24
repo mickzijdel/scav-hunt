@@ -8,7 +8,7 @@ class Ability
 
     # Things teams can do:
     if user.team?
-      can :index, Challenge
+      can :index, Challenge, group_id: user.visible_groups
 
       # Teams can read their own scores.
       can :read, Result, user_id: user.id
@@ -19,6 +19,7 @@ class Ability
       can :read, Challenge
       can :manage, Result
       can :manage, :scoring
+      can :manage, GroupPermission
     end
 
     # Admins can do everything

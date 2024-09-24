@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_24_154101) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_24_161812) do
   create_table "challenges", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -19,6 +19,15 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_154101) do
     t.integer "points"
     t.integer "group_id"
     t.index ["group_id"], name: "index_challenges_on_group_id"
+  end
+
+  create_table "group_permissions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "group_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "group_id"], name: "index_group_permissions_on_user_id_and_group_id", unique: true
+    t.index ["user_id"], name: "index_group_permissions_on_user_id"
   end
 
   create_table "results", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -47,6 +56,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_154101) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "group_permissions", "users"
   add_foreign_key "results", "challenges"
   add_foreign_key "results", "users"
 end
