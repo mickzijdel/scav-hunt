@@ -2,6 +2,7 @@
   <%= render "application/forms/errors", errors: @challenge.errors %>
 
   <%= f.input :number, hint: "The official number of the challenge, as displayed to the teams and scorers" %>
+  <%= f.input :group_id, label: "Group ID" %>
   <%= f.input :description %>
   <%= f.input :points %>
 

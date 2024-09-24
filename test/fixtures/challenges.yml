@@ -2,10 +2,12 @@
 
 one:
   number: 1
+  group_id: 1
   description: Leave a pineapple in front of someone's door
   points: 200
 
 two:
   number: 2
+  group_id: 1
   description: Say hi to Finbar the Viking
   points: 100

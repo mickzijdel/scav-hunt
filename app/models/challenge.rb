@@ -1,5 +1,5 @@
 class Challenge < ApplicationRecord
-  validates :number, :description, :points, presence: true
+  validates :number, :description, :points, :group_id, presence: true
   validates :points, :number, numericality: { only_integer: true }
   validates :number, :description, uniqueness: true
 
@@ -12,5 +12,9 @@ class Challenge < ApplicationRecord
 
   def title
     "Challenge #{number} - \"#{description}\""
+  end
+
+  def self.group_ids
+    self.pluck(:group_id).compact.uniq.sort
   end
 end

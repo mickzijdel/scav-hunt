@@ -1,0 +1,25 @@
+<%# locals: (users:) %>
+<% group_ids = Challenge.group_ids.each %>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>User</th>
+      <% group_ids.each do |group_id| %>
+        <th>Group <%= group_id %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% users.each do |user| %>
+      <tr>
+        <td><%= user.name %></td>
+        <% group_ids.each do |group_id| %>
+          <td>
+            <%= render 'group_permissions/permissions_check_box', user: user, group_id: group_id %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

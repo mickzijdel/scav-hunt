@@ -9,6 +9,7 @@ class User < ApplicationRecord
 
   has_many :results
   has_many :challenges, through: :results
+  has_many :group_permissions
 
   enum :role, {
      team: 0,
@@ -58,5 +59,13 @@ class User < ApplicationRecord
     out.merge!(stats) if ability.can?(:manage, :scoring)
 
     out
+  end
+
+  def visible_groups
+    group_permissions.pluck(:group_id)
+  end
+
+  def can_see_group?(group_id)
+    visible_groups.include?(group_id)
   end
 end

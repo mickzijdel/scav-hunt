@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   get "scoring/:id", to: "scoring#score", as: :scoring_score
   post "scoring/update"
 
+  resources :group_permissions, only: [ :index, :update ]
+
   get "home/index"
   root "home#index" # Special case that sets this to the home page.
 
