@@ -86,11 +86,12 @@ class ChallengesController < ApplicationController
           challenge.assign_attributes(
             description: row["Description"],
             points: row["Points"],
+            group_id: row["GroupID"]
           )
           imported_challenges << challenge if challenge.changed?
         end
 
-        Challenge.import imported_challenges, on_duplicate_key_update: [ :description, :points ]
+        Challenge.import imported_challenges, on_duplicate_key_update: [ :description, :points, :group_id ]
         redirect_to challenges_path, notice: "Challenges imported successfully."
       rescue => e
         # TODO: The alerts don't show up? Probably a turbo thing. Only show on page reload.
@@ -117,7 +118,7 @@ class ChallengesController < ApplicationController
   private
   # Only allow a list of trusted parameters through.
   def challenge_params
-    params.require(:challenge).permit(:number, :description, :points)
+    params.require(:challenge).permit(:number, :description, :points, :group_id)
   end
 
   def set_edit_challenge_title

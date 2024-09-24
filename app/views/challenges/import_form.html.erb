@@ -1,6 +1,6 @@
 <%= simple_form_for :import, url: import_challenges_path, multipart: true do |f| %>
   <p class="mt-3">
-    CSV file should have the following headers: Number, Description, Points.<br>
+    CSV file should have the following headers: Number, GroupID, Description, Points.<br>
     <strong>IMPORTANT:</strong> If a challenge with the same Number already exists, it will be overwritten.
   </p>
 

@@ -10,13 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_19_224116) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_24_154101) do
   create_table "challenges", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "number"
     t.string "description"
     t.integer "points"
+    t.integer "group_id"
+    t.index ["group_id"], name: "index_challenges_on_group_id"
   end
 
   create_table "results", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
