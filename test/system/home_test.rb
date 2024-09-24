@@ -6,6 +6,9 @@ class HomePageTest < ApplicationSystemTestCase
     @team = users(:team_one)
     @scorer = users(:scorer)
     @result = results(:challenge_one_by_team_one)
+
+    Setting.set("scoreboard_visible", "true")
+    Setting.set("scoreboard_end_time", DateTime.new(2024, 9, 27, 14, 0, 0, "+01:00").to_s)
   end
 
   test "visiting the home page as guest" do
@@ -169,5 +172,26 @@ class HomePageTest < ApplicationSystemTestCase
     visit root_path
     click_on "Log Out"
     assert_current_path root_path
+  end
+
+  test "scoreboard respects visibility setting" do
+    visit root_path
+    assert_selector "table", count: 1
+
+    Setting.set("scoreboard_visible", "0")
+    visit root_path
+    assert_no_selector "table"
+    assert_text "The scoreboard is currently not visible."
+  end
+
+  test "scoreboard end time is displayed and updates" do
+    visit root_path
+    assert_selector "[data-scoreboard-target='timer']", text: /\d+ hours, \d+ minutes, \d+ seconds/
+
+    new_end_time = DateTime.now.utc + 1.day
+    Setting.set("scoreboard_end_time", new_end_time.to_s)
+
+    visit root_path
+    assert_selector "[data-scoreboard-target='timer']", text: /23 hours, 59 minutes, \d+ seconds/
   end
 end

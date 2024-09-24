@@ -12,18 +12,18 @@ class ChallengeImportExportTest < ApplicationSystemTestCase
     click_on "Import Challenges"
 
     # Prepare a test CSV file
-    csv_content = "Number,Description,Points\n1001,New Challenge,200"
+    csv_content = "Number,GroupID,Description,Points\n1001,1,New Challenge,200\n1002,1,Another Challenge,200"
     file = Tempfile.new([ "test_import", ".csv" ])
     file.write(csv_content)
     file.rewind
 
-    assert_difference("Challenge.count", 1) do
+    assert_difference("Challenge.count", 2) do
       # Attach the file and submit the form
       attach_file("file", file.path)
       click_on "Import"
 
       assert_text "Challenges imported successfully"
-      assert_selector "td", text: "New Challenge"
+      assert_selector "a", text: "New Challenge"
     end
   end
   test "overwriting existing challenges" do
@@ -31,7 +31,7 @@ class ChallengeImportExportTest < ApplicationSystemTestCase
     old_description = existing_challenge.description
 
     # Prepare a test CSV file with updated data
-    csv_content = "Number,Description,Points\n#{existing_challenge.number},Updated Description,300"
+    csv_content = "Number,GroupID,Description,Points\n#{existing_challenge.number},1,Updated Description,300"
     file = Tempfile.new([ "test_import", ".csv" ])
     file.write(csv_content)
     file.rewind

@@ -2,12 +2,30 @@
 
 one:
   number: 1
-  group_id: 1
   description: Leave a pineapple in front of someone's door
   points: 200
+  group_id: 1
 
 two:
   number: 2
-  group_id: 1
   description: Say hi to Finbar the Viking
   points: 100
+  group_id: 1
+
+three:
+  number: 3
+  description: Find the hidden treasure in the library
+  points: 300
+  group_id: 2
+
+four:
+  number: 4
+  description: Solve the riddle of the sphinx
+  points: 400
+  group_id: 2
+
+five:
+  number: 5
+  description: Create a human pyramid
+  points: 500
+  group_id: 3
