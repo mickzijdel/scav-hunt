@@ -1,0 +1,7 @@
+<%# FIXME: Needs nice displays of the form fields depending on the type. Main issue is parsing in the current value correctly. %>
+
+<% @settings.each do |setting| %>
+  <div id="settings_form_<%= setting[:key] %>">
+    <%= render partial: "settings/form", locals: { setting: setting } %>
+  </div>
+<% end %>

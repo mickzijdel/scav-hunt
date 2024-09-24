@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_24_161812) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_24_202843) do
   create_table "challenges", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -40,6 +40,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_161812) do
     t.index ["challenge_id"], name: "index_results_on_challenge_id"
     t.index ["user_id", "challenge_id"], name: "index_results_on_user_id_and_challenge_id", unique: true
     t.index ["user_id"], name: "index_results_on_user_id"
+  end
+
+  create_table "settings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "key", null: false
+    t.text "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_settings_on_key", unique: true
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
