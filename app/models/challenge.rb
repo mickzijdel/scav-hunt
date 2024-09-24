@@ -13,4 +13,8 @@ class Challenge < ApplicationRecord
   def title
     "Challenge #{number} - \"#{description}\""
   end
+
+  def self.group_ids
+    self.pluck(:group_id).compact.uniq.sort
+  end
 end

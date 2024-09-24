@@ -4,7 +4,6 @@ class GroupPermissionsController < ApplicationController
   def index
     @title = "Manage Group Permissions"
     @users = User.includes(:group_permissions).teams_by_name
-    @group_ids = Challenge.distinct.pluck(:group_id).compact.sort
   end
 
   def update

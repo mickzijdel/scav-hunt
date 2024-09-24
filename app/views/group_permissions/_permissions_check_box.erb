@@ -1,0 +1,9 @@
+
+<%# locals: (user:, group_id:) %>
+<%= check_box_tag "group_permission", "1", user.can_see_group?(group_id), 
+    data: { 
+        action: "change->group-permissions#togglePermission",
+        userId: user.id,
+        groupId: group_id
+    } 
+%>

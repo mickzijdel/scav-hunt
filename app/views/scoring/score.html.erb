@@ -1,6 +1,5 @@
 <% # TODO: Add undo button for edits, probably using papertrail (it says the most recent version is not compatible with Rails 7.2 but it should work fine). %>
 <% # TODO: Add filtering/sorting using Ransack %>
-<% # TODO: Add little switches for each group ID to enable/disable. %>
 
 <div data-controller="scoring">
   <table class="table table-striped">
@@ -73,6 +72,10 @@
   <p><strong>Total Points: <span data-scoring-target="totalPoints"><%= @team.total_points %></span></strong></p>
 </div>
 
+<h3>Group Visibility</h3>
+<%= render 'group_permissions/table', users: [@team] %>
+
+<h3>Change Team</h3>
 <nav aria-label="Navigate to other teams for scoring">
   <ul class="pagination">
     <% User.teams_by_name.each do |user| %>
