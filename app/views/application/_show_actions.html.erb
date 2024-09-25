@@ -6,7 +6,7 @@
     <% end %>
 
     <% if can? :destroy, object %>
-        <%= button_to "Destroy this #{object.class.name.pluralize(1)}", url_for(object), data: { turbo_confirm: 'Are you sure?', turbo_method: :delete }, class: "btn btn-danger me-1" %>
+        <%= link_to "Destroy this #{object.class.name.pluralize(1)}", url_for(object), data: { turbo_confirm: 'Are you sure?', turbo_method: :delete }, class: "btn btn-danger me-1" %>
     <% end %>
 
     <% if can? :index, object.class %>

@@ -93,7 +93,7 @@ class UsersTest < ApplicationSystemTestCase
   test "destroying a User" do
     visit users_url
     page.accept_confirm do
-      click_on "Delete", match: :first
+      click_on "Destroy", match: :first
     end
 
     assert_text "User was successfully destroyed"

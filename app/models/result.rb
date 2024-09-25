@@ -7,6 +7,7 @@ class Result < ApplicationRecord
   validates :regular_points, :bonus_points, presence: true, numericality: { only_integer: true }
 
   after_save :clear_scoreboard_cache
+  before_destroy :ensure_zero_points
 
   # If a result changes, the scoreboard needs updating.
   # FIXME: Could be improved by caching on a per-team basis.
@@ -38,5 +39,14 @@ class Result < ApplicationRecord
           bonus_points: bonus_points,
           status: status
         }
+  end
+
+  private
+
+  def ensure_zero_points
+    if regular_points != 0 || bonus_points != 0
+      errors.add(:base, "Cannot destroy result with non-zero points")
+      throw :abort
+    end
   end
 end

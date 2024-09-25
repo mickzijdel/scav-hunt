@@ -66,15 +66,6 @@ class ChallengesTest < ApplicationSystemTestCase
     assert_text "Group ID: 2"
   end
 
-  test "should destroy Challenge as admin" do
-    visit challenge_url(@challenge)
-    accept_confirm do
-      click_on "Destroy this Challenge", match: :first
-    end
-
-    assert_text "Challenge was successfully destroyed"
-  end
-
   test "team user cannot create, update, or destroy challenges" do
     sign_out :user
     sign_in users(:team_one)
@@ -85,5 +76,39 @@ class ChallengesTest < ApplicationSystemTestCase
     visit challenge_url(@challenge)
     assert_no_selector "a", text: "Edit this challenge"
     assert_no_selector "a", text: "Destroy this challenge"
+  end
+
+  test "should not destroy Challenge with non-zero point results" do
+    challenge_with_results = challenges(:one)
+
+    # If this fails because of a foreign key constraint, then that means the user already has a result for this challenge.
+    # Pick a different user.
+    Result.create!(user: users(:team_three), challenge: challenge_with_results, regular_points: 100, bonus_points: 50)
+
+    visit challenge_url(challenge_with_results)
+    accept_confirm do
+      click_on "Destroy this Challenge", match: :first
+    end
+
+    assert_text "Cannot destroy result with non-zero points"
+    assert_current_path challenge_path(challenge_with_results)
+  end
+
+  test "should destroy Challenge with only zero-point results" do
+    challenge_with_zero_results = challenges(:two)
+
+    # Clear the results for this challenge, just to be sure the test always works.
+    challenge_with_zero_results.results.delete_all
+    # If this fails because of a foreign key constraint, then that means the user already has a result for this challenge.
+    # Pick a different user.
+    Result.create!(user: users(:team_three), challenge: challenge_with_zero_results, regular_points: 0, bonus_points: 0)
+
+    visit challenge_url(challenge_with_zero_results)
+    accept_confirm do
+      click_on "Destroy this Challenge", match: :first
+    end
+
+    assert_text "Challenge was successfully destroyed"
+    assert_current_path challenges_path
   end
 end

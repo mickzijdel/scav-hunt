@@ -3,10 +3,8 @@ class Challenge < ApplicationRecord
   validates :points, :number, numericality: { only_integer: true }
   validates :number, :description, uniqueness: true
 
-  has_many :results
+  has_many :results, dependent: :destroy
   has_many :users, through: :results
-
-  # TODO: Properly implement deleting challenges that have results attached.
 
   scope :by_number, -> { order(:number) }
 
