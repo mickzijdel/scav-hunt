@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["regularPoints", "bonusPoints", "status", "totalPoints"]
+  static targets = ["regularPoints", "bonusPoints", "status", "totalPoints", "row", "searchInput", "sortSelect"]
 
   connect() {
     this.previousValues = {}
@@ -78,13 +78,21 @@ export default class extends Controller {
     const bonusPointsInput = this.getBonusPointsInput(challengeId, userId)
     const statusElement = this.getStatusElement(challengeId)
 
-    regularPointsInput.value = result.regular_points
-    bonusPointsInput.value = result.bonus_points
+    const updatedElements = []
+
+    if (regularPointsInput.value !== result.regular_points.toString()) {
+      regularPointsInput.value = result.regular_points
+      updatedElements.push(regularPointsInput)
+    }
+
+    if (bonusPointsInput.value !== result.bonus_points.toString()) {
+      bonusPointsInput.value = result.bonus_points
+      updatedElements.push(bonusPointsInput)
+    }
+
     statusElement.textContent = result.status
 
-    // TODO: Either flash the whole row, or just the element that was updated, but not both.
-    this.flashElement(regularPointsInput)
-    this.flashElement(bonusPointsInput)
+    updatedElements.forEach(element => this.flashElement(element))
     this.updateTotalPoints()
   }
 
@@ -97,7 +105,6 @@ export default class extends Controller {
 
     this.totalPointsTarget.textContent = totalPoints
   }
-
 
   flashElement(element) {
     element.classList.add('flash-green')
@@ -134,5 +141,27 @@ export default class extends Controller {
 
   getStatusElement(challengeId) {
     return this.statusTargets.find(target => target.dataset.challengeId === challengeId)
+  }
+
+  search() {
+    const query = this.searchInputTarget.value.toLowerCase()
+
+    console.log("Searching for:", query)
+
+    this.rowTargets.forEach(row => {
+      const text = row.textContent.toLowerCase()
+      row.style.display = text.includes(query) ? "" : "none"
+    })
+  }
+
+  sort() {
+    const column = this.sortSelectTarget.value
+    const rows = Array.from(this.rowTargets)
+    rows.sort((a, b) => {
+      const aValue = a.querySelector(`[data-column="${column}"]`).textContent
+      const bValue = b.querySelector(`[data-column="${column}"]`).textContent
+      return aValue.localeCompare(bValue)
+    })
+    rows.forEach(row => this.element.querySelector('tbody').appendChild(row))
   }
 }

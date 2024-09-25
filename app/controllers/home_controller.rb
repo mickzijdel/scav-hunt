@@ -6,7 +6,7 @@ class HomeController < ApplicationController
     end
 
     @end_time = Setting.get("scoreboard_end_time")
-    @scoreboard_visible = Setting.get("scoreboard_visible")
+    @scoreboard_visible = can?(:manage, :scoring) || Setting.get("scoreboard_visible")
 
     respond_to do |format|
       format.html

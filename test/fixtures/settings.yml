@@ -1,0 +1,8 @@
+scoreboard_end_time:
+  key: 'scoreboard_end_time'
+  value: '2024-09-28T14:00:00+01:00'
+
+scoreboard_visible:
+  key: 'scoreboard_visible'
+  value: 'false'
+  
