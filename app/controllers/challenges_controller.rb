@@ -70,7 +70,7 @@ class ChallengesController < ApplicationController
       end
     else
       respond_to do |format|
-        format.html { redirect_to challenges_url, alert: [ @challenge, *@challenge.results.to_a ].compact.map { |result| result.errors.full_messages.join(", ") }.join("; ") }
+        format.html { redirect_back_or_to challenges_url, alert: [ @challenge, *@challenge.results.to_a ].compact.map { |result| result.errors.full_messages.join(", ") }.join("; ") }
         format.json { render json: @challenge.errors, status: :unprocessable_entity }
       end
     end
