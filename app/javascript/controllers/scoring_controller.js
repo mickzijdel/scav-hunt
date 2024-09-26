@@ -146,8 +146,6 @@ export default class extends Controller {
   search() {
     const query = this.searchInputTarget.value.toLowerCase()
 
-    console.log("Searching for:", query)
-
     this.rowTargets.forEach(row => {
       const text = row.textContent.toLowerCase()
       row.style.display = text.includes(query) ? "" : "none"
@@ -157,11 +155,14 @@ export default class extends Controller {
   sort() {
     const column = this.sortSelectTarget.value
     const rows = Array.from(this.rowTargets)
+
     rows.sort((a, b) => {
       const aValue = a.querySelector(`[data-column="${column}"]`).textContent
       const bValue = b.querySelector(`[data-column="${column}"]`).textContent
       return aValue.localeCompare(bValue)
     })
-    rows.forEach(row => this.element.querySelector('tbody').appendChild(row))
+  
+    const tbody = this.element.querySelector('tbody')
+    rows.forEach(row => tbody.appendChild(row))
   }
 }
