@@ -1,0 +1,25 @@
+@import url("https://fonts.googleapis.com/css?family=Almendra SC");
+
+* {margin: 0; padding: 0;}
+
+body {
+    background-image: url('/assets/scoreboard_background.png');
+    background-size: cover;
+    background-position: center;
+    background-color: #0d8311;
+   }
+
+#timer {
+    text-align: center;
+    font-family: "Courier New";
+    font-size: 5vw;
+}
+
+.table {
+    width:70%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: "Almendra SC";
+    font-size: 2vw;
+}

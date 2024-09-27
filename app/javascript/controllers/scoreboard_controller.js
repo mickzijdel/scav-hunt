@@ -56,7 +56,7 @@ export default class extends Controller {
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000)
 
-      this.timerTarget.textContent = `${hours.toString()} hours, ${minutes.toString()} minutes, ${seconds.toString()} seconds`
+      this.timerTarget.textContent = `${hours.toString()}h ${minutes.toString()}m ${seconds.toString()}s`
     }
   }
 

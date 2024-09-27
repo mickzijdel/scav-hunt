@@ -1,21 +1,23 @@
+<%= stylesheet_link_tag "scoreboard"%>
+
 <% if @scoreboard_visible %>
   <div data-controller="scoreboard"
       data-scoreboard-update-url-value="<%= home_index_path(format: :json) %>"
       data-scoreboard-update-interval-value="5000"
       data-scoreboard-end-time-value="<%= @end_time %>">
     <div class="mb-4">
-      <h2>Time Remaining:</h2>
-      <div data-scoreboard-target="timer" class="fs-1 fw-bold">
+      <!--<h2>Time Remaining:</h2> --->
+      <div data-scoreboard-target="timer" id="timer">
         <% time_left = (@end_time - DateTime.current) * 24 * 60 * 60 %>
         <% if time_left > 0 %>
-          <%= "#{(time_left / 1.hour).floor} hours, #{(time_left / 1.minute).floor % 60} minutes, #{(time_left / 1.second).floor % 60} seconds" %>
+          <%= "#{(time_left / 1.hour).floor}h #{(time_left / 1.minute).floor % 60}m #{(time_left / 1.second).floor % 60}s" %>
         <% else %>
           Time's up!
         <% end %>
       </div>
     </div>
 
-    <table class="table">
+    <table class="table table-warning table-striped">
       <thead>
         <tr>
           <th>Rank</th>

@@ -186,12 +186,12 @@ class HomePageTest < ApplicationSystemTestCase
 
   test "scoreboard end time is displayed and updates" do
     visit root_path
-    assert_selector "[data-scoreboard-target='timer']", text: /\d+ hours, \d+ minutes, \d+ seconds/
+    assert_selector "[data-scoreboard-target='timer']", text: /\d+h \d+m \d+s/
 
     new_end_time = DateTime.now.utc + 1.day
     Setting.set("scoreboard_end_time", new_end_time.to_s)
 
     visit root_path
-    assert_selector "[data-scoreboard-target='timer']", text: /23 hours, 59 minutes, \d+ seconds/
+    assert_selector "[data-scoreboard-target='timer']", text: /23h 59m \d+s/
   end
 end
