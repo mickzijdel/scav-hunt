@@ -35,8 +35,8 @@ Rails.application.configure do
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
-  # config.action_cable.url = "wss://example.com/cable"
-  # config.action_cable.allowed_request_origins = [ "http://example.com", /http:\/\/example.*/ ]
+  config.action_cable.url = ENV.fetch("ACTION_CABLE_FRONTEND_URL") { "wss://127.0.0.1/cable" }
+  config.action_cable.allowed_request_origins = [ ENV.fetch("ACTION_CABLE_ALLOWED_REQUEST_ORIGINS") { "https://yourdomain.com" } ]
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   # Can be used together with config.force_ssl for Strict-Transport-Security and secure cookies.
@@ -93,7 +93,7 @@ Rails.application.configure do
   # ]
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
-  
+
   # FOR DEPLOYMENT - CHANGE THE HOST TO WHATEVER IT IS
   # config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 end

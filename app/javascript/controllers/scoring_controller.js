@@ -113,16 +113,18 @@ export default class extends Controller {
       console.log("Updating UI for result updated by current user:", result);
       colour = "green";
       updatedElements.push(regularPointsInput, bonusPointsInput);
-    } else {
-      if (regularPointsInput.value !== result.regular_points.toString()) {
-        regularPointsInput.value = result.regular_points;
-        updatedElements.push(regularPointsInput);
-      }
-  
-      if (bonusPointsInput.value !== result.bonus_points.toString()) {
-        bonusPointsInput.value = result.bonus_points;
-        updatedElements.push(bonusPointsInput);
-      }
+    }
+
+    // Still need to update the UI if the points have changed, even if the update was made by the current user, 
+    //just in case they are logged in on two different browsers or an update got missed.
+    if (regularPointsInput.value !== result.regular_points.toString()) {
+      regularPointsInput.value = result.regular_points;
+      updatedElements.push(regularPointsInput);
+    }
+
+    if (bonusPointsInput.value !== result.bonus_points.toString()) {
+      bonusPointsInput.value = result.bonus_points;
+      updatedElements.push(bonusPointsInput);
     }
 
     if (statusElement.textContent !== result.status) {
