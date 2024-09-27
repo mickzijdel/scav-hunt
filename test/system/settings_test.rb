@@ -63,6 +63,6 @@ class SettingsTest < ApplicationSystemTestCase
     Setting.set("scoreboard_end_time", end_time.to_s)
 
     visit root_path
-    assert_selector "[data-scoreboard-target='timer']", text: /\d+ hours, \d+ minutes, \d+ seconds/
+    assert_selector "[data-scoreboard-target='timer']", text: /\d+:\d+:\d+/
   end
 end

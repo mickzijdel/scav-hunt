@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css?family=Almendra SC");
+
+* {margin: 0; padding: 0;}
+
+body {
+    background: #56ab2f;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #a8e063, #56ab2f);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #a8e063, #56ab2f); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+   }
+
+#timer {
+    text-align: center;
+    font-family: "Courier New";
+    font-size: 5vw;
+}
+
+.table {
+    width:70%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: "Almendra SC";
+    font-size: 2vw;
+}
