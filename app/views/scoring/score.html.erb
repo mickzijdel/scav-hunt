@@ -1,5 +1,4 @@
 <% # TODO: Add undo button for edits, probably using papertrail (it says the most recent version is not compatible with Rails 7.2 but it should work fine). %>
-<% # TODO: Sorting by points appears to be broken %>
 
 <div data-controller="scoring challenge-sorting" data-scoring-user-id-value="<%= @team.id %>" data-scoring-current-user-id-value="<%= current_user&.id %>">
   <%= render 'application/search_form', sort_options: {
