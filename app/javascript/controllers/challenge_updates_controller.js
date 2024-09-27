@@ -7,7 +7,8 @@ export default class extends Controller {
   static values = { userId: Number }
 
   connect() {
-    if (this.hasUserIdValue) {
+    // Don't register if there is no user id, like on the version of the challenge index for scorers.
+    if (this.hasUserIdValue && this.userIdValue != 0) {
       connectToScoringChannel(this, this.userIdValue);
     }
   }
@@ -32,4 +33,5 @@ export default class extends Controller {
   }
 
   // TODO: Listen to updates on the visible group ids and update challenge list accordingly.
+  // TODO: Update the challenge sorting when the group ids are updated.
 }
