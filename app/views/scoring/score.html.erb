@@ -42,10 +42,6 @@
                       data-user-id="<%= @team.id %>"
                       data-points-to-win="<%= challenge.points %>"
                       value="<%= result&.regular_points || 0 %>">
-              <button class="btn btn-sm btn-outline-secondary" type="button"
-                      data-action="scoring#undoRegularPoints"
-                      data-challenge-id="<%= challenge.id %>"
-                      data-user-id="<%= @team.id %>">Undo</button>
             </div>
           </td>
           <td>
@@ -57,10 +53,6 @@
                       data-challenge-id="<%= challenge.id %>"
                       data-user-id="<%= @team.id %>"
                       value="<%= result&.bonus_points || 0 %>">
-              <button class="btn btn-sm btn-outline-secondary" type="button"
-                      data-action="scoring#undoBonusPoints"
-                      data-challenge-id="<%= challenge.id %>"
-                      data-user-id="<%= @team.id %>">Undo</button>
             </div>
           </td>
           <td data-scoring-target="status" data-challenge-id="<%= challenge.id %>">
