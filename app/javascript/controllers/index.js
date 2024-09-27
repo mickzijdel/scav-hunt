@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import ChallengeUpdatesController from "./challenge_updates_controller"
+application.register("challenge-updates", ChallengeUpdatesController)
+
 import GroupPermissionsController from "./group_permissions_controller"
 application.register("group-permissions", GroupPermissionsController)
 

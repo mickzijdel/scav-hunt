@@ -1,4 +1,7 @@
-<table class="table">
+<% # Connected to the scoring channel to update the score in real time for teams %>
+<div data-controller="challenge-updates" data-challenge-updates-user-id-value="<%= current_user.id if current_user&.team? %>">
+
+  <table class="table table-striped">
   <thead>
     <tr>
       <th>#</th>
@@ -33,9 +36,9 @@
         <% if current_user&.team? %>
           <% result = @results[challenge.id] %>
 
-          <td><%= result ? result.regular_points : 0 %></td>
-          <td><%= result ? result.bonus_points : 0 %></td>
-          <td><%= result&.status.presence || 'Not Attempted' %></td>
+          <td data-challenge-updates-target="regularPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.regular_points : 0 %></td>
+          <td data-challenge-updates-target="bonusPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.bonus_points : 0 %></td>
+          <td data-challenge-updates-target="status" data-challenge-id="<%= challenge.id %>"><%= result&.status.presence || 'Not Attempted' %></td>
         <% else %>
           <td><%= render 'application/index_actions', item: challenge %></td>
         <% end %>
@@ -44,8 +47,8 @@
   </tbody>
 </table>
 
-<% if current_user.team? %>
-  <p><strong>Total Points: <%= current_user.total_points %></strong></p>
+<% if current_user&.team? %>
+  <p><strong>Total Points: <span data-challenge-updates-target="totalPoints"><%= current_user.total_points %></span></strong></p>
 <% end %>
 
 <% if can? :create, Challenge %>
@@ -59,3 +62,4 @@
 <% if can? :export, Challenge %>
   <%= link_to 'Export Challenges', export_challenges_path, class: 'btn btn-secondary' %>
 <% end %>
+</div>
