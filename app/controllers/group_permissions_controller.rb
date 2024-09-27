@@ -11,7 +11,7 @@ class GroupPermissionsController < ApplicationController
     @group_id = params[:group_id]
 
     begin
-      if params[:permitted] == "true"
+      if params["permitted"].to_s == "true"
         GroupPermission.find_or_create_by(user: @user, group_id: @group_id)
       else
         GroupPermission.find_by(user: @user, group_id: @group_id)&.destroy

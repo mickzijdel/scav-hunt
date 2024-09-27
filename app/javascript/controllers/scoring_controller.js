@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { connectToScoringChannel } from "../channels/scoring_channel"
 
 export default class extends Controller {
-  static targets = ["regularPoints", "bonusPoints", "status", "totalPoints", "row", "searchInput", "sortSelect"]
+  static targets = ["regularPoints", "bonusPoints", "status", "totalPoints"]
   static values = { userId: Number }
 
   connect() {
@@ -19,6 +19,8 @@ export default class extends Controller {
     const bonusPoints = this.getBonusPoints(challengeId, userId)
 
     this.savePreviousValue(input)
+
+    // TODO: Send over websocker/actioncable instead of AJAX, but fall back on AJAX if not connected.
     this.sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints, input)
   }
 
@@ -81,6 +83,7 @@ export default class extends Controller {
   }
 
   updateUI(challengeId, userId, result, colour) {
+    //TODO: Store the id of the user who updated in the result, and use that to determine the colour (if it is current user, then green, otherwise blue)
     const regularPointsInput = this.getRegularPointsInput(challengeId, userId)
     const bonusPointsInput = this.getBonusPointsInput(challengeId, userId)
     const statusElement = this.getStatusElement(challengeId)
@@ -149,29 +152,6 @@ export default class extends Controller {
 
   getStatusElement(challengeId) {
     return this.statusTargets.find(target => target.dataset.challengeId === challengeId)
-  }
-
-  search() {
-    const query = this.searchInputTarget.value.toLowerCase()
-
-    this.rowTargets.forEach(row => {
-      const text = row.textContent.toLowerCase()
-      row.style.display = text.includes(query) ? "" : "none"
-    })
-  }
-
-  sort() {
-    const column = this.sortSelectTarget.value
-    const rows = Array.from(this.rowTargets)
-
-    rows.sort((a, b) => {
-      const aValue = a.querySelector(`[data-column="${column}"]`).textContent
-      const bValue = b.querySelector(`[data-column="${column}"]`).textContent
-      return aValue.localeCompare(bValue)
-    })
-  
-    const tbody = this.element.querySelector('tbody')
-    rows.forEach(row => tbody.appendChild(row))
   }
 
   handleWebSocketUpdate(data) {

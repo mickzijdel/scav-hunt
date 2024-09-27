@@ -1,17 +1,15 @@
 <% # TODO: Add undo button for edits, probably using papertrail (it says the most recent version is not compatible with Rails 7.2 but it should work fine). %>
 <% # TODO: Sorting by points appears to be broken %>
 
-<div data-controller="scoring" data-scoring-user-id-value="<%= @team.id %>">
-  <div class="mb-3">
-    <input type="text" class="form-control" placeholder="Search..." data-scoring-target="searchInput" data-action="input->scoring#search">
-    <select class="form-select mt-2" data-scoring-target="sortSelect" data-action="change->scoring#sort">
-      <option value="">Sort by...</option>
-      <option value="number">Number</option>
-      <option value="groupId">Group ID</option>
-      <option value="description">Description</option>
-      <option value="points">Points To Win</option>
-    </select>
-  </div>
+<div data-controller="scoring challenge-sorting" data-scoring-user-id-value="<%= @team.id %>">
+  <%= render 'application/search_form', sort_options: {
+    "Number" => "number",
+    "Group ID" => "groupId",
+    "Description" => "description",
+    "Points To Win" => "points",
+    "Status" => "status"
+    }
+  %>
 
   <table class="table table-striped">
     <thead>
@@ -28,7 +26,7 @@
     </thead>
     <tbody>
       <% @challenges.each do |challenge| %>
-        <tr data-scoring-target="row" data-challenge-id="<%= challenge.id %>">
+        <tr data-challenge-sorting-target="row" data-challenge-id="<%= challenge.id %>">
           <td data-column="number"><%= challenge.number %></td>
           <td data-column="groupId"><%= challenge.group_id %></td>
           <td data-column="description"><%= challenge.description %></td>
