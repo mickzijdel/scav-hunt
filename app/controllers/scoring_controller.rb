@@ -22,6 +22,7 @@ class ScoringController < ApplicationController
     @result = Result.find_or_initialize_by(challenge_id: params[:challenge_id], user_id: params[:user_id])
     @result.regular_points = params[:regular_points]
     @result.bonus_points = params[:bonus_points]
+    @result.updated_by_id = current_user.id
 
     if @result.save
       render json: { status: "success", result: @result.as_json }

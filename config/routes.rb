@@ -14,7 +14,9 @@ Rails.application.routes.draw do
   get "scoring/:id", to: "scoring#score", as: :scoring_score
   post "scoring/update"
 
-  resources :group_permissions, only: [ :index, :update ]
+  resources :group_permissions, only: [ :index ] do
+    post :update, on: :collection
+  end
 
   resources :settings, only: [ :index ] do
     patch :update, on: :collection
@@ -32,6 +34,7 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/*
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  mount ActionCable.server => "/cable"
 
   # Defines the root path route ("/")
   # root "posts#index"

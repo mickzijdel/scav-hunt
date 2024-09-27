@@ -1,10 +1,19 @@
 import { Controller } from "@hotwired/stimulus"
+import { connectToScoringChannel } from "../channels/scoring_channel"
 
 export default class extends Controller {
-  static targets = ["regularPoints", "bonusPoints", "status", "totalPoints", "row", "searchInput", "sortSelect"]
+  static targets = ["regularPoints", "bonusPoints", "status", "totalPoints"]
+  // userId is the team, currentUserId is the scorer.
+  // using userId is most consistent, but a bit confusing because it's about the team.
+  static values = { userId: Number, currentUserId: Number }
 
   connect() {
     this.previousValues = {}
+    this.websocketConnected = false
+
+    connectToScoringChannel(this, this.userIdValue, (connected) => {
+      this.websocketConnected = connected
+    });
   }
 
   updateScore(event) {
@@ -15,7 +24,20 @@ export default class extends Controller {
     const bonusPoints = this.getBonusPoints(challengeId, userId)
 
     this.savePreviousValue(input)
-    this.sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints)
+
+    const data = { 
+      challenge_id: challengeId, 
+      user_id: userId, 
+      regular_points: regularPoints, 
+      bonus_points: bonusPoints 
+    }
+
+    // Use websockets if connected, because they are way faster. Otherwise use a fetch request.
+    if (this.websocketConnected) {
+      this.sendUpdateViaWebSocket(data)
+    } else {
+      this.sendUpdateRequest(data)
+    }
   }
 
   undoRegularPoints(event) {
@@ -53,19 +75,23 @@ export default class extends Controller {
     this.updateScore({ target: regularPointsInput })
   }
 
-  sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints) {
+  sendUpdateViaWebSocket(data) {
+    this.scoringChannel.send(data)
+  }
+
+  sendUpdateRequest(sendData) {
     fetch('/scoring/update', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
       },
-      body: JSON.stringify({ challenge_id: challengeId, user_id: userId, regular_points: regularPoints, bonus_points: bonusPoints })
+      body: JSON.stringify(sendData)
     })
     .then(response => response.json())
     .then(data => {
       if (data.status === 'success') {
-        this.updateUI(challengeId, userId, data.result)
+        this.updateUI(data.result)
       } else {
         console.error('Error updating score:', data.errors)
       }
@@ -73,26 +99,39 @@ export default class extends Controller {
     .catch(error => console.error('Error:', error))
   }
 
-  updateUI(challengeId, userId, result) {
-    const regularPointsInput = this.getRegularPointsInput(challengeId, userId)
-    const bonusPointsInput = this.getBonusPointsInput(challengeId, userId)
-    const statusElement = this.getStatusElement(challengeId)
+  updateUI(result) {
+    const regularPointsInput = this.getRegularPointsInput(result.challenge_id.toString(), result.user_id.toString())
+    const bonusPointsInput = this.getBonusPointsInput(result.challenge_id.toString(), result.user_id.toString())
+    const statusElement = this.getStatusElement(result.challenge_id.toString())
 
     const updatedElements = []
+    let colour = "blue";
 
-    if (regularPointsInput.value !== result.regular_points.toString()) {
-      regularPointsInput.value = result.regular_points
-      updatedElements.push(regularPointsInput)
+    // If the result was updated by the current user, flash all elements and in green.
+    console.log("this.currentUserIdValue: ", this.currentUserIdValue, "; result.updated_by: ", result.updated_by, "; equal: ", this.currentUserIdValue == result.updated_by);
+    if(this.currentUserIdValue == result.updated_by) {
+      console.log("Updating UI for result updated by current user:", result);
+      colour = "green";
+      updatedElements.push(regularPointsInput, bonusPointsInput);
+    } else {
+      if (regularPointsInput.value !== result.regular_points.toString()) {
+        regularPointsInput.value = result.regular_points;
+        updatedElements.push(regularPointsInput);
+      }
+  
+      if (bonusPointsInput.value !== result.bonus_points.toString()) {
+        bonusPointsInput.value = result.bonus_points;
+        updatedElements.push(bonusPointsInput);
+      }
     }
 
-    if (bonusPointsInput.value !== result.bonus_points.toString()) {
-      bonusPointsInput.value = result.bonus_points
-      updatedElements.push(bonusPointsInput)
+    if (statusElement.textContent !== result.status) {
+      statusElement.textContent = result.status;
+      updatedElements.push(statusElement);
     }
 
-    statusElement.textContent = result.status
+    updatedElements.forEach(element => this.flashElement(element, colour))
 
-    updatedElements.forEach(element => this.flashElement(element))
     this.updateTotalPoints()
   }
 
@@ -106,11 +145,11 @@ export default class extends Controller {
     this.totalPointsTarget.textContent = totalPoints
   }
 
-  flashElement(element) {
-    element.classList.add('flash-green')
+  flashElement(element, colour) {
+    element.classList.add('flash-' + colour);
     setTimeout(() => {
-      element.classList.remove('flash-green')
-    }, 1000)
+      element.classList.remove('flash-' + colour);
+    }, 1000);
   }
 
   savePreviousValue(input) {
@@ -143,25 +182,12 @@ export default class extends Controller {
     return this.statusTargets.find(target => target.dataset.challengeId === challengeId)
   }
 
-  search() {
-    const query = this.searchInputTarget.value.toLowerCase()
-
-    console.log("Searching for:", query)
-
-    this.rowTargets.forEach(row => {
-      const text = row.textContent.toLowerCase()
-      row.style.display = text.includes(query) ? "" : "none"
-    })
-  }
-
-  sort() {
-    const column = this.sortSelectTarget.value
-    const rows = Array.from(this.rowTargets)
-    rows.sort((a, b) => {
-      const aValue = a.querySelector(`[data-column="${column}"]`).textContent
-      const bValue = b.querySelector(`[data-column="${column}"]`).textContent
-      return aValue.localeCompare(bValue)
-    })
-    rows.forEach(row => this.element.querySelector('tbody').appendChild(row))
+  handleWebSocketUpdate(data) {
+    if (data.user_id == this.userIdValue) {
+      console.log("Controller received data for current user:", data);
+      this.updateUI(data);
+    } else {
+      console.log("WARNING: Received data for wrong user:", data, "; data.user_id: ", data.user_id, "; this.userIdValue: ", this.userIdValue);
+    }
   }
 }
