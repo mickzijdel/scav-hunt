@@ -22,20 +22,9 @@ class ScoringController < ApplicationController
     @result = Result.find_or_initialize_by(challenge_id: params[:challenge_id], user_id: params[:user_id])
     @result.regular_points = params[:regular_points]
     @result.bonus_points = params[:bonus_points]
+    @result.updated_by_id = current_user.id
 
     if @result.save
-      ActionCable.server.broadcast(
-        "scoring_#{params[:user_id]}",
-        {
-          user_id: params[:user_id],
-          challenge_id: params[:challenge_id],
-          regular_points: @result.regular_points,
-          bonus_points: @result.bonus_points,
-          status: @result.status,
-          total_points: @result.user.reload.total_points
-        }
-      )
-
       render json: { status: "success", result: @result.as_json }
     else
       render json: { status: "error", errors: @result.errors.full_messages }, status: :unprocessable_entity

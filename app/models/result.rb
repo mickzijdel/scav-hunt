@@ -6,8 +6,10 @@ class Result < ApplicationRecord
 
   validates :regular_points, :bonus_points, presence: true, numericality: { only_integer: true }
 
-  after_save :clear_scoreboard_cache
+  after_save :clear_scoreboard_cache, :broadcast_update
   before_destroy :ensure_zero_points
+
+  attr_accessor :updated_by_id
 
   # If a result changes, the scoreboard needs updating.
   # FIXME: Could be improved by caching on a per-team basis.
@@ -39,6 +41,20 @@ class Result < ApplicationRecord
           bonus_points: bonus_points,
           status: status
         }
+  end
+
+  def broadcast_update
+    ScoringChannel.broadcast_to(user, {
+      user_id: user_id,
+      challenge_id: challenge_id,
+      regular_points: regular_points,
+      bonus_points: bonus_points,
+      status: status,
+      total_points: user.reload.total_points,
+      updated_by: updated_by_id
+    })
+
+    self.updated_by_id = nil
   end
 
   private
