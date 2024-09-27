@@ -24,6 +24,18 @@ class ScoringController < ApplicationController
     @result.bonus_points = params[:bonus_points]
 
     if @result.save
+      ActionCable.server.broadcast(
+        "scoring_#{params[:user_id]}",
+        {
+          user_id: params[:user_id],
+          challenge_id: params[:challenge_id],
+          regular_points: @result.regular_points,
+          bonus_points: @result.bonus_points,
+          status: @result.status,
+          total_points: @result.user.reload.total_points
+        }
+      )
+
       render json: { status: "success", result: @result.as_json }
     else
       render json: { status: "error", errors: @result.errors.full_messages }, status: :unprocessable_entity

@@ -1,8 +1,7 @@
 <% # TODO: Add undo button for edits, probably using papertrail (it says the most recent version is not compatible with Rails 7.2 but it should work fine). %>
-<% # TODO: Add filtering/sorting using Ransack %>
-<% # FIXME: For later, sync changes on this page between different users. Probably a websockets/actioncable thing %>
+<% # TODO: Sorting by points appears to be broken %>
 
-<div data-controller="scoring">
+<div data-controller="scoring" data-scoring-user-id-value="<%= @team.id %>">
   <div class="mb-3">
     <input type="text" class="form-control" placeholder="Search..." data-scoring-target="searchInput" data-action="input->scoring#search">
     <select class="form-select mt-2" data-scoring-target="sortSelect" data-action="change->scoring#sort">
@@ -29,7 +28,7 @@
     </thead>
     <tbody>
       <% @challenges.each do |challenge| %>
-        <tr data-scoring-target="row">
+        <tr data-scoring-target="row" data-challenge-id="<%= challenge.id %>">
           <td data-column="number"><%= challenge.number %></td>
           <td data-column="groupId"><%= challenge.group_id %></td>
           <td data-column="description"><%= challenge.description %></td>
@@ -99,10 +98,19 @@
 <style>
   @keyframes flash-green {
     0% { background-color: transparent; }
-    50% { background-color: #90EE90; }
+    50% { background-color: var(--bs-success); }
     100% { background-color: transparent; }
   }
   .flash-green {
     animation: flash-green 1s;
+  }
+
+  @keyframes flash-blue {
+    0% { background-color: transparent; }
+    50% { background-color: var(--bs-info); }
+    100% { background-color: transparent; }
+  }
+  .flash-blue {
+    animation: flash-blue 1s;
   }
 </style>

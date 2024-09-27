@@ -1,10 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
+import { connectToScoringChannel } from "../channels/scoring_channel"
 
 export default class extends Controller {
   static targets = ["regularPoints", "bonusPoints", "status", "totalPoints", "row", "searchInput", "sortSelect"]
+  static values = { userId: Number }
 
   connect() {
     this.previousValues = {}
+
+    connectToScoringChannel(this, this.userIdValue);
   }
 
   updateScore(event) {
@@ -15,7 +19,7 @@ export default class extends Controller {
     const bonusPoints = this.getBonusPoints(challengeId, userId)
 
     this.savePreviousValue(input)
-    this.sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints)
+    this.sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints, input)
   }
 
   undoRegularPoints(event) {
@@ -53,7 +57,7 @@ export default class extends Controller {
     this.updateScore({ target: regularPointsInput })
   }
 
-  sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints) {
+  sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints, input) {
     fetch('/scoring/update', {
       method: 'POST',
       headers: {
@@ -65,7 +69,10 @@ export default class extends Controller {
     .then(response => response.json())
     .then(data => {
       if (data.status === 'success') {
-        this.updateUI(challengeId, userId, data.result)
+        // This doesn't actually flash the elements because there are no changes to the values anymore, 
+        // however, good to run it to update the total points and status.
+        this.updateUI(challengeId, userId, data.result, 'green')
+        this.flashElement(input, 'green');
       } else {
         console.error('Error updating score:', data.errors)
       }
@@ -73,11 +80,11 @@ export default class extends Controller {
     .catch(error => console.error('Error:', error))
   }
 
-  updateUI(challengeId, userId, result) {
+  updateUI(challengeId, userId, result, colour) {
     const regularPointsInput = this.getRegularPointsInput(challengeId, userId)
     const bonusPointsInput = this.getBonusPointsInput(challengeId, userId)
     const statusElement = this.getStatusElement(challengeId)
-
+    
     const updatedElements = []
 
     if (regularPointsInput.value !== result.regular_points.toString()) {
@@ -91,8 +98,9 @@ export default class extends Controller {
     }
 
     statusElement.textContent = result.status
+      
+    updatedElements.forEach(element => this.flashElement(element, colour))
 
-    updatedElements.forEach(element => this.flashElement(element))
     this.updateTotalPoints()
   }
 
@@ -106,11 +114,11 @@ export default class extends Controller {
     this.totalPointsTarget.textContent = totalPoints
   }
 
-  flashElement(element) {
-    element.classList.add('flash-green')
+  flashElement(element, colour) {
+    element.classList.add('flash-' + colour);
     setTimeout(() => {
-      element.classList.remove('flash-green')
-    }, 1000)
+      element.classList.remove('flash-' + colour);
+    }, 1000);
   }
 
   savePreviousValue(input) {
@@ -146,8 +154,6 @@ export default class extends Controller {
   search() {
     const query = this.searchInputTarget.value.toLowerCase()
 
-    console.log("Searching for:", query)
-
     this.rowTargets.forEach(row => {
       const text = row.textContent.toLowerCase()
       row.style.display = text.includes(query) ? "" : "none"
@@ -157,11 +163,22 @@ export default class extends Controller {
   sort() {
     const column = this.sortSelectTarget.value
     const rows = Array.from(this.rowTargets)
+
     rows.sort((a, b) => {
       const aValue = a.querySelector(`[data-column="${column}"]`).textContent
       const bValue = b.querySelector(`[data-column="${column}"]`).textContent
       return aValue.localeCompare(bValue)
     })
-    rows.forEach(row => this.element.querySelector('tbody').appendChild(row))
+  
+    const tbody = this.element.querySelector('tbody')
+    rows.forEach(row => tbody.appendChild(row))
+  }
+
+  handleWebSocketUpdate(data) {
+    if (data.user_id == this.userIdValue) {
+      this.updateUI(data.challenge_id, data.user_id, data, "blue");
+    } else {
+      console.log("WARNING: Received data for wrong user:", data, "; data.user_id: ", data.user_id, "; this.userIdValue: ", this.userIdValue);
+    }
   }
 }
