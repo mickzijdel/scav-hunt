@@ -1,65 +1,80 @@
 <% # Connected to the scoring channel to update the score in real time for teams %>
-<div data-controller="challenge-updates" data-challenge-updates-user-id-value="<%= current_user.id if current_user&.team? %>">
+<div data-controller="challenge-updates challenge-sorting" data-challenge-updates-user-id-value="<%= current_user.id if current_user&.team? %>">
+  <% # Different sort options for teams and scorers %>
+  <%= render 'application/search_form', sort_options: current_user&.team? ? {
+    "Number" => "number",
+    "Description" => "description",
+    "Points To Win" => "points",
+    "Obtained Points" => "regularPoints",
+    "Bonus Points" => "bonusPoints",
+    "Status" => "status"
+    } : {
+    "Number" => "number",
+    "Group ID" => "groupId",
+    "Description" => "description",
+    "Points To Win" => "points",
+    }
+  %>
 
   <table class="table table-striped">
-  <thead>
-    <tr>
-      <th>#</th>
-
-      <% unless current_user&.team? %>
-        <th>Group ID</th>
-      <% end %>
-      <th>Description</th>
-      <th>Points To Win</th>
-
-      <% if current_user&.team? %>
-        <th>Obtained Points</th>
-        <th>Bonus Points</th>
-        <th>Status</th>
-      <% else %>        
-      <th>Actions</th>
-      <% end %>    
-      </tr>
-  </thead>
-  <tbody>
-    <% @challenges.each do |challenge| %>
+    <thead>
       <tr>
-        <td><%= challenge.number %></td>
+        <th>#</th>
 
         <% unless current_user&.team? %>
-          <td><%= challenge.group_id %></td>
+          <th>Group ID</th>
         <% end %>
-
-        <td><%= challenge.description %></td>
-        <td><%= challenge.points %></td>
+        <th>Description</th>
+        <th>Points To Win</th>
         
         <% if current_user&.team? %>
-          <% result = @results[challenge.id] %>
-
-          <td data-challenge-updates-target="regularPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.regular_points : 0 %></td>
-          <td data-challenge-updates-target="bonusPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.bonus_points : 0 %></td>
-          <td data-challenge-updates-target="status" data-challenge-id="<%= challenge.id %>"><%= result&.status.presence || 'Not Attempted' %></td>
-        <% else %>
-          <td><%= render 'application/index_actions', item: challenge %></td>
-        <% end %>
+          <th>Obtained Points</th>
+          <th>Bonus Points</th>
+          <th>Status</th>
+        <% else %>        
+          <th>Actions</th>
+        <% end %>    
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @challenges.each do |challenge| %>
+        <tr data-challenge-sorting-target="row" data-challenge-id="<%= challenge.id %>">
+          <td data-column="number"><%= challenge.number %></td>
 
-<% if current_user&.team? %>
-  <p><strong>Total Points: <span data-challenge-updates-target="totalPoints"><%= current_user.total_points %></span></strong></p>
-<% end %>
+          <% unless current_user&.team? %>
+            <td data-column="groupId"><%= challenge.group_id %></td>
+          <% end %>
 
-<% if can? :create, Challenge %>
-  <%= link_to 'New Challenge', new_challenge_path, class: 'btn btn-primary' %>
-<% end %>
+          <td data-column="description"><%= challenge.description %></td>
+          <td data-column="points"><%= challenge.points %></td>
 
-<% if can? :import, Challenge %>
-  <%= link_to 'Import Challenges', import_form_challenges_path, class: 'btn btn-secondary' %>
-<% end %>
+          <% if current_user&.team? %>
+            <% result = @results[challenge.id] %>
 
-<% if can? :export, Challenge %>
-  <%= link_to 'Export Challenges', export_challenges_path, class: 'btn btn-secondary' %>
-<% end %>
+            <td data-challenge-updates-target="regularPoints" data-column="regularPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.regular_points : 0 %></td>
+            <td data-challenge-updates-target="bonusPoints" data-column="bonusPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.bonus_points : 0 %></td>
+            <td data-challenge-updates-target="status" data-column="status" data-challenge-id="<%= challenge.id %>"><%= result&.status.presence || 'Not Attempted' %></td>
+          <% else %>
+            <td><%= render 'application/index_actions', item: challenge %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if current_user&.team? %>
+    <p><strong>Total Points: <span data-challenge-updates-target="totalPoints"><%= current_user.total_points %></span></strong></p>
+  <% end %>
+
+  <% if can? :create, Challenge %>
+    <%= link_to 'New Challenge', new_challenge_path, class: 'btn btn-primary' %>
+  <% end %>
+
+  <% if can? :import, Challenge %>
+    <%= link_to 'Import Challenges', import_form_challenges_path, class: 'btn btn-secondary' %>
+  <% end %>
+
+  <% if can? :export, Challenge %>
+    <%= link_to 'Export Challenges', export_challenges_path, class: 'btn btn-secondary' %>
+  <% end %>
 </div>

@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import ChallengeSortingController from "./challenge_sorting_controller"
+application.register("challenge-sorting", ChallengeSortingController)
+
 import ChallengeUpdatesController from "./challenge_updates_controller"
 application.register("challenge-updates", ChallengeUpdatesController)
 
