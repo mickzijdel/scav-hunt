@@ -8,7 +8,7 @@ module ApplicationCable
 
     private
       def find_verified_user
-        if verified_user = User.find_by(id: cookies.encrypted["_scav_hunt_session"]["warden.user.user.key"][0][0])
+        if verified_user = env["warden"].user
           verified_user
         else
           reject_unauthorized_connection
