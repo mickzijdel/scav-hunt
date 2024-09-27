@@ -9,7 +9,8 @@ export default class extends Controller {
   connect() {
     // Don't register if there is no user id, like on the version of the challenge index for scorers.
     if (this.hasUserIdValue && this.userIdValue != 0) {
-      connectToScoringChannel(this, this.userIdValue);
+      // We don't need to do anything with the connection status here.
+      connectToScoringChannel(this, this.userIdValue, (connected) => {});
     }
   }
 
