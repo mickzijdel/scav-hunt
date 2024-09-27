@@ -14,7 +14,9 @@ Rails.application.routes.draw do
   get "scoring/:id", to: "scoring#score", as: :scoring_score
   post "scoring/update"
 
-  resources :group_permissions, only: [ :index, :update ]
+  resources :group_permissions, only: [ :index ] do
+    post :update, on: :collection
+  end
 
   resources :settings, only: [ :index ] do
     patch :update, on: :collection
