@@ -40,6 +40,9 @@ The deploy steps are:
 
 ## Environment Variables
 Ensure that the environment variables are specified in Portainer or in an `.env` file as follows:
-- `RAILS_MASTER_KEY`: the master key.
-- `DATABASE_NAME`: `scav_hunt_production`
-- `DATABASE_PASSWORD`: Anything you want
+```
+RAILS_MASTER_KEY=<the master key>
+DATABASE_NAME=scav_hunt_production
+DATABASE_PASSWORD=<Anything you want>
+HOST_URL=<host website, like scavhunt.bedlamtheatre.co.uk>
+```

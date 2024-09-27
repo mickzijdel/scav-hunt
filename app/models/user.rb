@@ -39,13 +39,13 @@ class User < ApplicationRecord
   end
 
   def stats
-    not_attempted = Result.where(user: self).where("regular_points = 0 AND bonus_points = 0").count
-    completed = Result.where(user: self).where("regular_points >= challenges.points").joins(:challenge).count
+    completed = Result.where(user: self).where("regular_points >= challenges.points AND regular_points != 0").joins(:challenge).count
+    partially_completed = Result.where(user: self).where("regular_points != 0 OR bonus_points != 0").count - completed
 
     {
       completed: completed,
-      partially_completed: Challenge.count - not_attempted - completed,
-      not_attempted: not_attempted
+      partially_completed: partially_completed,
+      not_attempted: Challenge.count - completed - partially_completed
     }
   end
 
