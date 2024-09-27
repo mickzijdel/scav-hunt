@@ -1,6 +1,7 @@
 class ScoringChannel < ApplicationCable::Channel
   def subscribed
-    stream_from "scoring_#{params[:user_id]}"
+    user = User.find(params[:user_id])
+    stream_for user
     Rails.logger.info "Subscribed to ScoringChannel for user: #{params[:user_id]}"
   end
 

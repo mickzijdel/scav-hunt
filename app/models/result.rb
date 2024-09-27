@@ -44,7 +44,7 @@ class Result < ApplicationRecord
   end
 
   def broadcast_update
-    ActionCable.server.broadcast("scoring_#{user_id}", {
+    ScoringChannel.broadcast_to(user, {
       user_id: user_id,
       challenge_id: challenge_id,
       regular_points: regular_points,
