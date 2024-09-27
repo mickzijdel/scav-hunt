@@ -3,6 +3,13 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["row", "searchInput", "sortSelect"]
 
+  connect() {
+    this.element.addEventListener("group-updates:challengesUpdated", this.reinitialize.bind(this))
+  }
+
+  reinitialize() {
+    this.sort()
+  }
 
   search() {
     const query = this.searchInputTarget.value.toLowerCase()
@@ -14,6 +21,11 @@ export default class extends Controller {
   }
 
   sort() {
+    if (!this.sortSelectTarget.value) {
+      console.log("No sort value")
+      return
+    }
+
     const column = this.sortSelectTarget.value
     const rows = Array.from(this.rowTargets)
 

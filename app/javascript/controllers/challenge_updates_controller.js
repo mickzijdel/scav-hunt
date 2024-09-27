@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { connectToScoringChannel } from "../channels/scoring_channel"
 
-// Duuplicates a lot from scoring_controller, but simpler to just keep them separate.
+// Duplicates a lot from scoring_controller, but simpler to just keep them separate.
 export default class extends Controller {
   static targets = ["regularPoints", "bonusPoints", "status", "totalPoints"]
   static values = { userId: Number }
@@ -32,7 +32,4 @@ export default class extends Controller {
       this.totalPointsTarget.textContent = totalPoints;
     }
   }
-
-  // TODO: Listen to updates on the visible group ids and update challenge list accordingly.
-  // TODO: Update the challenge sorting when the group ids are updated.
 }
