@@ -3,6 +3,7 @@ class Setting < ApplicationRecord
   validates :key, :value, presence: true
 
   KEYS = {
+    "chart_start_time" => { title: "Chart Start Time", type: :datetime },
     "scoreboard_end_time" => { title: "Scoreboard End Time", type: :datetime },
     "scoreboard_visible" => { title: "Scoreboard Visible", type: :boolean }
   }.freeze
