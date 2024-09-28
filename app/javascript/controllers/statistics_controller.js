@@ -34,7 +34,7 @@ export default class extends Controller {
         x: {
           type: 'timeseries',
           tick: {
-            format: '%Y-%m-%d %H:%M'
+            format: '%H:%M'
           },
           label: "Time"
         },
