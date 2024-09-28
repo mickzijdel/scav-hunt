@@ -1,0 +1,7 @@
+<% content_for :head do %>
+    <link href=" https://cdn.jsdelivr.net/npm/billboard.js@3.13.0/dist/billboard.min.css " rel="stylesheet">
+<% end %>
+
+<div data-controller="statistics"
+     data-statistics-challenge-data-value="<%= @challenge_data.map { |group_id, count| ["Group #{group_id}", count] }.to_json %>">
+</div>
