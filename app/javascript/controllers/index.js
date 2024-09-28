@@ -21,3 +21,6 @@ application.register("scoreboard", ScoreboardController)
 
 import ScoringController from "./scoring_controller"
 application.register("scoring", ScoringController)
+
+import StatisticsController from "./statistics_controller"
+application.register("statistics", StatisticsController)

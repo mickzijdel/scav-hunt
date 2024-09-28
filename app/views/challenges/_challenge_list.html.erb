@@ -17,6 +17,11 @@
       <td data-challenge-updates-target="bonusPoints" data-column="bonusPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.bonus_points : 0 %></td>
       <td data-challenge-updates-target="status" data-column="status" data-challenge-id="<%= challenge.id %>"><%= result&.status.presence || 'Not Attempted' %></td>
     <% else %>
+      <% completion_stats = challenge.completion_stats %>
+      <td data-challenge-updates-target="completed"><%= completion_stats[:completed] %></td>
+      <td data-challenge-updates-target="partiallyCompleted"><%= completion_stats[:partially_completed] %></td>
+      <td data-challenge-updates-target="notAttempted"><%= completion_stats[:not_attempted] %></td>
+
       <td><%= render 'application/index_actions', item: challenge %></td>
     <% end %>
   </tr>

@@ -1,7 +1,7 @@
 module ApplicationHelper
   def navbar_items
     navbar_items = [
-      { title: "Scoreboard",            path: root_path }
+      { title: "Scoreboard", path: root_path }
     ]
 
     if can? :index, Challenge
@@ -14,6 +14,10 @@ module ApplicationHelper
 
     if can? :manage, GroupPermission
       navbar_items << { title: "Group Permissions", path: group_permissions_path }
+    end
+
+    if can? :index, :statistics
+      navbar_items << { title: "Statistics", path: statistics_path }
     end
 
     if can? :index, User

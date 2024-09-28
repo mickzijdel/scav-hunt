@@ -1,3 +1,5 @@
+<% # FIXME: It would be nice if the completion stats are also updated in real-time. Probably needs another channel. %>
+
 <% # Connected to the scoring channel to update the score in real time for teams %>
 <div data-controller="challenge-updates challenge-sorting group-updates" data-challenge-updates-user-id-value="<%= current_user.id if current_user&.team? %>" data-group-updates-user-id-value="<%= current_user.id if current_user&.team? %>">
   <% # Different sort options for teams and scorers %>
@@ -13,6 +15,9 @@
     "Group ID" => "groupId",
     "Description" => "description",
     "Points To Win" => "points",
+    "Completed" => "completed",
+    "Partially Completed" => "partiallyCompleted",
+    "Not Attempted" => "notAttempted"
     }
   %>
 
@@ -32,6 +37,9 @@
           <th>Bonus Points</th>
           <th>Status</th>
         <% else %>        
+          <th>Completed</th>
+          <th>Partially Completed</th>
+          <th>Not Attempted</th>
           <th>Actions</th>
         <% end %>    
       </tr>
