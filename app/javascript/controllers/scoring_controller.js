@@ -93,10 +93,10 @@ export default class extends Controller {
       if (data.status === 'success') {
         this.updateUI(data.result)
       } else {
-        console.error('Error updating score:', data.errors)
+        console.error('ScoringController: Error updating score:', data.errors)
       }
     })
-    .catch(error => console.error('Error:', error))
+    .catch(error => console.error('ScoringController: Error sending update request:', error))
   }
 
   updateUI(result) {
@@ -108,9 +108,8 @@ export default class extends Controller {
     let colour = "blue";
 
     // If the result was updated by the current user, flash all elements and in green.
-    console.log("this.currentUserIdValue: ", this.currentUserIdValue, "; result.updated_by: ", result.updated_by, "; equal: ", this.currentUserIdValue == result.updated_by);
     if(this.currentUserIdValue == result.updated_by) {
-      console.log("Updating UI for result updated by current user:", result);
+      console.info("ScoringController: Updating UI for result updated by current logged-in user.");
       colour = "green";
       updatedElements.push(regularPointsInput, bonusPointsInput);
     }
@@ -186,10 +185,10 @@ export default class extends Controller {
 
   handleWebSocketUpdate(data) {
     if (data.user_id == this.userIdValue) {
-      console.log("Controller received data for current user:", data);
+      console.info("ScoringController: Received data for the user that is being scored. Starting UI update.");
       this.updateUI(data);
     } else {
-      console.log("WARNING: Received data for wrong user:", data, "; data.user_id: ", data.user_id, "; this.userIdValue: ", this.userIdValue);
+      console.warn("ScoringController: Received data for wrong user:", data, "; data.user_id: ", data.user_id, "; this.userIdValue: ", this.userIdValue);
     }
   }
 }
