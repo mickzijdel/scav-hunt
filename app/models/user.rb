@@ -27,7 +27,11 @@ class User < ApplicationRecord
   end
 
   def self.teams_ranked
-    self.where(role: :team).includes(:results).sort_by { |team| -team.results.sum(&:total_points) }
+    self.where(role: :team)
+        .left_joins(:results)
+        .group("users.id")
+        .select("users.*, COALESCE(SUM(results.regular_points + results.bonus_points), 0) as total_points")
+        .order("total_points DESC, users.name ASC")
   end
 
   def self.teams_by_name
@@ -56,7 +60,7 @@ class User < ApplicationRecord
       score: results.sum(&:total_points)
     }
 
-    out.merge!(stats) if ability.can?(:manage, :scoring)
+    out.merge!(stats) if ability&.can?(:manage, :scoring)
 
     out
   end
