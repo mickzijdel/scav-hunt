@@ -8,7 +8,6 @@ export default class extends Controller {
   static values = { userId: Number, currentUserId: Number }
 
   connect() {
-    this.previousValues = {}
     this.websocketConnected = false
 
     connectToScoringChannel(this, this.userIdValue, (connected) => {
@@ -23,8 +22,6 @@ export default class extends Controller {
     const regularPoints = this.getRegularPoints(challengeId, userId)
     const bonusPoints = this.getBonusPoints(challengeId, userId)
 
-    this.savePreviousValue(input)
-
     const data = { 
       challenge_id: challengeId, 
       user_id: userId, 
@@ -37,30 +34,6 @@ export default class extends Controller {
       this.sendUpdateViaWebSocket(data)
     } else {
       this.sendUpdateRequest(data)
-    }
-  }
-
-  undoRegularPoints(event) {
-    const button = event.target
-    const challengeId = button.dataset.challengeId
-    const userId = button.dataset.userId
-    const input = this.getRegularPointsInput(challengeId, userId)
-    
-    if (this.previousValues[input.id]) {
-      input.value = this.previousValues[input.id]
-      this.updateScore({ target: input })
-    }
-  }
-
-  undoBonusPoints(event) {
-    const button = event.target
-    const challengeId = button.dataset.challengeId
-    const userId = button.dataset.userId
-    const input = this.getBonusPointsInput(challengeId, userId)
-    
-    if (this.previousValues[input.id]) {
-      input.value = this.previousValues[input.id]
-      this.updateScore({ target: input })
     }
   }
 
@@ -151,12 +124,6 @@ export default class extends Controller {
     setTimeout(() => {
       element.classList.remove('flash-' + colour);
     }, 1000);
-  }
-
-  savePreviousValue(input) {
-    if (!this.previousValues[input.id]) {
-      this.previousValues[input.id] = input.value
-    }
   }
 
   getRegularPoints(challengeId, userId) {
