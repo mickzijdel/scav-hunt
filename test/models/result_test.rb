@@ -28,8 +28,8 @@ class ResultTest < ActiveSupport::TestCase
     assert_equal "Partially Completed", @result.status
   end
 
-  test "as_json returns expected structure" do
-    json = @result.as_json
-    assert_equal [ :id, :user_id, :challenge_id, :regular_points, :bonus_points, :status ], json.keys
+  test "after_update_data returns expected structure" do
+    json = @result.after_update_data
+    assert_equal [ :id, :user_id, :challenge_id, :regular_points, :bonus_points, :status, :total_points, :updated_by ], json.keys
   end
 end

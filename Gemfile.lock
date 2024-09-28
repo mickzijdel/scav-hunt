@@ -84,8 +84,6 @@ GEM
       rouge (>= 1.0.0)
     bigdecimal (3.1.8)
     bindex (0.8.1)
-    bootsnap (1.18.4)
-      msgpack (~> 1.2)
     brakeman (6.2.1)
       racc
     builder (3.3.0)
@@ -128,7 +126,7 @@ GEM
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
     io-console (0.7.2)
-    irb (1.14.0)
+    irb (1.14.1)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     jbuilder (2.13.0)
@@ -224,7 +222,7 @@ GEM
     rake (13.2.1)
     rdoc (6.7.0)
       psych (>= 4.0.0)
-redis (5.3.0)
+    redis (5.3.0)
       redis-client (>= 0.22.0)
     redis-client (0.22.2)
       connection_pool
@@ -294,7 +292,7 @@ redis (5.3.0)
       railties (>= 6.0.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-tzinfo-data (1.2024.2)
+    tzinfo-data (1.2024.2)
       tzinfo (>= 1.0.0)
     unicode-display_width (2.6.0)
     useragent (0.16.10)
@@ -305,7 +303,7 @@ tzinfo-data (1.2024.2)
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webrick (1.8.1)
+    webrick (1.8.2)
     websocket (1.2.11)
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
@@ -321,7 +319,6 @@ PLATFORMS
 DEPENDENCIES
   activerecord-import
   better_errors
-  bootsnap
   brakeman
   cancancan
   capybara
@@ -336,7 +333,7 @@ DEPENDENCIES
   propshaft
   puma (>= 5.0)
   rails (~> 7.2.1)
-redis
+  redis
   rubocop-rails-omakase
   selenium-webdriver
   simple_form

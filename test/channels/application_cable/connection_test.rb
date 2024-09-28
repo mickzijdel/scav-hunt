@@ -4,7 +4,7 @@ module ApplicationCable
   class ConnectionTest < ActionCable::Connection::TestCase
     test "connects with params" do
       # Simulate a connection opening by calling the `connect` method
-      user = users(:one)
+      user = users(:admin)
       cookies.signed["_scav_hunt_session"] = { "warden.user.user.key": [ [ user.id ] ] }
       connect
 

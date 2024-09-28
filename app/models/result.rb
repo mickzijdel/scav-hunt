@@ -34,6 +34,7 @@ class Result < ApplicationRecord
 
   def after_update_data
     data = {
+      id: id,
       user_id: user_id,
       challenge_id: challenge_id,
       regular_points: regular_points,
