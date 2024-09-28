@@ -3,5 +3,11 @@
 <% end %>
 
 <div data-controller="statistics"
-     data-statistics-challenge-data-value="<%= @challenge_data.map { |group_id, count| ["Group #{group_id}", count] }.to_json %>">
+     data-statistics-created-at-data-value="<%= @created_at_data.to_json %>"
+     data-statistics-updated-at-data-value="<%= @updated_at_data.to_json %>">
+  <h2>Score Over Time (Created At)</h2>
+  <div id="createdAtChart">Loading...</div>
+
+  <h2>Score Over Time (Updated At)</h2>
+  <div id="updatedAtChart">Loading...</div>
 </div>

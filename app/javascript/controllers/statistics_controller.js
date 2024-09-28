@@ -1,32 +1,55 @@
 import { Controller } from "@hotwired/stimulus"
-import bb, { bar } from "billboard.js"
+import bb, { line } from "billboard.js"
 
 export default class extends Controller {
   static values = {
-    challengeData: Array
+    createdAtData: Array,
+    updatedAtData: Array
   }
 
   connect() {
-    this.renderChart()
+    this.renderCreatedAtChart()
+    this.renderUpdatedAtChart()
   }
 
-  renderChart() {
+  renderCreatedAtChart() {
+    this.renderChart('createdAtChart', this.createdAtDataValue, 'Score Over Time (Created At)')
+  }
+
+  renderUpdatedAtChart() {
+    this.renderChart('updatedAtChart', this.updatedAtDataValue, 'Score Over Time (Updated At)')
+  }
+
+  renderChart(elementId, data, title) {
+    console.log("StatisticsController:", title, data);
+
     bb.generate({
-      bindto: this.element,
+      bindto: `#${elementId}`,
       data: {
-        columns: this.challengeDataValue,
-        type: bar()
+        columns: data,
+        x: "timestamps",
+        type: line()
       },
       axis: {
         x: {
-          label: "Group ID"
+          type: 'timeseries',
+          tick: {
+            format: '%Y-%m-%d %H:%M'
+          },
+          label: "Time"
         },
         y: {
-          label: "Number of Challenges"
+          label: "Points"
         }
       },
       title: {
-        text: "Challenges per Group"
+        text: title
+      },
+      zoom: {
+        enabled: true
+      },
+      point: {
+        show: false
       }
     })
   }
