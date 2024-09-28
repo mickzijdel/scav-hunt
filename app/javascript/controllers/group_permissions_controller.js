@@ -24,13 +24,13 @@ export default class extends Controller {
       } else {
         // FIXME: Show some error feedback.
         checkbox.checked = !permitted
-        console.error('Error updating group permission:', data.errors)
+        console.error('GroupPermissionsController: Error updating group permission:', data.errors)
       }
     })
     .catch(error => {
       // FIXME: Show some error feedback.
       checkbox.checked = !permitted
-      console.error('Error:', error)
+      console.error('GroupPermissionsController: Error:', error)
   })
   }
 }

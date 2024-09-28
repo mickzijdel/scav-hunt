@@ -22,14 +22,19 @@ export default class extends Controller {
 
   sort() {
     if (!this.sortSelectTarget.value) {
-      console.log("No sort value")
+      console.warn("ChallengeSortingController: No sort value")
       return
     }
 
     const column = this.sortSelectTarget.value
+    console.info("ChallengeSortingController: Sorting by", column)
+
     const rows = Array.from(this.rowTargets)
 
-    console.log("Sorting by", column)
+    if (rows.length === 0) {
+      console.warn("ChallengeSortingController: No rows to sort")
+      return
+    }
 
     rows.sort((a, b) => {
       const aElement = a.querySelector(`[data-column="${column}"], [data-scoring-target="${column}"]`)
