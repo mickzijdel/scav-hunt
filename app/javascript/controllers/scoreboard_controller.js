@@ -69,7 +69,7 @@ export default class extends Controller {
       const teams = await response.json()
       this.updateTable(teams)
     } catch (error) {
-      console.error("Error updating scoreboard:", error)
+      console.error("ScoreboardController: Error updating scoreboard:", error)
     }
   }
 

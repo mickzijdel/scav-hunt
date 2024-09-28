@@ -8,7 +8,6 @@ export default class extends Controller {
   static values = { userId: Number, currentUserId: Number }
 
   connect() {
-    this.previousValues = {}
     this.websocketConnected = false
 
     connectToScoringChannel(this, this.userIdValue, (connected) => {
@@ -23,8 +22,6 @@ export default class extends Controller {
     const regularPoints = this.getRegularPoints(challengeId, userId)
     const bonusPoints = this.getBonusPoints(challengeId, userId)
 
-    this.savePreviousValue(input)
-
     const data = { 
       challenge_id: challengeId, 
       user_id: userId, 
@@ -37,30 +34,6 @@ export default class extends Controller {
       this.sendUpdateViaWebSocket(data)
     } else {
       this.sendUpdateRequest(data)
-    }
-  }
-
-  undoRegularPoints(event) {
-    const button = event.target
-    const challengeId = button.dataset.challengeId
-    const userId = button.dataset.userId
-    const input = this.getRegularPointsInput(challengeId, userId)
-    
-    if (this.previousValues[input.id]) {
-      input.value = this.previousValues[input.id]
-      this.updateScore({ target: input })
-    }
-  }
-
-  undoBonusPoints(event) {
-    const button = event.target
-    const challengeId = button.dataset.challengeId
-    const userId = button.dataset.userId
-    const input = this.getBonusPointsInput(challengeId, userId)
-    
-    if (this.previousValues[input.id]) {
-      input.value = this.previousValues[input.id]
-      this.updateScore({ target: input })
     }
   }
 
@@ -93,10 +66,10 @@ export default class extends Controller {
       if (data.status === 'success') {
         this.updateUI(data.result)
       } else {
-        console.error('Error updating score:', data.errors)
+        console.error('ScoringController: Error updating score:', data.errors)
       }
     })
-    .catch(error => console.error('Error:', error))
+    .catch(error => console.error('ScoringController: Error sending update request:', error))
   }
 
   updateUI(result) {
@@ -108,9 +81,8 @@ export default class extends Controller {
     let colour = "blue";
 
     // If the result was updated by the current user, flash all elements and in green.
-    console.log("this.currentUserIdValue: ", this.currentUserIdValue, "; result.updated_by: ", result.updated_by, "; equal: ", this.currentUserIdValue == result.updated_by);
     if(this.currentUserIdValue == result.updated_by) {
-      console.log("Updating UI for result updated by current user:", result);
+      console.info("ScoringController: Updating UI for result updated by current logged-in user.");
       colour = "green";
       updatedElements.push(regularPointsInput, bonusPointsInput);
     }
@@ -154,12 +126,6 @@ export default class extends Controller {
     }, 1000);
   }
 
-  savePreviousValue(input) {
-    if (!this.previousValues[input.id]) {
-      this.previousValues[input.id] = input.value
-    }
-  }
-
   getRegularPoints(challengeId, userId) {
     return this.getRegularPointsInput(challengeId, userId).value
   }
@@ -186,10 +152,10 @@ export default class extends Controller {
 
   handleWebSocketUpdate(data) {
     if (data.user_id == this.userIdValue) {
-      console.log("Controller received data for current user:", data);
+      console.info("ScoringController: Received data for the user that is being scored. Starting UI update.");
       this.updateUI(data);
     } else {
-      console.log("WARNING: Received data for wrong user:", data, "; data.user_id: ", data.user_id, "; this.userIdValue: ", this.userIdValue);
+      console.warn("ScoringController: Received data for wrong user:", data, "; data.user_id: ", data.user_id, "; this.userIdValue: ", this.userIdValue);
     }
   }
 }

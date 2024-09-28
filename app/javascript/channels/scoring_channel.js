@@ -1,25 +1,30 @@
 import consumer from "./consumer"
 
 export function connectToScoringChannel(controller, userId, connectionCallback) {
-  console.log("Connecting to ScoringChannel for user:", userId);
+  console.log("ScorringChannel: Connecting for user:", userId, "...");
 
-  controller.scoringChannel = consumer.subscriptions.create(
-    { channel: "ScoringChannel", user_id: userId },
-    {
-      connected() {
-        console.log("Connected to ScoringChannel")
-        connectionCallback(true)
-      },
+  try {
+    controller.scoringChannel = consumer.subscriptions.create(
+      { channel: "ScoringChannel", user_id: userId },
+      {
+        connected() {
+          console.log("ScoringChannel: Connected")
+          connectionCallback(true)
+        },
 
-      disconnected() {
-        console.log("Disconnected from ScoringChannel")
-        connectionCallback(false)
-      },
+        disconnected() {
+          console.log("ScoringChannel: Disconnected ")
+          connectionCallback(false)
+        },
 
-      received(data) {
-        console.log("Received data:", data);
-        controller.handleWebSocketUpdate(data)
+        received(data) {
+          console.info("ScoringChannel: Received data:", data);
+          controller.handleWebSocketUpdate(data)
+        }
       }
-    }
-  )
+    )
+  } catch (error) {
+    console.error("ScoringChannel: Failed to create subscription", error);
+    connectionCallback(false);
+  }
 }
