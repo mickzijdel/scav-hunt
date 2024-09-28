@@ -32,19 +32,8 @@ class Result < ApplicationRecord
     end
   end
 
-  def as_json
-        {
-          id: id,
-          user_id: user_id,
-          challenge_id: challenge_id,
-          regular_points: regular_points,
-          bonus_points: bonus_points,
-          status: status
-        }
-  end
-
-  def broadcast_update
-    ScoringChannel.broadcast_to(user, {
+  def after_update_data
+    data = {
       user_id: user_id,
       challenge_id: challenge_id,
       regular_points: regular_points,
@@ -52,9 +41,15 @@ class Result < ApplicationRecord
       status: status,
       total_points: user.reload.total_points,
       updated_by: updated_by_id
-    })
+    }
 
     self.updated_by_id = nil
+
+    data
+  end
+
+  def broadcast_update
+    ScoringChannel.broadcast_to(user, after_update_data)
   end
 
   private

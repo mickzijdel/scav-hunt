@@ -25,7 +25,7 @@ class ScoringController < ApplicationController
     @result.updated_by_id = current_user.id
 
     if @result.save
-      render json: { status: "success", result: @result.as_json }
+      render json: { status: "success", result: @result.after_update_data }
     else
       render json: { status: "error", errors: @result.errors.full_messages }, status: :unprocessable_entity
     end
