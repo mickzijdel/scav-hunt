@@ -17,6 +17,12 @@ team_two:
   encrypted_password: "NA"
   role: team
 
+team_three:
+  email: team_three@bedlamtheatre.test
+  name: "Team 3"
+  encrypted_password: "NA"
+  role: team
+
 scorer: 
   email: scorer@bedlamtheatre.test
   name: "Scorer"

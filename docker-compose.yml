@@ -2,22 +2,26 @@ services:
   rails:
     build:
       context: .
-      dockerfile:  ./Dockerfile
+      dockerfile: ./Dockerfile
     ports:
-     - "2024:3000"
-    links:
-      - database:database
+      - "2024:3000"
     environment:
       RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
       SCAV_HUNT_DATABASE_PASSWORD: "${DATABASE_PASSWORD}"
       SCAV_HUNT_DATABASE_USER: root
       SCAV_HUNT_DATABASE_NAME: "${DATABASE_NAME}"
       SCAV_HUNT_DATABASE_HOST: database
+      REDIS_URL: "redis://redis:6379/1"
+      ACTION_CABLE_FRONTEND_URL: "${HOST_URL}"
+      ACTION_CABLE_ALLOWED_REQUEST_ORIGINS: "${HOST_URL}"
     depends_on:
       database:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: always
     pull_policy: build
+
   database:
     image: "mysql:8.3"
     environment:
@@ -31,5 +35,16 @@ services:
       interval: 5s
       timeout: 10s
       retries: 20
+
+  redis:
+    image: "redis:7.4"
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+    volumes:
+      - redis_data:/data
+
 volumes:
-    mysql_data:
+  mysql_data:
+  redis_data:

@@ -7,5 +7,5 @@
 <% end %>
 
 <% if can? :destroy, item %>
-    <%= link_to 'Delete', item, data: { turbo_confirm: 'Are you sure?', turbo_method: :delete }, class: 'btn btn-sm btn-danger' %>
+    <%= link_to 'Destroy', item, data: { turbo_confirm: 'Are you sure?', turbo_method: :delete }, class: 'btn btn-sm btn-danger' %>
 <% end %>

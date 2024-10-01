@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, path: "auth"
+
+  get "home/index"
+  root "home#index" # Special case that sets this to the home page.
 
   resources :challenges do
     collection do
@@ -8,16 +11,22 @@ Rails.application.routes.draw do
       get :export
     end
   end
+
   resources :users
 
   get "scoring", to: "scoring#index"
   get "scoring/:id", to: "scoring#score", as: :scoring_score
   post "scoring/update"
 
-  get "home/index"
-  root "home#index" # Special case that sets this to the home page.
+  resources :group_permissions, only: [ :index ] do
+    post :update, on: :collection
+  end
 
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  resources :settings, only: [ :index ] do
+    patch :update, on: :collection
+  end
+
+  resources :statistics, only: [ :index ]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
@@ -26,9 +35,7 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/*
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-
-  # Defines the root path route ("/")
-  # root "posts#index"
+  mount ActionCable.server => "/cable"
 
   # Allows user to sign out through a GET request
   devise_scope :user do

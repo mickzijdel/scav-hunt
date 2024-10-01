@@ -1,0 +1,10 @@
+<%# locals:(sort_options:) %>
+<div class="mb-3">
+    <input type="text" class="form-control" placeholder="Search..." data-challenge-sorting-target="searchInput" data-action="input->challenge-sorting#search">
+    <select class="form-select mt-2" data-challenge-sorting-target="sortSelect" data-action="change->challenge-sorting#sort">
+        <option value="">Sort by...</option>
+        <% sort_options.each do |key, value| %>
+        <option value="<%= value %>"><%= key %></option>
+        <% end %>
+  </select>
+</div>

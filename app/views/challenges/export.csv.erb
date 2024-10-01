@@ -1,4 +1,22 @@
-Number,Description,Points
-<% @challenges.each do |challenge| %>
-<%= challenge.number %>,<%= challenge.description %>,<%= challenge.points %>
-<% end %>
+<%=
+  CSV.generate do |csv|
+    # Header row
+    header = ['Number', 'GroupID', 'Description', 'Points']
+    @teams.each do |team|
+      header << "#{team.name} - Regular Points"
+      header << "#{team.name} - Bonus Points"
+    end
+    csv << header
+
+    # Data rows
+    @challenges.each do |challenge|
+      row = [challenge.number, challenge.group_id, challenge.description, challenge.points]
+      @teams.each do |team|
+        result = challenge.results.find { |r| r.user_id == team.id }
+        row << (result&.regular_points || 0)
+        row << (result&.bonus_points || 0)
+      end
+      csv << row
+    end
+  end
+%>

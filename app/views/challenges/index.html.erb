@@ -1,50 +1,67 @@
-<table class="table">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Description</th>
-      <% if current_user&.team? %>
-        <th>Points To Win</th>
-        <th>Obtained Points</th>
-        <th>Bonus Points</th>
-      <% else %>
-        <th>Points To Win</th>
-        <th>Actions</th>
-      <% end %>
-    </tr>
-  </thead>
-  <tbody>
-    <% @challenges.each do |challenge| %>
+<% # FIXME: It would be nice if the completion stats are also updated in real-time. Probably needs another channel. %>
+
+<% # Connected to the scoring channel to update the score in real time for teams %>
+<div data-controller="challenge-updates challenge-sorting group-updates" data-challenge-updates-user-id-value="<%= current_user.id if current_user&.team? %>" data-group-updates-user-id-value="<%= current_user.id if current_user&.team? %>">
+  <% # Different sort options for teams and scorers %>
+  <%= render 'application/search_form', sort_options: current_user&.team? ? {
+    "Number" => "number",
+    "Description" => "description",
+    "Points To Win" => "points",
+    "Obtained Points" => "regularPoints",
+    "Bonus Points" => "bonusPoints",
+    "Status" => "status"
+    } : {
+    "Number" => "number",
+    "Group ID" => "groupId",
+    "Description" => "description",
+    "Points To Win" => "points",
+    "Completed" => "completed",
+    "Partially Completed" => "partiallyCompleted",
+    "Not Attempted" => "notAttempted"
+    }
+  %>
+
+  <table class="table table-striped">
+    <thead>
       <tr>
-        <td><%= challenge.number %></td>
-        <td><%= challenge.description %></td>
+        <th>#</th>
 
-        <% if current_user&.team? %>
-          <% result = @results[challenge.id] %>
-
-          <td><%= result ? result.regular_points : 0 %></td>
-          <td><%= result ? result.bonus_points : 0 %></td>
-        <% else %>
-          <td><%= challenge.points %></td>
-          <td><%= render 'application/index_actions', item: challenge %></td>
+        <% unless current_user&.team? %>
+          <th>Group ID</th>
         <% end %>
+        <th>Description</th>
+        <th>Points To Win</th>
+        
+        <% if current_user&.team? %>
+          <th>Obtained Points</th>
+          <th>Bonus Points</th>
+          <th>Status</th>
+        <% else %>        
+          <th>Completed</th>
+          <th>Partially Completed</th>
+          <th>Not Attempted</th>
+          <th>Actions</th>
+        <% end %>    
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody data-group-updates-target="challengeList">
+      <%= render 'challenge_list', challenges: @challenges, results: @results, current_user: current_user %>
+    </tbody>
+  </table>
 
-<% # TODO: Display score stats, like totals %>
+  <% if current_user&.team? %>
+    <p><strong>Total Points: <span data-challenge-updates-target="totalPoints"><%= current_user.total_points %></span></strong></p>
+  <% end %>
 
-<% # TODO: Display the status of the task (not attempted, partially completed, completed), Unsure where the logic should live%>
+  <% if can? :create, Challenge %>
+    <%= link_to 'New Challenge', new_challenge_path, class: 'btn btn-primary' %>
+  <% end %>
 
-<% if can? :create, Challenge %>
-  <%= link_to 'New Challenge', new_challenge_path, class: 'btn btn-primary' %>
-<% end %>
+  <% if can? :import, Challenge %>
+    <%= link_to 'Import Challenges', import_form_challenges_path, class: 'btn btn-secondary' %>
+  <% end %>
 
-<% if can? :import, Challenge %>
-  <%= link_to 'Import Challenges', import_form_challenges_path, class: 'btn btn-secondary' %>
-<% end %>
-
-<% if can? :export, Challenge %>
-  <%= link_to 'Export Challenges', export_challenges_path, class: 'btn btn-secondary' %>
-<% end %>
+  <% if can? :export, Challenge %>
+    <%= link_to 'Export Challenges', export_challenges_path, class: 'btn btn-secondary' %>
+  <% end %>
+</div>

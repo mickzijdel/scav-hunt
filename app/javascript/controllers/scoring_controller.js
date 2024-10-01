@@ -1,37 +1,161 @@
 import { Controller } from "@hotwired/stimulus"
+import { connectToScoringChannel } from "../channels/scoring_channel"
 
 export default class extends Controller {
+  static targets = ["regularPoints", "bonusPoints", "status", "totalPoints"]
+  // userId is the team, currentUserId is the scorer.
+  // using userId is most consistent, but a bit confusing because it's about the team.
+  static values = { userId: Number, currentUserId: Number }
+
+  connect() {
+    this.websocketConnected = false
+
+    connectToScoringChannel(this, this.userIdValue, (connected) => {
+      this.websocketConnected = connected
+    });
+  }
+
   updateScore(event) {
     const input = event.target
     const challengeId = input.dataset.challengeId
     const userId = input.dataset.userId
-    const regularPoints = this.regularPointsTargets.find(target => 
-      target.dataset.challengeId === challengeId && target.dataset.userId === userId
-    ).value
-    const bonusPoints = this.bonusPointsTargets.find(target => 
-      target.dataset.challengeId === challengeId && target.dataset.userId === userId
-    ).value
+    const regularPoints = this.getRegularPoints(challengeId, userId)
+    const bonusPoints = this.getBonusPoints(challengeId, userId)
 
-    this.sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints)
+    const data = { 
+      challenge_id: challengeId, 
+      user_id: userId, 
+      regular_points: regularPoints, 
+      bonus_points: bonusPoints 
+    }
+
+    // Use websockets if connected, because they are way faster. Otherwise use a fetch request.
+    if (this.websocketConnected) {
+      this.sendUpdateViaWebSocket(data)
+    } else {
+      this.sendUpdateRequest(data)
+    }
   }
 
-  sendUpdateRequest(challengeId, userId, regularPoints, bonusPoints) {
+  awardFullPoints(event) {
+    const button = event.target
+    const challengeId = button.dataset.challengeId
+    const userId = button.dataset.userId
+    const regularPointsInput = this.getRegularPointsInput(challengeId, userId)
+    const pointsToWin = regularPointsInput.dataset.pointsToWin
+
+    regularPointsInput.value = pointsToWin
+    this.updateScore({ target: regularPointsInput })
+  }
+
+  sendUpdateViaWebSocket(data) {
+    this.scoringChannel.send(data)
+  }
+
+  sendUpdateRequest(sendData) {
     fetch('/scoring/update', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
       },
-      body: JSON.stringify({ challenge_id: challengeId, user_id: userId, regular_points: regularPoints, bonus_points: bonusPoints })
+      body: JSON.stringify(sendData)
     })
     .then(response => response.json())
     .then(data => {
       if (data.status === 'success') {
-        console.log('Score updated successfully')
+        this.updateUI(data.result)
       } else {
-        console.error('Error updating score:', data.errors)
+        console.error('ScoringController: Error updating score:', data.errors)
       }
     })
-    .catch(error => console.error('Error:', error))
+    .catch(error => console.error('ScoringController: Error sending update request:', error))
+  }
+
+  updateUI(result) {
+    const regularPointsInput = this.getRegularPointsInput(result.challenge_id.toString(), result.user_id.toString())
+    const bonusPointsInput = this.getBonusPointsInput(result.challenge_id.toString(), result.user_id.toString())
+    const statusElement = this.getStatusElement(result.challenge_id.toString())
+
+    const updatedElements = []
+    let colour = "blue";
+
+    // If the result was updated by the current user, flash all elements and in green.
+    if(this.currentUserIdValue == result.updated_by) {
+      console.info("ScoringController: Updating UI for result updated by current logged-in user.");
+      colour = "green";
+      updatedElements.push(regularPointsInput, bonusPointsInput);
+    }
+
+    // Still need to update the UI if the points have changed, even if the update was made by the current user, 
+    //just in case they are logged in on two different browsers or an update got missed.
+    if (regularPointsInput.value !== result.regular_points.toString()) {
+      regularPointsInput.value = result.regular_points;
+      updatedElements.push(regularPointsInput);
+    }
+
+    if (bonusPointsInput.value !== result.bonus_points.toString()) {
+      bonusPointsInput.value = result.bonus_points;
+      updatedElements.push(bonusPointsInput);
+    }
+
+    if (statusElement.textContent !== result.status) {
+      statusElement.textContent = result.status;
+      updatedElements.push(statusElement);
+    }
+
+    updatedElements.forEach(element => this.flashElement(element, colour))
+
+    this.updateTotalPoints()
+  }
+
+  updateTotalPoints() {
+    const totalPoints = Array.from(this.regularPointsTargets).reduce((sum, input) => {
+      return sum + parseInt(input.value || 0)
+    }, 0) + Array.from(this.bonusPointsTargets).reduce((sum, input) => {
+      return sum + parseInt(input.value || 0)
+    }, 0)
+
+    this.totalPointsTarget.textContent = totalPoints
+  }
+
+  flashElement(element, colour) {
+    element.classList.add('flash-' + colour);
+    setTimeout(() => {
+      element.classList.remove('flash-' + colour);
+    }, 1000);
+  }
+
+  getRegularPoints(challengeId, userId) {
+    return this.getRegularPointsInput(challengeId, userId).value
+  }
+
+  getBonusPoints(challengeId, userId) {
+    return this.getBonusPointsInput(challengeId, userId).value
+  }
+
+  getRegularPointsInput(challengeId, userId) {
+    return this.regularPointsTargets.find(target =>
+      target.dataset.challengeId === challengeId && target.dataset.userId === userId
+    )
+  }
+
+  getBonusPointsInput(challengeId, userId) {
+    return this.bonusPointsTargets.find(target =>
+      target.dataset.challengeId === challengeId && target.dataset.userId === userId
+    )
+  }
+
+  getStatusElement(challengeId) {
+    return this.statusTargets.find(target => target.dataset.challengeId === challengeId)
+  }
+
+  handleWebSocketUpdate(data) {
+    if (data.user_id == this.userIdValue) {
+      console.info("ScoringController: Received data for the user that is being scored. Starting UI update.");
+      this.updateUI(data);
+    } else {
+      console.warn("ScoringController: Received data for wrong user:", data, "; data.user_id: ", data.user_id, "; this.userIdValue: ", this.userIdValue);
+    }
   }
 }

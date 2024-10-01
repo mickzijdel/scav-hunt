@@ -1,0 +1,28 @@
+<%# locals:(challenges:, results:, current_user:) %>
+<% challenges.each do |challenge| %>
+  <tr data-challenge-sorting-target="row" data-challenge-id="<%= challenge.id %>">
+    <td data-column="number"><%= challenge.number %></td>
+
+    <% unless current_user&.team? %>
+      <td data-column="groupId"><%= challenge.group_id %></td>
+    <% end %>
+
+    <td data-column="description"><%= challenge.description %></td>
+    <td data-column="points"><%= challenge.points %></td>
+
+    <% if current_user&.team? %>
+      <% result = results[challenge.id] %>
+
+      <td data-challenge-updates-target="regularPoints" data-column="regularPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.regular_points : 0 %></td>
+      <td data-challenge-updates-target="bonusPoints" data-column="bonusPoints" data-challenge-id="<%= challenge.id %>"><%= result ? result.bonus_points : 0 %></td>
+      <td data-challenge-updates-target="status" data-column="status" data-challenge-id="<%= challenge.id %>"><%= result&.status.presence || 'Not Attempted' %></td>
+    <% else %>
+      <% completion_stats = challenge.completion_stats %>
+      <td data-challenge-updates-target="completed"><%= completion_stats[:completed] %></td>
+      <td data-challenge-updates-target="partiallyCompleted"><%= completion_stats[:partially_completed] %></td>
+      <td data-challenge-updates-target="notAttempted"><%= completion_stats[:not_attempted] %></td>
+
+      <td><%= render 'application/index_actions', item: challenge %></td>
+    <% end %>
+  </tr>
+<% end %>

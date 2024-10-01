@@ -6,11 +6,11 @@ class ChallengesController < ApplicationController
   # GET /challenges or /challenges.json
   def index
     @title = "Challenges"
-    @challenges = Challenge.by_number
+    @challenges = Challenge.accessible_by(current_ability).includes(:results).by_number
 
     # Include the results for this user if the user is a team.
     if current_user.team?
-      @results = Result.where(user: current_user).index_by(&:challenge_id)
+      @results = Result.includes(:challenge).where(user: current_user).index_by(&:challenge_id)
     end
   end
 
@@ -63,11 +63,16 @@ class ChallengesController < ApplicationController
 
   # DELETE /challenges/1 or /challenges/1.json
   def destroy
-    @challenge.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to challenges_url, notice: "Challenge was successfully destroyed." }
-      format.json { head :no_content }
+    if @challenge.destroy
+      respond_to do |format|
+        format.html { redirect_to challenges_url, notice: "Challenge was successfully destroyed." }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_back_or_to challenges_url, alert: [ @challenge, *@challenge.results.to_a ].compact.map { |result| result.errors.full_messages.join(", ") }.join("; ") }
+        format.json { render json: @challenge.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -86,11 +91,12 @@ class ChallengesController < ApplicationController
           challenge.assign_attributes(
             description: row["Description"],
             points: row["Points"],
+            group_id: row["GroupID"]
           )
           imported_challenges << challenge if challenge.changed?
         end
 
-        Challenge.import imported_challenges, on_duplicate_key_update: [ :description, :points ]
+        Challenge.import imported_challenges, on_duplicate_key_update: [ :description, :points, :group_id ]
         redirect_to challenges_path, notice: "Challenges imported successfully."
       rescue => e
         # TODO: The alerts don't show up? Probably a turbo thing. Only show on page reload.
@@ -105,17 +111,19 @@ class ChallengesController < ApplicationController
   end
 
   def export
-    @challenges = Challenge.order(:number)
+    @challenges = Challenge.includes(results: :user).order(:number)
+    @teams = User.teams_by_name
 
     response.headers["Content-Type"] = "text/csv"
     response.headers["Content-Disposition"] = "attachment; filename=challenges-#{Date.today}.csv"
+
     render template: "challenges/export", formats: :csv
   end
 
   private
   # Only allow a list of trusted parameters through.
   def challenge_params
-    params.require(:challenge).permit(:number, :description, :points)
+    params.require(:challenge).permit(:number, :description, :points, :group_id)
   end
 
   def set_edit_challenge_title

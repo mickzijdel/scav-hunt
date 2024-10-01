@@ -1,34 +1,60 @@
-<div data-controller="scoreboard"
-     data-scoreboard-update-url-value="<%= home_index_path(format: :json) %>"
-     data-scoreboard-update-interval-value="5000">
-  <div class="mb-4">
-    <h2>Time Remaining:</h2>
-    <div data-scoreboard-target="timer" class="fs-1 fw-bold"></div>
-  </div>
+<%= stylesheet_link_tag "scoreboard"%>
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Rank</th>
-        <th>Team</th>
-        <th>Score</th>
-      </tr>
-    </thead>
-    <% # TODO: The link currently gets replaced on scoreboard update. Fix that. %>
-    <tbody data-scoreboard-target="tableBody">
-      <% @teams.each_with_index do |team, index| %>
+<% if @scoreboard_visible %>
+  <div data-controller="scoreboard"
+      data-scoreboard-update-url-value="<%= home_index_path(format: :json) %>"
+      data-scoreboard-update-interval-value="5000"
+      data-scoreboard-end-time-value="<%= @end_time %>">
+    <div class="mb-4">
+      <!--<h2>Time Remaining:</h2> --->
+      <div data-scoreboard-target="timer" id="timer">
+        <% time_left = (@end_time - DateTime.current) * 24 * 60 * 60 %>
+        <% if time_left > 0 %>
+          <%= "#{(time_left / 1.hour).floor}h #{(time_left / 1.minute).floor % 60}m #{(time_left / 1.second).floor % 60}s" %>
+        <% else %>
+          Time's up!
+        <% end %>
+      </div>
+    </div>
+
+    <table class="table table-warning table-striped">
+      <thead>
         <tr>
-          <td><%= index + 1 %></td>
-          <td>
-            <% if can? :manage, :scoring %>
-              <%= link_to team.name, scoring_score_path(team) %>
-            <% else %>
-              <%= team.name %>
-            <% end %>
-          </td>
-          <td><%= team.total_points %></td>
+          <th>Rank</th>
+          <th>Team</th>
+          <th>Score</th>
+
+          <% if can? :manage, :scoring %>
+            <th>Completed</th>
+            <th>Partially Completed</th>
+            <th>Not Attempted</th>
+          <% end %>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody data-scoreboard-target="tableBody">
+        <% @teams.each_with_index do |team, index| %>
+          <tr data-team-id="<%= team.id %>" class="<%= 'table-primary' if team == current_user %>">
+            <td data-rank><%= index + 1 %></td>
+            <td>
+              <% if can? :manage, :scoring %>
+                <%= link_to team.name, scoring_score_path(team), data: { turbo: false } %>
+              <% else %>
+                <%= team.name %>
+              <% end %>
+            </td>
+            <td data-score><%= team.total_points %></td>
+
+            <% if can? :manage, :scoring %>
+              <% stats = team.stats %>
+              <td data-completed><%= stats[:completed] %></td>
+              <td data-partially-completed><%= stats[:partially_completed] %></td>
+              <td data-not-attempted><%= stats[:not_attempted] %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p>The scoreboard is currently not visible. HAL is watching.</p>
+<% end %>

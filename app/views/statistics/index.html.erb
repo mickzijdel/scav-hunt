@@ -1,0 +1,13 @@
+<% content_for :head do %>
+    <link href=" https://cdn.jsdelivr.net/npm/billboard.js@3.13.0/dist/billboard.min.css " rel="stylesheet">
+<% end %>
+
+<div data-controller="statistics"
+     data-statistics-created-at-data-value="<%= @created_at_data.to_json %>"
+     data-statistics-updated-at-data-value="<%= @updated_at_data.to_json %>">
+  <h2>Score Over Time (Created At)</h2>
+  <div id="createdAtChart">Loading...</div>
+
+  <h2>Score Over Time (Updated At)</h2>
+  <div id="updatedAtChart">Loading...</div>
+</div>
