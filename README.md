@@ -39,6 +39,9 @@ The deploy steps are:
 3) Run `sudo docker compose -f docker-compose.yml up -d` (this will create new containers and start them detached so it will still run when you log out. You might need to add the `--build rails` or `--force-recreate` options when upgrading)
 4) That's it! You can check if the containers are running using `sudo docker ps`
 
+
+Tip: If the `docker compose` fails because of a bundle issue, you can unfreeze the bundle by adding the line `RUN bundle config set frozen false` just before `RUN bundle install`. This is not best practice because your packages might not match those in development, but sometimes there are minor inconsistencies when developing on windows and deploying on linux.
+
 ## Upgrading
 If you want to upgrade, that means you have to
 0) Navigate into the repository
