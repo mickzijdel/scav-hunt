@@ -6,7 +6,7 @@ Code by [Mick Zijdel](https://github.com/mickzijdel), styling and specification 
 **IMPORTANT NOTE**: The Rails server is accessible within _the Docker container or in development*_ on port `3000`. However, the server is accessible within _the Docker Host/outside of the Docker container_ on port `2024`.
 
 # Deployment
-See the [Bedlam TheatreWiki](https://wiki.bedlamtheatre.co.uk) for EUTC-specific deployment things.
+See the [Bedlam Theatre Wiki](https://wiki.bedlamtheatre.co.uk) for EUTC-specific deployment things.
 
 **I would strongly advise first deploying it to Docker locally before deploying**. You will not be able to access the locally-deployed website once it is up because of SSL certificates, but at least you can check for issues in the deploy process.
 
@@ -18,7 +18,7 @@ The deploy steps (first-time only) are:
 4) Run `sudo docker compose -f docker-compose.yml up -d`  
     a) This will create new containers and start them detached so it will still run when you log out.
 5) Setup your Nginx configuration file using the options below.  
-    a) You can probably use other servers as well, but I am not sure how that would work exactly. You need to make sure to enable websockets for the `/cable` location.
+    a) If you're not using Nginx (or an alternative) as a reverse proxy, everything should just work if you connect to port `2024` (you can change this port in the `docker-compose.yml` file, for example to the default http port `80` or https port `443`). This is untested though. Feel free to let Mick know and he might be able to help, but it's probably easiest if you just run Nginx as a reverse proxy.
 7) That's it! You can check if the containers are running using `sudo docker ps`
 
 Tip: If the `docker compose` fails because of a bundle issue, you can unfreeze the bundle by adding the line `RUN bundle config set frozen false` just before `RUN GIT_EXECUTABLE=/usr/bin/git bundle install` in the Dockerfile. This is not best practice because your packages might not match those in development, but sometimes there are minor inconsistencies when developing on Windows and deploying on Linux.
