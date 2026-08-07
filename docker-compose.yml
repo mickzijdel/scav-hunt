@@ -23,7 +23,9 @@ services:
     pull_policy: build
 
   database:
-    image: "mysql:8.3"
+    # 8.4 is the LTS line, and it is what CI tests against — see scripts/check_version_sync.sh,
+    # which fails if these drift apart. 8.3 was an Innovation release, superseded by 8.4.
+    image: "mysql:8.4"
     environment:
       MYSQL_ROOT_PASSWORD: "${DATABASE_PASSWORD}"
       MYSQL_DATABASE: "${DATABASE_NAME}"

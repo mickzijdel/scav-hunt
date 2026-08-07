@@ -34,6 +34,16 @@ local linters = new Mapping<String, Step> {
     // the assignment even when the substitution exits 0), so keep every intermediate
     // command zero-exit. CI's lint job enforces the same rule (see ci.<stack>.yml),
     // so the gates can't drift.
+    // Ruby/Node/Yarn and MySQL versions are each spelled out in several files because
+    // different consumers read different ones (mise.toml for local dev, .ruby-version /
+    // .node-version for CI's setup-ruby/-node, the Dockerfile ARGs for the production
+    // image). Nothing keeps them in step, so a bump that misses one file silently ships
+    // an image built on a different Ruby than the tests ran against. Mirrored by the
+    // `versions` job in ci.yml so pre-commit and CI agree.
+    ["versions"] {
+        glob = List("mise.toml", ".ruby-version", ".node-version", "Dockerfile", "docker-compose.yml", ".github/workflows/ci.yml")
+        check = "bash scripts/check_version_sync.sh"
+    }
     ["exec-bit-scripts"] {
         check = "bad=$(git ls-files -s | awk -F'\\t' '$1 ~ /^100644/ { if ((getline line < $2) > 0 && line ~ /^#!/) print $2; close($2) }'); if [ -n \"$bad\" ]; then echo 'Shebang scripts missing the executable bit in the git index. Fix: git update-index --chmod=+x <file>'; echo \"$bad\"; exit 1; fi"
     }

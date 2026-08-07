@@ -185,6 +185,18 @@ jobs:
   # covers schema/expression/`needs:` correctness (its shellcheck-of-run: pass is off, see the hk
   # step); zizmor covers security — credential persistence, template injection, over-broad
   # GITHUB_TOKEN. zizmor uses offline audits only, so no token is needed.
+  # Mirrors the hk `versions` step: the toolchain and MySQL versions are pinned in
+  # several files and nothing keeps them in step on its own. Needs no toolchain of its
+  # own -- it only reads files -- so it is the cheapest job here.
+  versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Toolchain and service versions agree across files
+        run: bash scripts/check_version_sync.sh
+
   actions-lint:
     runs-on: ubuntu-latest
     steps:
