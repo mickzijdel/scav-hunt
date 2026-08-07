@@ -7,9 +7,13 @@ class User < ApplicationRecord
   validates :email, :name, uniqueness: true
   validates :email, :encrypted_password, :role, :name, presence: true
 
-  has_many :results
+  # results and group_permissions both hold a foreign key to users, so without
+  # a dependent: option destroying a user raises ActiveRecord::InvalidForeignKey
+  # rather than failing cleanly. Results are destroyed one at a time so that
+  # Result#ensure_zero_points still gets to veto deleting a scored team.
+  has_many :results, dependent: :destroy
   has_many :challenges, through: :results
-  has_many :group_permissions
+  has_many :group_permissions, dependent: :delete_all
 
   enum :role, {
      team: 0,
