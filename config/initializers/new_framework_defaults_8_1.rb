@@ -33,7 +33,13 @@
 # Historically these characters were not valid inside JavaScript literal strings but that changed in ECMAScript 2019.
 # As such it's no longer a concern in modern browsers: https://caniuse.com/mdn-javascript_builtins_json_json_superset.
 #++
-# Rails.configuration.active_support.escape_js_separators_in_json = false
+# CANNOT BE SET FROM HERE. Active Support copies config.active_support.* onto the
+# ActiveSupport module in its `active_support.set_configs` railtie initializer (position 20),
+# which runs before `load_config_initializers` (position 113) loads this file. Assigning it
+# here is a silent no-op — verified by reading back
+# ActiveSupport.escape_js_separators_in_json, which stayed `true`.
+# It is set in config/application.rb instead, which is where `load_defaults 8.1` sets it.
+# Rails.configuration.active_support.escape_js_separators_in_json = false  # <- set in application.rb
 
 ###
 # Raises an error when order dependent finder methods (e.g. `#first`, `#second`) are called without `order` values
