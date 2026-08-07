@@ -1,23 +1,25 @@
-* {margin: 0; padding: 0;}
-
+/* Devise sign-in page (devise/sessions/new.html.erb links this on top of the
+   application bundle, so every rule below lands after Bootstrap). That is why
+   the `* { margin: 0; padding: 0 }` reset this file used to open with is gone:
+   arriving after Reboot, it flattened margins Bootstrap had just set.
+   The --hunt-* custom properties are declared on :root in the SCSS bundle. */
 body {
-    background: #56ab2f;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #a8e063, #56ab2f);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #a8e063, #56ab2f); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-   }
+  background-color: var(--hunt-green-dark);
+  background-image: var(--hunt-gradient);
+}
 
 .form-container {
-    height: 100vh; /* Full viewport height */
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-  }
+  height: 100vh; /* Full viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
 
-  .form-box {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    background-color: #fff3cd; /* Light grey background */
-    transform: translateY(10%);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  }
+.form-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  background-color: #fff3cd;
+  transform: translateY(10%);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
