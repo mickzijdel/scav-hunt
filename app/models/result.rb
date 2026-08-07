@@ -5,6 +5,10 @@ class Result < ApplicationRecord
   # TODO: Add comment field
 
   validates :regular_points, :bonus_points, presence: true, numericality: { only_integer: true }
+  # Mirrors the unique index on [user_id, challenge_id]. Without it a duplicate
+  # surfaced as an unhandled ActiveRecord::RecordNotUnique 500 rather than a
+  # validation error -- reachable when two scorers open the same team at once.
+  validates :challenge_id, uniqueness: { scope: :user_id }
 
   after_save :clear_scoreboard_cache, :broadcast_update
   before_destroy :ensure_zero_points
