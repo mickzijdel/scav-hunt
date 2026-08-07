@@ -93,7 +93,12 @@ local linters = new Mapping<String, Step> {
     }
     ["database_consistency"] {
         glob = List("db/schema.rb", "db/structure.sql", "app/models/**/*.rb")
-        check = "if bin/rails runner \"ActiveRecord::Base.connection\" >/dev/null 2>&1; then bundle exec database_consistency; else echo 'database_consistency: no DB reachable, skipping'; fi"
+        // The probe issues a real query. The standard's template probes with bare
+        // `ActiveRecord::Base.connection`, but on Rails 7.2 that is lazy — it hands back a
+        // connection object without dialing the server, so the probe exits 0 with no DB up
+        // and database_consistency then dies on the first checker. `.execute('SELECT 1')`
+        // forces the connection, so the skip branch actually fires.
+        check = "if bin/rails runner \"ActiveRecord::Base.connection.execute('SELECT 1')\" >/dev/null 2>&1; then bundle exec database_consistency; else echo 'database_consistency: no DB reachable, skipping'; fi"
     }
     // GitHub Actions workflow linter — schema/expression/`needs:` correctness that SHA-pinning
     // and zizmor don't cover (typo'd keys, bad ${{ }} refs, undefined job deps). hk builtin,
