@@ -14,32 +14,15 @@ version: 0.10.3
 
 linter:
   enabled: true
-  # ADOPTION BASELINE — written by `herb lint app/ --disable-failing` when herb was first
-  # wired into this repo. Each rule below already had offences in the existing ERB, so it is
-  # parked rather than blocking every commit. This is a to-do list, not a policy: fix the
-  # offences (many are `herb lint app/ --fix`-able) and delete the entry to re-enable the rule.
+  # The adoption baseline written by `herb lint app/ --disable-failing` parked 11 rules that
+  # had pre-existing offences. Ten of them are fixed and back on. One is left, and only
+  # because its single remaining offence is in a file this pass was not allowed to edit:
+  #
+  #   erb-strict-locals-comment-syntax — app/views/settings/_form.html.erb:1 writes
+  #   `<%# locals:(setting:) %>`. Rails Strict Locals need a space after the colon. That one
+  #   character is the whole fix; add it and delete the entry below.
   rules:
-    html-no-self-closing:
-      enabled: false
-    erb-comment-syntax:
-      enabled: false
-    erb-no-trailing-whitespace:
-      enabled: false
-    html-input-require-autocomplete:
-      enabled: false
     erb-strict-locals-comment-syntax:
-      enabled: false
-    erb-require-whitespace-inside-tags:
-      enabled: false
-    erb-require-trailing-newline:
-      enabled: false
-    erb-no-instance-variables-in-partials:
-      enabled: false
-    erb-prefer-direct-output:
-      enabled: false
-    erb-no-conditional-open-tag:
-      enabled: false
-    html-no-empty-headings:
       enabled: false
   # # Exit with error code when diagnostics of this severity or higher are present.
   # # Valid: error (default) | warning | info | hint
