@@ -46,11 +46,22 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    @user.destroy
-    redirect_to users_url, notice: "User was successfully destroyed."
+    if @user.destroy
+      redirect_to users_url, notice: "User was successfully destroyed."
+    else
+      redirect_to users_url, alert: destroy_error_for(@user)
+    end
   end
 
   private
+
+  # A destroy vetoed by Result#ensure_zero_points records its reason on the
+  # result, not on the user, so collect both.
+  def destroy_error_for(user)
+    reasons = (user.errors.full_messages + user.results.flat_map { |r| r.errors.full_messages }).uniq
+
+    reasons.presence&.to_sentence || "User could not be destroyed."
+  end
 
   def user_params
     params.require(:user).permit(:email, :name, :role, :password, :password_confirmation)

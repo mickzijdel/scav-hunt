@@ -76,4 +76,21 @@ class UserTest < ActiveSupport::TestCase
     assert_includes data.keys, :partially_completed
     assert_includes data.keys, :not_attempted
   end
+
+  test "destroying a user with no results succeeds" do
+    user = users(:team_three)
+
+    assert user.destroy, "Expected an unscored team to be destroyable"
+    assert_not User.exists?(user.id)
+  end
+
+  test "destroying a user with non-zero results is refused" do
+    user = users(:team_one)
+    GroupPermission.create!(user: user, group_id: 1)
+
+    # Without dependent: on the associations this raised InvalidForeignKey
+    # instead of returning false.
+    assert_not user.destroy
+    assert User.exists?(user.id)
+  end
 end
