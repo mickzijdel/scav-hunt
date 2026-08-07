@@ -48,6 +48,19 @@ class ChallengesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/missing required columns/, flash[:alert])
   end
 
+  # The old message mapped over the challenge and every one of its results and
+  # joined unconditionally, so the two records with nothing to report contributed
+  # empty strings: "; ; Cannot destroy result with non-zero points; ".
+  test "a challenge that cannot be destroyed reports only the actual reason" do
+    challenge = challenges(:one)
+
+    assert_no_difference -> { Challenge.count } do
+      delete challenge_path(challenge)
+    end
+
+    assert_equal "Cannot destroy result with non-zero points", flash[:alert]
+  end
+
   test "submitting no file is reported" do
     post import_challenges_path
 

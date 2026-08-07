@@ -6,6 +6,9 @@ class User < ApplicationRecord
 
   validates :email, :name, uniqueness: true
   validates :email, :encrypted_password, :role, :name, presence: true
+  # Mirror the varchar(255) limits, so an over-long name comes back as a form error
+  # rather than as a database write that MySQL refuses.
+  validates :email, :name, length: { maximum: 255 }
 
   # results and group_permissions both hold a foreign key to users, so without
   # a dependent: option destroying a user raises ActiveRecord::InvalidForeignKey

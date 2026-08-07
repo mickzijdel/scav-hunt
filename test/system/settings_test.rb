@@ -24,7 +24,10 @@ class SettingsTest < ApplicationSystemTestCase
     end
 
     assert_text "Setting \"#{Setting::KEYS["scoreboard_end_time"][:title]}\" updated successfully."
-    assert_equal "2024-10-01T15:00:00+00:00", Setting.get("scoreboard_end_time").to_s
+    # The form is free text and an organiser types a local wall-clock time, so a
+    # string with no offset is read in the application zone. 1 October is BST, so
+    # this is +01:00; it used to be asserted as +00:00, which was the bug.
+    assert_equal "2024-10-01 15:00:00 +0100", Setting.get("scoreboard_end_time").to_s
 
     # Test updating scoreboard visibility
     within "form", id: "settings_form_scoreboard_visible" do
@@ -34,6 +37,23 @@ class SettingsTest < ApplicationSystemTestCase
 
     assert_text "Setting \"#{Setting::KEYS["scoreboard_visible"][:title]}\" updated successfully."
     assert_equal false, Setting.get("scoreboard_visible")
+  end
+
+  # Turbo throws away a 200 response to a form submission, so the failure path only
+  # reaches the screen because the controller answers 422. Worth asserting in the
+  # browser rather than only at the response level.
+  test "submitting a blank value shows the error instead of claiming success" do
+    sign_in @admin
+    visit settings_path
+
+    within "form", id: "settings_form_scoreboard_end_time" do
+      find("textarea[name='setting[value]']").fill_in with: ""
+      click_button "Update"
+    end
+
+    assert_text "can't be blank"
+    assert_no_text "updated successfully"
+    assert_equal "2024-09-27 14:00:00 +0100", Setting.get("scoreboard_end_time").to_s
   end
 
   test "non-admin cannot access settings page" do

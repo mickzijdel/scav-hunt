@@ -68,7 +68,7 @@ class ChallengesController < ApplicationController
       end
     else
       respond_to do |format|
-        format.html { redirect_back_or_to challenges_url, alert: [ @challenge, *@challenge.results.to_a ].compact.map { |result| result.errors.full_messages.join(", ") }.join("; ") }
+        format.html { redirect_back_or_to challenges_url, alert: destroy_error_message }
         format.json { render json: @challenge.errors, status: :unprocessable_entity }
       end
     end
@@ -129,6 +129,17 @@ class ChallengesController < ApplicationController
   end
 
   private
+
+  # The challenge itself carries no errors: the destroy is vetoed further down, by
+  # Result#ensure_zero_points inside the dependent: :destroy cascade, and only the
+  # scored results have anything to say. Joining every record's messages
+  # unconditionally therefore read "; ; Cannot destroy result with non-zero
+  # points; " -- the empty strings were the challenge and the unscored results.
+  def destroy_error_message
+    messages = [ @challenge, *@challenge.results ].flat_map { |record| record.errors.full_messages }.uniq
+
+    messages.presence&.to_sentence || "Challenge could not be destroyed."
+  end
 
   # Turbo discards a 200 response to a form submission, which is why the old
   # code's flash "didn't show up" -- it needed an error status, and flash.now

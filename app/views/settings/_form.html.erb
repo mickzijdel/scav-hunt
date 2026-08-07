@@ -1,5 +1,6 @@
 <%# locals:(setting:) %>
 <%= simple_form_for(setting, url: settings_path, method: :patch, key: setting[:key], html: { id: "settings_form_#{setting[:key]}" }) do |f| %>
+  <%= render "application/forms/errors", errors: setting.errors %>
   <div class="row mb-3">
     <div class="col">
       <%= f.input :key, as: :hidden %>
