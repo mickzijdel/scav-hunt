@@ -98,6 +98,12 @@ class ScoringTest < ApplicationSystemTestCase
       within "tr", text: @challenge.description do
         assert_text "Partially Completed"
       end
+
+      # The broadcast names who made the change, which is how flash_controller tells
+      # "you did this" (green) from "somebody else did" (blue). The animation itself
+      # is a 1s class and not worth racing in a test; this is its input.
+      assert_selector "##{ActionView::RecordIdentifier.dom_id(@challenge, :regular_points)}" \
+                      "[data-controller='flash'][data-flash-updated-by-value='#{@scorer.id}']"
     end
   end
 
