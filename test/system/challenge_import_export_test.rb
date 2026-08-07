@@ -51,14 +51,23 @@ class ChallengeImportExportTest < ApplicationSystemTestCase
   end
 
   test "exporting challenges" do
+    # Selenium exposed nothing about a download, so this test used to assert only that
+    # Capybara raised NotSupportedByDriverError -- it tested the driver's limitation, not
+    # the app. Playwright saves downloads under Capybara.save_path (on a background
+    # thread), so assert what the export actually produces.
+    export_glob = Rails.root.join(Capybara.save_path, "challenges-*.csv").to_s
+    FileUtils.rm_f(Dir.glob(export_glob))
+
     visit challenges_path
 
     click_on "Export Challenges"
 
-    # Check if the file is downloaded by reporting if it errors (which it will do when it's a csv)
-    assert_raise(Capybara::NotSupportedByDriverError) do
-      assert_match(/challenges-\d{4}-\d{2}-\d{2}\.csv/, page.response_headers["Content-Disposition"])
+    downloaded = nil
+    assert_eventually(timeout: 10, message: "the challenges CSV was never downloaded") do
+      downloaded = Dir.glob(export_glob).first
     end
+
+    assert_equal "challenges-#{Date.today}.csv", File.basename(downloaded)
   end
 
   test "non-admin cannot access import/export" do

@@ -67,10 +67,12 @@ jobs:
 
     steps:
       - name: Install packages
+        # No google-chrome-stable: system tests drive Chromium through Playwright now, and
+        # `playwright install` below provisions its own pinned browser build.
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
-            google-chrome-stable curl default-mysql-client libjemalloc2 libvips
+            curl default-mysql-client libjemalloc2 libvips
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -80,6 +82,16 @@ jobs:
           bundler-cache: true
       - name: Make bin files executable
         run: chmod +x bin/*
+      - name: Install Playwright's Chromium
+        # `bin/rails test:system` runs `yarn install` itself (jsbundling/cssbundling enhance
+        # test:prepare), but nothing there fetches the browser, so do both explicitly first.
+        # PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD stops the npm postinstall pulling all three
+        # engines; only Chromium is needed, and --with-deps adds its shared libraries.
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        run: |
+          yarn install --frozen-lockfile
+          ./node_modules/.bin/playwright install --with-deps chromium
       - name: Run tests
         env:
           RAILS_ENV: test
