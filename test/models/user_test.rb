@@ -58,6 +58,28 @@ class UserTest < ActiveSupport::TestCase
     assert_equal total_challenges, stats[:completed] + stats[:partially_completed] + stats[:not_attempted]
   end
 
+  # The uniqueness validation is a SELECT followed by an INSERT and two requests can
+  # interleave between them; the unique index is what actually holds. insert_all!
+  # goes round Active Record the way a bulk write or a console fix would.
+  test "a duplicate name is refused by the database, not just by the validation" do
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      User.insert_all!([ { email: "another@bedlamtheatre.test", name: users(:team_one).name,
+                           encrypted_password: "NA", role: 0,
+                           created_at: Time.current, updated_at: Time.current } ])
+    end
+  end
+
+  # has_many :group_permissions, dependent: :delete_all only helps when the delete
+  # goes through Active Record. The foreign key now cascades, so the two agree.
+  test "the database takes a user's group permissions with them" do
+    user = users(:team_three)
+    permission = GroupPermission.create!(user: user, group_id: 7)
+
+    User.where(id: user.id).delete_all
+
+    assert_not GroupPermission.exists?(permission.id)
+  end
+
   test "destroying a user with no results succeeds" do
     user = users(:team_three)
 
