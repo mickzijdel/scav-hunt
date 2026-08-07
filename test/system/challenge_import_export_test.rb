@@ -22,7 +22,7 @@ class ChallengeImportExportTest < ApplicationSystemTestCase
       attach_file("file", file.path)
       click_on "Import"
 
-      assert_text "Challenges imported successfully"
+      assert_text "Imported 2 challenges."
       assert_selector "a", text: "New Challenge"
     end
   end
@@ -42,7 +42,7 @@ class ChallengeImportExportTest < ApplicationSystemTestCase
     attach_file("file", file.path)
     click_on "Import"
 
-    assert_text "Challenges imported successfully"
+    assert_text "Imported 1 challenge."
 
     existing_challenge.reload
     assert_not_equal old_description, existing_challenge.description

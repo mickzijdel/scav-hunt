@@ -80,34 +80,44 @@ class ChallengesController < ApplicationController
     @title = "Import Challenges"
   end
 
-  def import
-    # FIXME: This logic should live in a helper.
-    file = params.dig(:import, :file)
-    if file.present?
-      begin
-        imported_challenges = []
-        CSV.foreach(file.path, headers: true) do |row|
-          challenge = Challenge.find_or_initialize_by(number: row["Number"])
-          challenge.assign_attributes(
-            description: row["Description"],
-            points: row["Points"],
-            group_id: row["GroupID"]
-          )
-          imported_challenges << challenge if challenge.changed?
-        end
+  REQUIRED_IMPORT_HEADERS = %w[Number Description Points GroupID].freeze
 
-        Challenge.import imported_challenges, on_duplicate_key_update: [ :description, :points, :group_id ]
-        redirect_to challenges_path, notice: "Challenges imported successfully."
-      rescue => e
-        # TODO: The alerts don't show up? Probably a turbo thing. Only show on page reload.
-        print(e)
-        flash[:alert] = "Error importing challenges: #{e.message}"
-        render "import_form"
-      end
-    else
-      flash[:alert] = "Please select a file to import."
-      render "import_form"
+  def import
+    file = params.dig(:import, :file)
+    return import_failed("Please select a file to import.") if file.blank?
+
+    rows = CSV.read(file.path, headers: true)
+
+    # A misspelled header used to make every row["GroupID"] nil, so
+    # find_or_initialize_by(number: nil) returned the same record over and over
+    # and nothing imported -- while still reporting success.
+    missing_headers = REQUIRED_IMPORT_HEADERS - (rows.headers || [])
+    if missing_headers.any?
+      return import_failed("CSV is missing required columns: #{missing_headers.to_sentence}.")
     end
+
+    challenges = rows.filter_map do |row|
+      challenge = Challenge.find_or_initialize_by(number: row["Number"])
+      challenge.assign_attributes(
+        description: row["Description"],
+        points: row["Points"],
+        group_id: row["GroupID"]
+      )
+      challenge if challenge.changed?
+    end
+
+    result = Challenge.import(challenges, on_duplicate_key_update: [ :description, :points, :group_id ])
+
+    # activerecord-import validates by default and simply skips whatever fails,
+    # collecting it in failed_instances. Discarding that return value meant a
+    # half-imported challenge list reported success.
+    if result.failed_instances.any?
+      import_failed(import_rejection_message(result.failed_instances, challenges.size))
+    else
+      redirect_to challenges_path, notice: "Imported #{challenges.size} #{'challenge'.pluralize(challenges.size)}."
+    end
+  rescue CSV::MalformedCSVError => e
+    import_failed("Could not read that file as CSV: #{e.message}")
   end
 
   def export
@@ -121,6 +131,26 @@ class ChallengesController < ApplicationController
   end
 
   private
+
+  # Turbo discards a 200 response to a form submission, which is why the old
+  # code's flash "didn't show up" -- it needed an error status, and flash.now
+  # rather than flash, which targets the *next* request.
+  def import_failed(message)
+    @title = "Import Challenges"
+    flash.now[:alert] = message
+    render "import_form", status: :unprocessable_entity
+  end
+
+  def import_rejection_message(failed, attempted)
+    details = failed.first(5).map do |challenge|
+      "##{challenge.number}: #{challenge.errors.full_messages.to_sentence}"
+    end
+    details << "and #{failed.size - 5} more" if failed.size > 5
+
+    "Imported #{attempted - failed.size} of #{attempted}; " \
+      "#{failed.size} rejected -- #{details.join('; ')}"
+  end
+
   # Only allow a list of trusted parameters through.
   def challenge_params
     params.require(:challenge).permit(:number, :description, :points, :group_id)
