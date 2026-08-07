@@ -16,18 +16,30 @@ class ScoringTest < ApplicationSystemTestCase
   test "updating scores" do
     visit scoring_score_url(@team)
 
+    # Commit the two inputs one at a time. Both save on `change`, which only fires once
+    # focus leaves the field, and the handler posts BOTH values read from the DOM as a
+    # fire-and-forget request with no sequencing. Filling them back-to-back therefore put
+    # two saves in flight at once and they raced: the later-landing response won, and its
+    # stale payload also rewrote the other input. Selenium's per-keystroke typing latency
+    # usually let them serialise; Playwright fills instantly and exposed the race. Waiting
+    # for each save to land keeps only one in flight. (App-level bug, out of scope here.)
     within "tr", text: @challenge.description do
       fill_in id: "regularPoints_#{@challenge.id}", with: 50
+      # Nothing takes focus after a fill_in, so blur explicitly or `change` never fires.
+      find_by_id("regularPoints_#{@challenge.id}").send_keys(:tab)
+    end
+
+    # team_one's fixture results are 1500 + 0 and -500 + 100 (total 1100), so replacing
+    # the 1500 with 50 and nothing else totals -350.
+    assert_selector "[data-scoring-target='totalPoints']", text: "-350", wait: 10
+
+    within "tr", text: @challenge.description do
       fill_in id: "bonusPoints_#{@challenge.id}", with: 10
-      # Both inputs save on `change`, which only fires once focus leaves the
-      # field. Nothing takes focus after the last fill_in, so without this the
-      # bonus value is never committed.
       find_by_id("bonusPoints_#{@challenge.id}").send_keys(:tab)
     end
 
-    # Wait for the save to land rather than sleeping. team_one's other fixture
-    # result is -500 + 100, so 50 + 10 alongside it totals -340 -- a value only
-    # reachable once BOTH fields have been persisted.
+    # Wait for the save to land rather than sleeping. 50 + 10 alongside the other fixture
+    # result totals -340 -- a value only reachable once BOTH fields have persisted.
     assert_selector "[data-scoring-target='totalPoints']", text: "-340", wait: 10
 
     # Verify that the score was updated in the database
