@@ -7,6 +7,12 @@ class StatisticsTest < ApplicationSystemTestCase
     @team2 = users(:team_two)
     @challenge = challenges(:one)
 
+    # The settings fixture ends the hunt in 2024 while fixture results are
+    # stamped at load time, which collapses the chart window to a single point.
+    # Give the chart a window that actually contains the data.
+    Setting.set("chart_start_time", 1.hour.ago.iso8601)
+    Setting.set("scoreboard_end_time", 1.hour.from_now.iso8601)
+
     sign_in @admin
   end
 
@@ -45,8 +51,10 @@ class StatisticsTest < ApplicationSystemTestCase
 
     initial_content = find("#createdAtChart").text
 
-    # Create a new result
-    Result.create!(user: @team1, challenge: @challenge, regular_points: 200, bonus_points: 0, created_at: Time.current)
+    # Create a genuinely new result. @challenge (challenges(:one)) already has a
+    # fixture result for @team1, and results carries a unique index on
+    # [user_id, challenge_id], so reusing it raises RecordNotUnique.
+    Result.create!(user: @team1, challenge: challenges(:three), regular_points: 200, bonus_points: 0, created_at: Time.current)
 
     # Refresh the page
     visit statistics_path

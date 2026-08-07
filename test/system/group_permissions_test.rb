@@ -12,9 +12,10 @@ class GroupPermissionsTest < ApplicationSystemTestCase
 
   test "admin can manage group permissions on index page" do
     sign_in @admin
-    visit group_permissions_path
+    # Must exist before the page renders, or the checkbox comes back unchecked.
+    GroupPermission.create!(user: @team, group_id: 1)
 
-    GroupPermission.create(user: @team, group_id: 1)
+    visit group_permissions_path
 
     assert_selector "h1", text: "Manage Group Permissions"
 
@@ -27,8 +28,15 @@ class GroupPermissionsTest < ApplicationSystemTestCase
     uncheck "group_permission_#{@team.id}_1"
     check "group_permission_#{@team.id}_2"
 
-    # Wait for AJAX request to complete
-    assert_no_selector ".loading-indicator", wait: 5
+    # There is no .loading-indicator anywhere in the app, so the assertion that
+    # used to sit here returned instantly and the reload below raced the fetch.
+    # Wait on the state the request actually changes.
+    assert_eventually(message: "group 1 permission was never revoked") do
+      !GroupPermission.exists?(user: @team, group_id: 1)
+    end
+    assert_eventually(message: "group 2 permission was never granted") do
+      GroupPermission.exists?(user: @team, group_id: 2)
+    end
 
     # Reload page to verify changes persisted
     visit group_permissions_path
@@ -40,9 +48,10 @@ class GroupPermissionsTest < ApplicationSystemTestCase
 
   test "scorer can manage group permissions on score page" do
     sign_in @scorer
-    visit scoring_score_path(@team)
+    # Must exist before the page renders, or the checkbox comes back unchecked.
+    GroupPermission.create!(user: @team, group_id: 1)
 
-    GroupPermission.create(user: @team, group_id: 1)
+    visit scoring_score_path(@team)
 
     assert_selector "h1", text: "Scoring #{@team.name}"
 
@@ -55,8 +64,15 @@ class GroupPermissionsTest < ApplicationSystemTestCase
     uncheck "group_permission_#{@team.id}_1"
     check "group_permission_#{@team.id}_2"
 
-    # Wait for AJAX request to complete
-    assert_no_selector ".loading-indicator", wait: 5
+    # There is no .loading-indicator anywhere in the app, so the assertion that
+    # used to sit here returned instantly and the reload below raced the fetch.
+    # Wait on the state the request actually changes.
+    assert_eventually(message: "group 1 permission was never revoked") do
+      !GroupPermission.exists?(user: @team, group_id: 1)
+    end
+    assert_eventually(message: "group 2 permission was never granted") do
+      GroupPermission.exists?(user: @team, group_id: 2)
+    end
 
     # Reload page to verify changes persisted
     visit scoring_score_path(@team)

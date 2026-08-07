@@ -15,7 +15,8 @@ class HomePageTest < ApplicationSystemTestCase
     visit root_path
 
     assert_selector "h1", text: "Scoreboard"
-    assert_selector "h2", text: "Time Remaining:"
+    # The "Time Remaining:" heading was deliberately removed from the view; the
+    # timer itself is the assertion that matters.
     assert_selector "[data-scoreboard-target='timer']"
 
     assert_selector "table" do
@@ -185,6 +186,10 @@ class HomePageTest < ApplicationSystemTestCase
   end
 
   test "scoreboard end time is displayed and updates" do
+    # The shared setup ends the hunt in 2024, which renders "Time's up!" rather
+    # than a countdown, so this test has to put the end time back in the future.
+    Setting.set("scoreboard_end_time", (DateTime.now.utc + 2.hours).to_s)
+
     visit root_path
     assert_selector "[data-scoreboard-target='timer']", text: /\d+h \d+m \d+s/
 
