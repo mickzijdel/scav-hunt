@@ -1,7 +1,7 @@
 [tools]
 # Application toolchain — these versions are the single source of truth and must stay in
 # lockstep with .ruby-version, .node-version and the Dockerfile ARGs.
-ruby = "3.3.3"
+ruby = "3.4.10"
 node = "22.4.1"   # also provides npx, used to run jscpd + herb lint (both npm-distributed)
 yarn = "1.22.19"
 

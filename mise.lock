@@ -192,47 +192,7 @@ url = "https://github.com/apple/pkl/releases/download/0.32.1/pkl-windows-amd64.e
 url_api = "https://api.github.com/repos/apple/pkl/releases/assets/487426668"
 
 [[tools.ruby]]
-version = "3.3.3"
-backend = "core:ruby"
-
-[tools.ruby.options]
-compile = "true"
-ruby_build_repo = "https://github.com/rbenv/ruby-build.git"
-ruby_install = "false"
-
-[tools.ruby."platforms.linux-arm64"]
-checksum = "sha256:83c05b2177ee9c335b631b29b8c077b4770166d02fa527f3a9f6a40d13f3cce2"
-url = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.3.tar.gz"
-
-[tools.ruby."platforms.linux-arm64-musl"]
-checksum = "sha256:83c05b2177ee9c335b631b29b8c077b4770166d02fa527f3a9f6a40d13f3cce2"
-url = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.3.tar.gz"
-
-[tools.ruby."platforms.linux-x64"]
-checksum = "sha256:83c05b2177ee9c335b631b29b8c077b4770166d02fa527f3a9f6a40d13f3cce2"
-url = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.3.tar.gz"
-
-[tools.ruby."platforms.linux-x64-musl"]
-checksum = "sha256:83c05b2177ee9c335b631b29b8c077b4770166d02fa527f3a9f6a40d13f3cce2"
-url = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.3.tar.gz"
-
-[tools.ruby."platforms.macos-arm64"]
-checksum = "sha256:83c05b2177ee9c335b631b29b8c077b4770166d02fa527f3a9f6a40d13f3cce2"
-url = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.3.tar.gz"
-
-[tools.ruby."platforms.macos-x64"]
-checksum = "sha256:83c05b2177ee9c335b631b29b8c077b4770166d02fa527f3a9f6a40d13f3cce2"
-url = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.3.tar.gz"
-
-[[tools.ruby]]
-version = "3.3.3"
-backend = "core:ruby"
-
-[tools.ruby."platforms.windows-x64"]
-url = "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.3-1/rubyinstaller-3.3.3-1-x64.7z"
-
-[[tools.ruby]]
-version = "3.3.3"
+version = "3.4.10"
 backend = "core:ruby"
 
 [tools.ruby.options]
@@ -242,33 +202,41 @@ ruby_build_repo = "https://github.com/rbenv/ruby-build.git"
 ruby_install = "false"
 
 [tools.ruby."platforms.linux-arm64"]
-checksum = "sha256:b935ff946a5af5246972cafcff4499eaa97be16b5e87f15a5ef9bbfb6e5e2822"
-url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.arm64_linux.tar.gz"
+checksum = "sha256:c0a3e9f1d7847e66b044aeeab394ba5d41f63c3da7ad99017c4b2578e31b205a"
+url = "https://github.com/jdx/ruby/releases/download/3.4.10-2/ruby-3.4.10.arm64_linux.tar.gz"
 provenance = "github-attestations"
 
 [tools.ruby."platforms.linux-arm64-musl"]
-checksum = "sha256:b935ff946a5af5246972cafcff4499eaa97be16b5e87f15a5ef9bbfb6e5e2822"
-url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.arm64_linux.tar.gz"
+checksum = "sha256:c0a3e9f1d7847e66b044aeeab394ba5d41f63c3da7ad99017c4b2578e31b205a"
+url = "https://github.com/jdx/ruby/releases/download/3.4.10-2/ruby-3.4.10.arm64_linux.tar.gz"
 provenance = "github-attestations"
 
 [tools.ruby."platforms.linux-x64"]
-checksum = "sha256:e4a51e1abbe1aa00b4b3753a5e9e478820f7a213349a6da752edbcf62332a46f"
-url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.x86_64_linux.tar.gz"
+checksum = "sha256:81ce58b056ee2765e46785b4c6befb9852d9c3e50ff9385e7eb1cf3e0314d0bd"
+url = "https://github.com/jdx/ruby/releases/download/3.4.10-2/ruby-3.4.10.x86_64_linux.tar.gz"
 provenance = "github-attestations"
 
 [tools.ruby."platforms.linux-x64-musl"]
-checksum = "sha256:e4a51e1abbe1aa00b4b3753a5e9e478820f7a213349a6da752edbcf62332a46f"
-url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.x86_64_linux.tar.gz"
+checksum = "sha256:81ce58b056ee2765e46785b4c6befb9852d9c3e50ff9385e7eb1cf3e0314d0bd"
+url = "https://github.com/jdx/ruby/releases/download/3.4.10-2/ruby-3.4.10.x86_64_linux.tar.gz"
 provenance = "github-attestations"
 
 [tools.ruby."platforms.macos-arm64"]
-checksum = "sha256:b013a59d2536f8f1aaef12cc5de6070b6d7bc0c38e38d1d0636b241bd7405312"
-url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.macos.tar.gz"
+checksum = "sha256:5aac8b6e16b0938a14f6d23346b5487020d1fea6b5856a33392e5eb37fa1ef62"
+url = "https://github.com/jdx/ruby/releases/download/3.4.10-2/ruby-3.4.10.macos.tar.gz"
 provenance = "github-attestations"
 
 [tools.ruby."platforms.macos-x64"]
-checksum = "sha256:83c05b2177ee9c335b631b29b8c077b4770166d02fa527f3a9f6a40d13f3cce2"
-url = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.3.tar.gz"
+checksum = "sha256:ecee2d072a14f2d14347dd56dfd8fe5c3130abf5117bfaacbda0f4ef9cc429ec"
+url = "https://cache.ruby-lang.org/pub/ruby/3.4/ruby-3.4.10.tar.gz"
+
+[[tools.ruby]]
+version = "3.4.10"
+backend = "core:ruby"
+
+[tools.ruby."platforms.windows-x64"]
+checksum = "sha256:89e3c5e235ac88b9b7e8daaf639eaaab74d7c470667354f6bf0f7432f3191ebb"
+url = "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.4.10-1/rubyinstaller-3.4.10-1-x64.7z"
 
 [[tools.yarn]]
 version = "1.22.19"
