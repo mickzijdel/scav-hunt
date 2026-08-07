@@ -18,6 +18,13 @@ config/credentials/*.yml.enc -text
 # Mark the database schema as having been generated.
 db/schema.rb linguist-generated
 
+# Lockfiles are machine-written. Marking them generated keeps them out of the language
+# stats and collapses them by default in GitHub diffs; they are still fully tracked and
+# reviewable. mise.lock pins the dev toolchain (see mise.toml).
+Gemfile.lock linguist-generated
+yarn.lock linguist-generated
+mise.lock linguist-generated
+
 # Mark any vendored files as having been vendored.
 vendor/* linguist-vendored
 config/credentials/*.yml.enc diff=rails_credentials
