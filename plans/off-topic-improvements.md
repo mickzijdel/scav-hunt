@@ -1,0 +1,105 @@
+# Off-topic improvements
+
+Things noticed while working on something else. Nothing here was in scope at the time it was
+found, so nothing here has been fixed. Delete an entry when it lands.
+
+## Found while wiring up the dev-env standard (mise / hk / CI), 2026-08-07
+
+Every item below is a **pre-existing** issue: each was verified to predate that work. Together
+they are why six of the sixteen hk gates are currently red.
+
+### App bugs
+
+- **`app/views/layouts/_navbar.html.erb:1` — stray comma between HTML attributes.**
+  `<nav class="navbar bg-dark navbar-expand-lg bg-body-tertiary", data-bs-theme="dark">`.
+  Invalid markup: browsers recover, but it is the *only* thing failing both
+  `bundle exec herb analyze app/` and `bundle exec herb lint app/`. Deleting the comma makes
+  `herb analyze` report 43/43 files clean (verified).
+
+- **`app/services/statistics_service.rb:36` — `NoMethodError: undefined method 'min' for nil`.**
+  `generate_time_intervals` assumes a non-nil `start_time`; it is nil when the `chart_start_time`
+  setting is absent. Causes 3 of the 4 errors in `bin/rails test`
+  (`test/services/statistics_service_test.rb`).
+
+- **`test/channels/application_cable/connection_test.rb` — 1 error.** The fourth of the four
+  pre-existing test errors.
+
+### Security findings
+
+- **`app/controllers/users_controller.rb:56` — Mass Assignment (brakeman `PermitAttributes`).**
+  `params.require(:user).permit(:email, :name, :role, ...)` lets a user set their own `:role`
+  if the action is reachable without an authorisation check. Worth confirming CanCanCan blocks
+  it, and dropping `:role` from the permit list for non-admins either way.
+
+- **`app/services/statistics_service.rb:22` — possible SQL injection (brakeman).**
+  `team.results.where("#{time_column} <= ?", interval)` interpolates a column name. Low risk if
+  `time_column` is derived internally, but it should be validated against an allowlist of
+  column names rather than interpolated.
+
+- **`bundle exec bundle-audit check` — CVEs across ~21 gems**, including rails/actionpack/
+  activerecord/activesupport, rack, nokogiri, puma, devise, loofah, rexml and websocket-driver.
+  The tree is well behind (Rails 7.2.1). Owned by a dedicated dependency-upgrade pass; do not
+  chip at it piecemeal.
+
+### Code quality
+
+- **`bin/rubocop` — 201 offences (198 autocorrectable)** in four files:
+  `config/initializers/devise.rb`, `config/initializers/simple_form.rb`,
+  `config/initializers/simple_form_bootstrap.rb` and
+  `db/migrate/20240828214914_update_users_to_challenges.rb`. Almost all `Style/StringLiterals`
+  (single vs. double quotes) in generator-produced files. `bin/rubocop -A` fixes them; the hk
+  pre-commit hook will do it automatically on the next commit that stages those files.
+
+- **`.herb.yml` holds an adoption baseline of 11 parked rules.** Written by
+  `herb lint app/ --disable-failing` so herb could be adopted without blocking every commit.
+  It is a to-do list, not a policy. 48 of the 64 original offences are
+  `herb lint app/ --fix`-able. Highest-value ones to re-enable first:
+  `erb-no-instance-variables-in-partials` (7 offences — partials reaching for `@ivars` instead
+  of locals) and `html-input-require-autocomplete` (3 — an a11y/UX win on the login form).
+
+- **`.jscpd.json` sets `threshold: 1.1` instead of the standard's `0`.** Two pre-existing
+  clones: `app/assets/stylesheets/login.css:1-7` ~ `scoreboard.css:3-9`, and
+  `test/system/home_test.rb:21-46` ~ `66-91`. De-duplicate both, then put the threshold back
+  to `0` so any new duplication fails the gate.
+
+- **`config/initializers/simple_form_bootstrap.rb` is excluded from jscpd** — it is
+  simple_form generator boilerplate with three internal clones. Excluded rather than
+  refactored, in the same spirit as `db/schema.rb`.
+
+- **`bundle exec debride` — ~140 suspect LOC.** Notably `Result#broadcast_update`,
+  `Result#ensure_zero_points`, `User#clear_scoreboard_cache`, and the `new`/`edit`/`show`
+  actions on `UsersController`. Advisory — debride cannot see calls from views, ActionCable or
+  routes, so verify before deleting anything.
+
+- **`bundle exec flay` — total score 375.** Largest: the near-identical
+  `app/views/devise/passwords/new.html.erb` and `devise/unlocks/new.html.erb` (mass 118, a
+  shared partial waiting to happen), a 3-way repeat in `challenges/index.html.erb:56-64`, and
+  duplicated blocks in `challenges_controller.rb:40/55` and `:43/58`.
+
+- **`bundle exec database_consistency` — 21 model/schema mismatches** (run it with a DB up).
+  The substantive ones: `Setting#value`, `Challenge#number`, `#description`, `#points` and
+  `#group_id` should be `NOT NULL`; `Result` and `GroupPermission` lack `dependent:` /
+  `on_delete` on their `user` association, so deleting a user orphans rows; and
+  `index_results_on_user_id` / `index_group_permissions_on_user_id` are redundant, each fully
+  covered by a composite index.
+
+### Tooling / environment
+
+- **The `bin/brakeman` binstub injects `--ensure-latest`.** Combined with `./bin` on `$PATH`
+  (as on the author's machine) it shadows the gem for `bundle exec brakeman`, so the step fails
+  on "not the latest version" instead of on the scan — and CI, which has no `./bin` on `$PATH`,
+  would not reproduce it. Worked around in `hk.pkl` and `ci.yml` by loading the executable via
+  `Gem.bin_path`. The tidier fix is to drop the `--ensure-latest` line from `bin/brakeman` and
+  let bundler-audit/Dependabot handle staying current.
+
+- **Upstream, in the `dev-hooks:dev-env-setup` skill:** the Ruby template's
+  `database_consistency` step probes with `bin/rails runner "ActiveRecord::Base.connection"`,
+  which is **lazy on Rails 7.2** — it returns a connection object without contacting the
+  server, so the probe exits 0 with no database running and database_consistency then dies on
+  its first checker. It needs `.execute('SELECT 1')` to force the connection. Fixed locally in
+  `hk.pkl`; worth pushing back to the template.
+
+- **Upstream, in `writing:github-readme`'s `github_readme_audit.py`:** its "exactly one H1"
+  check counts `#`-prefixed lines inside fenced code blocks. The nginx sample in `README.md`
+  legitimately contains `# New server block ...`, which the audit reports as a second H1. The
+  check should skip fenced blocks.
