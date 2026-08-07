@@ -15,15 +15,7 @@ version: 0.10.3
 linter:
   enabled: true
   # The adoption baseline written by `herb lint app/ --disable-failing` parked 11 rules that
-  # had pre-existing offences. Ten of them are fixed and back on. One is left, and only
-  # because its single remaining offence is in a file this pass was not allowed to edit:
-  #
-  #   erb-strict-locals-comment-syntax — app/views/settings/_form.html.erb:1 writes
-  #   `<%# locals:(setting:) %>`. Rails Strict Locals need a space after the colon. That one
-  #   character is the whole fix; add it and delete the entry below.
-  rules:
-    erb-strict-locals-comment-syntax:
-      enabled: false
+  # had pre-existing offences. All of them are fixed and back on -- no rule is parked.
   # # Exit with error code when diagnostics of this severity or higher are present.
   # # Valid: error (default) | warning | info | hint
   # failLevel: error

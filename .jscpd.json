@@ -1,7 +1,10 @@
 {
   "minTokens": 70,
-  "threshold": 0.53,
-  "reporters": ["ai", "threshold"],
+  "threshold": 0,
+  "reporters": [
+    "ai",
+    "threshold"
+  ],
   "gitignore": true,
   "ignore": [
     "**/__pycache__/**",

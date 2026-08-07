@@ -1,9 +1,15 @@
-<%# locals:(setting:) %>
+<%# locals: (setting:) %>
 <%= simple_form_for(setting, url: settings_path, method: :patch, key: setting[:key], html: { id: "settings_form_#{setting[:key]}" }) do |f| %>
-  <%= render "application/forms/errors", errors: setting.errors %>
+  <%# :key is a hidden field, so any error on it has nowhere to render inline --
+      pass it through to the summary alongside the record-level ones. %>
+  <%= render "application/forms/errors", errors: setting.errors,
+             model_name: Setting.model_name.human.downcase, attributes: [ :base, :key ] %>
   <div class="row mb-3">
     <div class="col">
-      <%= f.input :key, as: :hidden %>
+      <%# hidden_field, not `f.input as: :hidden`: no :hidden wrapper is configured,
+          so simple_form falls back to the vertical wrapper and wraps it in an mb-3
+          div with its own full_error. %>
+      <%= f.hidden_field :key %>
       <%= f.input :value, label: Setting::KEYS[setting[:key]][:title] %>
     </div>
     <div class="col-auto">

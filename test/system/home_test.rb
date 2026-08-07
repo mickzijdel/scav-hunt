@@ -29,14 +29,9 @@ class HomePageTest < ApplicationSystemTestCase
     end
   end
 
-  test "visiting the home page as guest" do
-    visit root_path
-
-    assert_selector "h1", text: "Scoreboard"
-    # The "Time Remaining:" heading was deliberately removed from the view; the
-    # timer itself is the assertion that matters.
-    assert_selector "#timer"
-
+  # Rank / Team / Score and none of the scorer-only completion columns. Asserted
+  # identically by the guest and signed-in-team tests, so it lives here once.
+  def assert_public_scoreboard_table
     assert_selector "table" do
       assert_selector "th", text: "Rank"
       assert_selector "th", text: "Team"
@@ -46,7 +41,7 @@ class HomePageTest < ApplicationSystemTestCase
       assert_no_selector "th", text: "Not Attempted"
 
       all("thead tr").each do |row|
-        assert_equal 3, row.all("th").count, "Header row does not have 3 td elements"
+        assert_equal 3, row.all("th").count, "Header row does not have 3 th elements"
       end
 
       all("tbody tr").each do |row|
@@ -55,6 +50,17 @@ class HomePageTest < ApplicationSystemTestCase
     end
 
     assert_live_refresh_keeps_columns 3
+  end
+
+  test "visiting the home page as guest" do
+    visit root_path
+
+    assert_selector "h1", text: "Scoreboard"
+    # The "Time Remaining:" heading was deliberately removed from the view; the
+    # timer itself is the assertion that matters.
+    assert_selector "#timer"
+
+    assert_public_scoreboard_table
   end
 
   test "Checking the navbar as a guest" do
@@ -77,24 +83,7 @@ class HomePageTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Scoreboard"
     assert_selector "span.navbar-text", text: "Welcome #{@team.name}"
 
-    assert_selector "table" do
-      assert_selector "th", text: "Rank"
-      assert_selector "th", text: "Team"
-      assert_selector "th", text: "Score"
-      assert_no_selector "th", text: "Completed"
-      assert_no_selector "th", text: "Partially Completed"
-      assert_no_selector "th", text: "Not Attempted"
-
-      all("thead tr").each do |row|
-        assert_equal 3, row.all("th").count, "Header row does not have 3 td elements"
-      end
-
-      all("tbody tr").each do |row|
-        assert_equal 3, row.all("td").count, "Content row does not have 3 td elements"
-      end
-    end
-
-    assert_live_refresh_keeps_columns 3
+    assert_public_scoreboard_table
   end
 
   test "checking the navbar as team user" do

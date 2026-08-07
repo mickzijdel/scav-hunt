@@ -1,5 +1,8 @@
 <% content_for :head do %>
-    <link href=" https://cdn.jsdelivr.net/npm/billboard.js@3.13.0/dist/billboard.min.css " rel="stylesheet">
+  <%# Served from the installed billboard.js package (see config/initializers/assets.rb),
+      so it always matches the version bundled into application.js. The CDN link this
+      replaces was pinned to 3.13.0 while package.json is on 4.x. %>
+  <%= stylesheet_link_tag "billboard", "data-turbo-track": "reload" %>
 <% end %>
 
 <div data-controller="statistics"

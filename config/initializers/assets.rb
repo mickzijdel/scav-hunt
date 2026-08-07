@@ -12,3 +12,9 @@ Rails.application.config.assets.paths << Rails.root.join("node_modules/bootstrap
 # @font-face in application.bootstrap.scss can reference it and Propshaft can
 # fingerprint it — the same arrangement as bootstrap-icons above.
 Rails.application.config.assets.paths << Rails.root.join("node_modules/@fontsource/almendra-sc/files")
+
+# billboard.js ships its own stylesheet. Serving it from the installed package keeps
+# it in lockstep with the JS version in package.json and page-scoped to /statistics
+# (via stylesheet_link_tag "billboard"), rather than pulling a separate copy from a
+# CDN or inflating the global bundle on every page.
+Rails.application.config.assets.paths << Rails.root.join("node_modules/billboard.js/dist")
