@@ -1,4 +1,4 @@
-<%# locals:(challenges:, results:, current_user:) %>
+<%# locals: (challenges:, results:, current_user:) %>
 <% challenges.each do |challenge| %>
   <%= render 'challenges/challenge_row', challenge: challenge, result: results&.[](challenge.id), current_user: current_user %>
 <% end %>
