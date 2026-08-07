@@ -19,7 +19,12 @@ gem "turbo-rails"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
 # Bundle and process CSS [https://github.com/rails/cssbundling-rails]
-gem "cssbundling-rails"
+# Held at 1.4.1 on purpose. 1.4.2+ adds yarn.lock to the *bun* lock-file list,
+# so on any machine that has bun on PATH `css:install` / `css:build` silently
+# switch from yarn to `bun install` / `bun run build:css` and drop a stray
+# bun.lock in the repo - even though mise.toml, the Dockerfile and CI all pin
+# yarn 1. Unpin once the toolchain is deliberately moved to bun.
+gem "cssbundling-rails", "= 1.4.1"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
