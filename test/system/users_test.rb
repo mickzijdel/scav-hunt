@@ -91,12 +91,34 @@ class UsersTest < ApplicationSystemTestCase
   end
 
   test "destroying a User" do
+    # Read the id up front; the fixture accessor raises once the row is gone.
+    team_three_id = users(:team_three).id
+
     visit users_url
-    page.accept_confirm do
-      click_on "Destroy", match: :first
+
+    # Team 3 is the only fixture team with no results; destroying a scored team
+    # is refused on purpose (see below).
+    within "tr", text: "Team 3" do
+      page.accept_confirm do
+        click_on "Destroy"
+      end
     end
 
     assert_text "User was successfully destroyed"
+    assert_not User.exists?(team_three_id)
+  end
+
+  test "destroying a User with scores is refused" do
+    visit users_url
+
+    within "tr", text: "Team 1" do
+      page.accept_confirm do
+        click_on "Destroy"
+      end
+    end
+
+    assert_text "Cannot destroy result with non-zero points"
+    assert User.exists?(users(:team_one).id), "A scored team must not be deletable"
   end
 
   test "non-admin cannot access users management" do

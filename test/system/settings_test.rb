@@ -59,10 +59,12 @@ class SettingsTest < ApplicationSystemTestCase
   end
 
   test "scoreboard end time is displayed correctly" do
-    end_time = DateTime.new(2024, 9, 27, 14, 0, 0, "+01:00")
-    Setting.set("scoreboard_end_time", end_time.to_s)
+    # A past end time renders "Time's up!", so the countdown format can only be
+    # asserted against a future one. The rendered format is "1h 2m 3s", not a
+    # colon-separated clock.
+    Setting.set("scoreboard_end_time", (DateTime.now.utc + 3.hours).to_s)
 
     visit root_path
-    assert_selector "[data-scoreboard-target='timer']", text: /\d+:\d+:\d+/
+    assert_selector "[data-scoreboard-target='timer']", text: /\d+h \d+m \d+s/
   end
 end
