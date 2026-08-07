@@ -1,6 +1,22 @@
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-icons/font/bootstrap-icons';
 
+// The hunt's green gradient backs both the login screen and the public
+// scoreboard. Propshaft serves those two pages' stylesheets as plain CSS
+// outside this bundle, so they can't @use a Sass variable -- but this bundle
+// loads on every page, so custom properties declared here are visible to them.
+// One definition, two consumers, instead of the colours appearing four times.
+//
+// Only the standard syntax is kept. The old `-webkit-linear-gradient` prefix
+// takes a *starting* side (`left`), never a destination (`to right`), so the
+// prefixed copy these files used to carry was invalid and dropped by every
+// browser that parsed it -- it never rendered anywhere.
+:root {
+  --hunt-green-light: #a8e063;
+  --hunt-green-dark: #56ab2f;
+  --hunt-gradient: linear-gradient(to right, var(--hunt-green-light), var(--hunt-green-dark));
+}
+
 // Bootstrap's dark navbar ships rgba(255,255,255,.55) for inactive links, which
 // measures 5.19:1 against this bar -- past AA but well short of AAA, and visibly
 // washed out sitting next to the 13.3:1 active link. Lift it so every item is

@@ -1,24 +1,39 @@
 @import url("https://fonts.googleapis.com/css?family=Almendra SC");
 
-* {margin: 0; padding: 0;}
-
+/* Public scoreboard (home/index.html.erb). Same footing as login.css: it is
+   pulled in after the bundle, and the global reset it used to carry has been
+   dropped for the same reason. */
 body {
-    background: #56ab2f;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #a8e063, #56ab2f);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #a8e063, #56ab2f); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-   }
-
-#timer {
-    text-align: center;
-    font-family: "Courier New";
-    font-size: 5vw;
+  background-color: var(--hunt-green-dark);
+  background-image: var(--hunt-gradient);
 }
 
-.table {
-    width:70%;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    font-family: "Almendra SC";
-    font-size: 2vw;
+/* Sizes are clamped rather than raw `vw`. Teams read this scoreboard on their
+   phones during the hunt, and a bare `5vw`/`2vw` renders 18.75px/7.5px on a
+   375px screen -- the table text was effectively unreadable. The middle term
+   keeps the desktop rendering exactly what it was; the bounds stop the text
+   shrinking below legible on a phone or ballooning on a projector. */
+#timer {
+  text-align: center;
+  font-family: "Courier New", monospace;
+  font-size: clamp(2rem, 5vw, 5rem);
+}
+
+/* Scoped to the scoreboard's own table -- its tbody carries #scoreboard_rows.
+   This used to be a bare `.table`, which redefined width, alignment, font and
+   size for every Bootstrap table that might ever render on this page. */
+.table:has(> #scoreboard_rows) {
+  width: 70%;
+  margin-inline: auto;
+  text-align: center;
+  font-family: "Almendra SC", serif;
+  font-size: clamp(1rem, 2vw, 2rem);
+}
+
+/* 70% of a phone screen leaves the scorer view's six columns nothing to work
+   with, so below Bootstrap's md breakpoint let the table use the full width. */
+@media (max-width: 767.98px) {
+  .table:has(> #scoreboard_rows) {
+    width: 100%;
+  }
 }
