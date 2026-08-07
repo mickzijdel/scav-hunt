@@ -1,65 +1,52 @@
 import { Controller } from "@hotwired/stimulus"
 
+// Client-side search and sort over a table of challenges.
 export default class extends Controller {
   static targets = ["row", "searchInput", "sortSelect"]
 
-  connect() {
-    this.element.addEventListener("group-updates:challengesUpdated", this.reinitialize.bind(this))
-  }
-
-  reinitialize() {
-    this.sort()
+  // Called after a Turbo Stream swaps rows in. It has to re-apply BOTH filters:
+  // re-sorting alone left rows that the active search had hidden showing again.
+  //
+  // The stream event fires just *before* Turbo applies the change, so hand back to
+  // the event loop first and read the table once it is actually there. (This used to
+  // be an addEventListener in connect() with a .bind(this) that no disconnect()
+  // could ever have removed.)
+  refresh() {
+    setTimeout(() => {
+      this.sort()
+      this.search()
+    })
   }
 
   search() {
     const query = this.searchInputTarget.value.toLowerCase()
 
     this.rowTargets.forEach(row => {
-      const text = row.textContent.toLowerCase()
-      row.style.display = text.includes(query) ? "" : "none"
+      row.style.display = row.textContent.toLowerCase().includes(query) ? "" : "none"
     })
   }
 
   sort() {
-    if (!this.sortSelectTarget.value) {
-      console.warn("ChallengeSortingController: No sort value")
-      return
-    }
-
     const column = this.sortSelectTarget.value
-    console.info("ChallengeSortingController: Sorting by", column)
+    if (!column) return
 
-    const rows = Array.from(this.rowTargets)
+    const rows = [...this.rowTargets]
+    if (rows.length === 0) return
 
-    if (rows.length === 0) {
-      console.warn("ChallengeSortingController: No rows to sort")
-      return
-    }
+    const tbody = this.element.querySelector("tbody")
 
-    rows.sort((a, b) => {
-      const aElement = a.querySelector(`[data-column="${column}"], [data-scoring-target="${column}"]`)
-      const bElement = b.querySelector(`[data-column="${column}"], [data-scoring-target="${column}"]`)
-
-      let aValue, bValue
-
-      if (aElement.tagName === 'INPUT') {
-        aValue = aElement.value
-        bValue = bElement.value
-      } else {
-        aValue = aElement.textContent
-        bValue = bElement.textContent
-      }
-
-      // Check if the values are numbers
-      if (!isNaN(aValue) && !isNaN(bValue)) {
-        return Number(aValue) - Number(bValue)
-      }
-
-      // If not numbers, compare as strings
-      return aValue.localeCompare(bValue)
-    })
-  
-    const tbody = this.element.querySelector('tbody')
-    rows.forEach(row => tbody.appendChild(row))
+    rows
+      .sort((a, b) => compare(cellValue(a, column), cellValue(b, column)))
+      .forEach(row => tbody.appendChild(row))
   }
+}
+
+function cellValue(row, column) {
+  return row.querySelector(`[data-column="${column}"]`)?.textContent.trim() ?? ""
+}
+
+function compare(a, b) {
+  const numeric = a !== "" && b !== "" && !isNaN(a) && !isNaN(b)
+
+  return numeric ? Number(a) - Number(b) : a.localeCompare(b)
 }

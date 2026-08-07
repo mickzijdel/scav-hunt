@@ -4,7 +4,8 @@
     them lands on the others' screens without anybody reloading. %>
 <%= turbo_stream_from @team, :scoring %>
 
-<div data-controller="challenge-sorting">
+<div data-controller="challenge-sorting"
+     data-action="turbo:before-stream-render@document->challenge-sorting#refresh">
   <%= render 'application/search_form', sort_options: {
     "Number" => "number",
     "Group ID" => "groupId",

@@ -6,12 +6,10 @@ class ChallengesController < ApplicationController
   # GET /challenges or /challenges.json
   def index
     @title = "Challenges"
-    @challenges = Challenge.accessible_by(current_ability).includes(:results).by_number
+    @challenges = Challenge.visible_to(current_user).includes(:results)
 
     # Include the results for this user if the user is a team.
-    if current_user.team?
-      @results = Result.includes(:challenge).where(user: current_user).index_by(&:challenge_id)
-    end
+    @results = current_user.results_by_challenge if current_user.team?
   end
 
   # GET /challenges/1 or /challenges/1.json

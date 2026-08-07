@@ -59,6 +59,10 @@ class User < ApplicationRecord
     }
   end
 
+  def results_by_challenge
+    results.includes(:challenge).index_by(&:challenge_id)
+  end
+
   def visible_groups
     group_permissions.pluck(:group_id)
   end

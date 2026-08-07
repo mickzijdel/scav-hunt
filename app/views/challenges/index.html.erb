@@ -7,7 +7,10 @@
   <%= turbo_stream_from current_user, :challenges %>
 <% end %>
 
-<div data-controller="challenge-sorting">
+<%# Rows arrive from a broadcast whenever a score or a group permission changes, so
+    the search and sort the viewer has applied have to be put back afterwards. %>
+<div data-controller="challenge-sorting"
+     data-action="turbo:before-stream-render@document->challenge-sorting#refresh">
   <% # Different sort options for teams and scorers %>
   <%= render 'application/search_form', sort_options: current_user&.team? ? {
     "Number" => "number",

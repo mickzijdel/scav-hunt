@@ -19,8 +19,5 @@ application.register("flash", FlashController)
 import GroupPermissionsController from "./group_permissions_controller"
 application.register("group-permissions", GroupPermissionsController)
 
-import GroupUpdatesController from "./group_updates_controller"
-application.register("group-updates", GroupUpdatesController)
-
 import StatisticsController from "./statistics_controller"
 application.register("statistics", StatisticsController)
