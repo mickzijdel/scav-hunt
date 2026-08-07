@@ -1,6 +1,15 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
+# Extension gems. Omakase already loads (and deliberately disables) rubocop-rails and
+# rubocop-performance, so only the orthogonal plugins are listed here:
+#   rubocop-minitest — cops for this app's Minitest suite
+#   rubocop-mick     — house cops omakase cannot express (e.g. Mick/ParamsMutation).
+#                      The gem ships its cops' defaults, so this line alone activates them.
+plugins:
+  - rubocop-minitest
+  - rubocop-mick
+
 # Overwrite or add rules to create your own house style
 #
 # # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`

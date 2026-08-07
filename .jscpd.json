@@ -1,0 +1,18 @@
+{
+  "minTokens": 70,
+  "threshold": 1.1,
+  "reporters": ["ai", "threshold"],
+  "gitignore": true,
+  "ignore": [
+    "**/__pycache__/**",
+    "**/.venv/**",
+    "**/node_modules/**",
+    "**/vendor/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/db/schema.rb",
+    "**/db/structure.sql",
+    "**/app/assets/builds/**",
+    "**/config/initializers/simple_form_bootstrap.rb"
+  ]
+}
