@@ -51,6 +51,9 @@ RUN rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bund
 
 # Install node modules
 COPY package.json yarn.lock ./
+# The `playwright` devDependency (Capybara's system-test driver) downloads ~1GB of browser
+# binaries from its postinstall script. This image never runs tests, so skip that.
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 RUN yarn install --frozen-lockfile
 
 # Copy application code

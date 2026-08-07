@@ -82,5 +82,11 @@ group :test do
 
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
-  gem "selenium-webdriver"
+  # Playwright rather than Selenium as the Capybara driver: Playwright's per-action
+  # actionability checks (visible / stable / enabled / hit-testable, retried until the
+  # timeout) eliminate the silent no-op click that made the suite flaky under Selenium.
+  # Rails 7.2 knows `driven_by :playwright` natively — see test/application_system_test_case.rb.
+  # Needs the matching `playwright` npm package; the version pairing is pinned in
+  # package.json and must be kept in lockstep with Playwright::COMPATIBLE_PLAYWRIGHT_VERSION.
+  gem "capybara-playwright-driver"
 end
