@@ -15,11 +15,14 @@ class StatisticsService
     # Generate each team's point series and add it to the data.
     # The data consists of an array of arrays, the inner array representing the series of points for a team.
     # The first item of the array is the team name.
-    User.teams_by_name.includes(:results).each do |team|
+    # No includes(:results): the .where below builds a new relation, which
+    # discards any preload, so eager loading here only wasted a query.
+    User.teams_by_name.each do |team|
       team_data = [ team.name ]
 
       team_data += time_intervals.map do |interval|
-        team.results.where("#{time_column} <= ?", interval)
+        # A hash condition rather than interpolating the column name into SQL.
+        team.results.where(time_column => ..interval)
                     .sum("regular_points + bonus_points")
       end
 

@@ -1,0 +1,10 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "afdc25a77c4a7a791a1cd2f87aafe8f131b925ea3f6b7a730a1f6ee526155ffa",
+      "note": "Permitting :role here is deliberate: assigning roles is the whole point of the admin-only user form. UsersController declares load_and_authorize_resource, and Ability grants no User rule to the team or scorer roles, so only an admin (can :manage, :all) can reach create/update. The other way in is closed too: the app defines no configure_permitted_parameters, so Devise's default account_update sanitizer permits only email, password, password_confirmation and current_password -- there is no path for a user to set their own role."
+    }
+  ],
+  "updated": "2026-08-07",
+  "brakeman_version": "6.2.1"
+}
