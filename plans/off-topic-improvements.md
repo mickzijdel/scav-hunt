@@ -179,3 +179,46 @@ they are why six of the sixteen hk gates are currently red.
   rendering (`challenges/_challenge_row`, `home/index`), and each runs two or three COUNT
   queries. Fine at scavenger-hunt scale, but they are the reason a broadcast re-render of the
   scorer's challenge list is the most expensive thing the app does.
+
+- **CI never pins Node, so asset builds use whatever the runner ships.**
+  `.github/workflows/ci.yml` pins Ruby properly (`ruby-version: .ruby-version` on every job) but
+  the `test` job runs `yarn install --frozen-lockfile` and `bin/rails test:system` with no
+  `actions/setup-node` and no `jdx/mise-action` step, so esbuild/sass run on the runner's default
+  Node rather than the 22.4.1 pinned in `mise.toml` / `.node-version`. That contradicts
+  CLAUDE.md's own rule that mise.toml is the single source of truth for ruby/node/yarn. It is
+  green today, which is exactly why it is easy to miss — a runner image bump could change the
+  Node major under the build without any commit. Deliberately left alone during the Rails 8.1
+  load_defaults work: the upgrade did not change the Node requirement, and the CI-sync workflow
+  says not to touch a dimension the upgrade did not move. Add `jdx/mise-action` (already used by
+  the `gitleaks` and `actions-lint` jobs) to the `test` job, or `actions/setup-node` with
+  `node-version-file: .node-version`.
+
+- **Sprockets-era `config.assets.*` keys survive under Propshaft.**
+  The app moved to Propshaft (`Gemfile:9`, propshaft 1.3.2) but
+  `config/environments/development.rb:65-69` still sets `config.assets.quiet`,
+  `config.assets.debug`, `config.assets.compile` and `config.assets.digest`. Propshaft implements
+  none of those — there is no compilation step, no debug mode and digests are unconditional — so
+  they are dead config that reads as if it does something. (`config.assets.paths` and
+  `config.assets.version` in `config/initializers/assets.rb` are real and Propshaft honours them;
+  keep those.) Harmless because `config.assets` is an OrderedOptions that swallows unknown keys,
+  which is also why nothing has flagged it. Delete the four dead lines.
+
+- **CLAUDE.md's "Known pre-existing issues" section is stale.**
+  It claims `bin/rails test` is "26 runs, 4 errors", `bin/rubocop` has "201 offences" and
+  `herb analyze` fails on a stray comma in `_navbar.html.erb`. As of this pass all three are
+  clean: 48 runs / 0 failures / 0 errors, 76 files / no offences, 43/43 files clean. Items 1, 2
+  and 3 should be struck so the list stops describing regressions that no longer exist.
+
+- **Rails' own `new_framework_defaults` templates ship two lines that are silent no-ops.**
+  Found while working through the 8.0 and 8.1 defaults. Both
+  `Rails.application.config.action_dispatch.strict_freshness = true` (8.0 template) and
+  `Rails.configuration.active_support.escape_js_separators_in_json = false` (8.1 template) are
+  copied out of `config.*` by railtie initializers — `action_dispatch.configure` at position 26
+  and `active_support.set_configs` at position 20 — both of which run before
+  `load_config_initializers` at position 113 loads `config/initializers/*`. Uncommenting either
+  line in the generated file changes nothing; the consuming attribute keeps its old value. Anyone
+  using these files to trial defaults one at a time needs to set those two in
+  `config/application.rb` instead, and should read the value back from the consuming object
+  (`ActionDispatch::Http::Cache::Request.strict_freshness`,
+  `ActiveSupport.escape_js_separators_in_json`) rather than trusting the assignment. Worth an
+  upstream Rails issue.
