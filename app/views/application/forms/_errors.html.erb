@@ -1,18 +1,24 @@
-<%# locals: (errors:) %>
+<%# locals: (errors:, model_name:, attributes: [ :base ]) %>
 
-<% if errors.any? %>
-  <% field_errors = errors.attribute_names.map(&:to_s) %>
-  <% general_errors = errors.full_messages.reject { |msg| field_errors.any? { |field| msg.starts_with?("#{field.humanize} ") } } %>
-  
-  <% if general_errors.any? %>
-    <div id="error_explanation" class="alert alert-danger alert-dismissible fade show" role="alert">
-      <h4 class="alert-heading"><%= pluralize(general_errors.count, "error") %> prohibited this user from being saved:</h4>
-      <ul class="list-unstyled mb-0">
-        <% general_errors.each do |message| %>
-          <li><i class="bi bi-exclamation-circle me-2"></i><%= message %></li>
-        <% end %>
-      </ul>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  <% end %>
+<%# Only errors the form cannot show inline belong in this summary. Anything attached to an
+    attribute with a visible input is already rendered by simple_form's `full_error` wrapper,
+    directly under that input, so repeating it here is noise. That leaves record-level
+    (:base) errors, plus any attribute a particular form renders as a hidden field -- pass
+    those in via `attributes:`.
+
+    Selecting on the attribute rather than prefix-matching the humanized field name onto the
+    message also means an i18n-customised message (one that does not happen to start with its
+    own field name) is no longer silently swallowed. %>
+<% messages = attributes.flat_map { |attribute| errors.full_messages_for(attribute) } %>
+
+<% if messages.any? %>
+  <div id="error_explanation" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <h4 class="alert-heading"><%= pluralize(messages.count, "error") %> prohibited this <%= model_name %> from being saved:</h4>
+    <ul class="list-unstyled mb-0">
+      <% messages.each do |message| %>
+        <li><i class="bi bi-exclamation-circle me-2"></i><%= message %></li>
+      <% end %>
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
 <% end %>

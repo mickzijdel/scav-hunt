@@ -1,5 +1,5 @@
 <%= simple_form_for(@user) do |f| %>
-    <%= render "application/forms/errors", errors: @user.errors %>
+    <%= render "application/forms/errors", errors: @user.errors, model_name: User.model_name.human.downcase %>
 
     <%= f.input :name %>
     <%= f.input :email %>
