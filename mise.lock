@@ -231,6 +231,45 @@ backend = "core:ruby"
 [tools.ruby."platforms.windows-x64"]
 url = "https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.3-1/rubyinstaller-3.3.3-1-x64.7z"
 
+[[tools.ruby]]
+version = "3.3.3"
+backend = "core:ruby"
+
+[tools.ruby.options]
+compile = "false"
+precompiled_url = "jdx/ruby"
+ruby_build_repo = "https://github.com/rbenv/ruby-build.git"
+ruby_install = "false"
+
+[tools.ruby."platforms.linux-arm64"]
+checksum = "sha256:b935ff946a5af5246972cafcff4499eaa97be16b5e87f15a5ef9bbfb6e5e2822"
+url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.arm64_linux.tar.gz"
+provenance = "github-attestations"
+
+[tools.ruby."platforms.linux-arm64-musl"]
+checksum = "sha256:b935ff946a5af5246972cafcff4499eaa97be16b5e87f15a5ef9bbfb6e5e2822"
+url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.arm64_linux.tar.gz"
+provenance = "github-attestations"
+
+[tools.ruby."platforms.linux-x64"]
+checksum = "sha256:e4a51e1abbe1aa00b4b3753a5e9e478820f7a213349a6da752edbcf62332a46f"
+url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.x86_64_linux.tar.gz"
+provenance = "github-attestations"
+
+[tools.ruby."platforms.linux-x64-musl"]
+checksum = "sha256:e4a51e1abbe1aa00b4b3753a5e9e478820f7a213349a6da752edbcf62332a46f"
+url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.x86_64_linux.tar.gz"
+provenance = "github-attestations"
+
+[tools.ruby."platforms.macos-arm64"]
+checksum = "sha256:b013a59d2536f8f1aaef12cc5de6070b6d7bc0c38e38d1d0636b241bd7405312"
+url = "https://github.com/jdx/ruby/releases/download/3.3.3-4/ruby-3.3.3.macos.tar.gz"
+provenance = "github-attestations"
+
+[tools.ruby."platforms.macos-x64"]
+checksum = "sha256:83c05b2177ee9c335b631b29b8c077b4770166d02fa527f3a9f6a40d13f3cce2"
+url = "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.3.tar.gz"
+
 [[tools.yarn]]
 version = "1.22.19"
 backend = "vfox:mise-plugins/vfox-yarn"
