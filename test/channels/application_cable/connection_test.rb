@@ -2,14 +2,16 @@ require "test_helper"
 
 module ApplicationCable
   class ConnectionTest < ActionCable::Connection::TestCase
-    test "connects with params" do
-      # Simulate a connection opening by calling the `connect` method
+    test "connects with an authenticated warden session" do
       user = users(:admin)
-      cookies.signed["_scav_hunt_session"] = { "warden.user.user.key": [ [ user.id ] ] }
-      connect
 
-      # You can access the Connection object via `connection` in tests
-      assert_equal connection.current_user, user
+      # Connection#find_verified_user reads env["warden"], which is populated by
+      # Warden::Manager in the real middleware stack. ActionCable's connection
+      # TestCase builds a synthetic Rack env and runs no middleware, so the
+      # warden proxy has to be supplied directly.
+      connect env: { "warden" => Struct.new(:user).new(user) }
+
+      assert_equal user, connection.current_user
     end
 
     test "rejects connection without params" do
