@@ -1,6 +1,26 @@
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-icons/font/bootstrap-icons';
 
+// Bootstrap's dark navbar ships rgba(255,255,255,.55) for inactive links, which
+// measures 5.19:1 against this bar -- past AA but well short of AAA, and visibly
+// washed out sitting next to the 13.3:1 active link. Lift it so every item is
+// comfortably legible and the active one still reads as the brightest.
+// Bootstrap declares these on `.navbar[data-bs-theme=dark]`, so the selector has
+// to match that specificity -- a bare `.navbar` loses no matter where it sits.
+.navbar,
+.navbar[data-bs-theme="dark"] {
+  --bs-navbar-color: rgba(255, 255, 255, 0.87);
+  --bs-navbar-hover-color: #fff;
+  --bs-navbar-active-color: #fff;
+}
+
+// The logo is black line art on a transparent background, so on the dark bar it
+// is very nearly invisible -- and it is the home link on every page. Inverting
+// it renders it white here without shipping a second copy of the asset.
+.navbar img {
+  filter: invert(1);
+}
+
 // Applied by flash_controller.js to anything a Turbo Stream has just replaced.
 // Green means "you did this", blue means "somebody else did".
 @keyframes flash-green {
