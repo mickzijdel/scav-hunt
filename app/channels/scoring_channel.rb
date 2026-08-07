@@ -1,8 +1,14 @@
 class ScoringChannel < ApplicationCable::Channel
   def subscribed
-    user = User.find(params[:user_id])
+    # params[:user_id] is chosen by the client. Without this check any signed-in
+    # team could subscribe to a rival's stream and watch their live scores --
+    # including while the scoreboard is deliberately hidden. #receive was already
+    # authorized; only reads were missed.
+    user = User.find_by(id: params[:user_id])
+    return reject if user.nil?
+    return reject unless user == current_user || Ability.new(current_user).can?(:manage, :scoring)
+
     stream_for user
-    Rails.logger.info "Subscribed to ScoringChannel for user: #{params[:user_id]}"
   end
 
   def receive(data)

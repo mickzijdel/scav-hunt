@@ -1,8 +1,12 @@
 class GroupUpdatesChannel < ApplicationCable::Channel
   def subscribed
-    user = User.find(params[:user_id])
-    stream_for user
+    # params[:user_id] is chosen by the client. This stream carries the rendered
+    # challenge list, so without the check any signed-in user could read the
+    # challenge groups another user has permission to see.
+    user = User.find_by(id: params[:user_id])
+    return reject if user.nil?
+    return reject unless user == current_user || Ability.new(current_user).can?(:manage, GroupPermission)
 
-    Rails.logger.info "Subscribed to GroupUpdatesChannel for user: #{params[:user_id]}"
+    stream_for user
   end
 end
