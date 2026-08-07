@@ -26,8 +26,7 @@ class User < ApplicationRecord
   # If a result changes, the scoreboard needs updating.
   # FIXME: Could be improved by caching on a per-team basis.
   def clear_scoreboard_cache
-    Rails.cache.delete("teams_ranked")
-    Rails.cache.delete("teams_json")
+    Scoreboard.clear_cache
   end
 
   def self.teams_ranked
