@@ -1,4 +1,8 @@
 class Result < ApplicationRecord
+  # The two columns a scorer can edit. Each one is submitted by its own form, so a
+  # save only ever touches the column it was given.
+  POINT_FIELDS = %w[ regular_points bonus_points ].freeze
+
   belongs_to :user
   belongs_to :challenge
 
@@ -13,8 +17,7 @@ class Result < ApplicationRecord
   # after_commit, not after_save: the cache must not be dropped (nor a refresh sent
   # to every scoreboard) for a write that then rolls back. They run in declaration
   # order, so the cache is already cold by the time viewers re-request the page.
-  after_commit :clear_scoreboard_cache, :broadcast_scoreboard_refresh
-  after_save :broadcast_update
+  after_commit :clear_scoreboard_cache, :broadcast_scoreboard_refresh, :broadcast_score_update
   before_destroy :ensure_zero_points
 
   # Set by the controller so the broadcast can tell the scorer who made the change
@@ -41,28 +44,23 @@ class Result < ApplicationRecord
     end
   end
 
-  def after_update_data
-    data = {
-      id: id,
-      user_id: user_id,
-      challenge_id: challenge_id,
-      regular_points: regular_points,
-      bonus_points: bonus_points,
-      status: status,
-      total_points: user.reload.total_points,
-      updated_by: updated_by_id
-    }
-
-    self.updated_by_id = nil
-
-    data
-  end
-
-  def broadcast_update
-    ScoringChannel.broadcast_to(user, after_update_data)
-  end
-
   private
+
+  # Two audiences, two shapes: the scorers working on this team see the individual
+  # cells they can edit swapped out, and the team itself sees its own read-only row
+  # on /challenges. Both streams are signed and only ever rendered into a page the
+  # viewer is entitled to.
+  def broadcast_score_update
+    changed_fields = saved_changes.keys & POINT_FIELDS
+
+    Turbo::StreamsChannel.broadcast_render_to [ user, :scoring ],
+      partial: "results/scoring_update",
+      locals: { result: self, fields: changed_fields, updated_by: updated_by_id }
+
+    Turbo::StreamsChannel.broadcast_render_to [ user, :challenges ],
+      partial: "results/challenges_update",
+      locals: { result: self, updated_by: updated_by_id }
+  end
 
   # Every scoreboard viewer re-requests the page for themselves. That keeps the rank
   # order, the scorer-only stat columns and the scoreboard_visible gate correct per

@@ -1,0 +1,29 @@
+<%# locals: (challenge:, result:, current_user:, updated_by: nil) %>
+<tr id="<%= dom_id(challenge, :row) %>" data-challenge-sorting-target="row" data-challenge-id="<%= challenge.id %>">
+  <td data-column="number"><%= challenge.number %></td>
+
+  <% unless current_user&.team? %>
+    <td data-column="groupId"><%= challenge.group_id %></td>
+  <% end %>
+
+  <td data-column="description"><%= challenge.description %></td>
+  <td data-column="points"><%= challenge.points %></td>
+
+  <% if current_user&.team? %>
+    <%= tag.td result ? result.regular_points : 0,
+               data: { column: "regularPoints", controller: ("flash" if updated_by), flash_updated_by_value: updated_by } %>
+    <%= tag.td result ? result.bonus_points : 0,
+               data: { column: "bonusPoints", controller: ("flash" if updated_by), flash_updated_by_value: updated_by } %>
+    <%= tag.td result&.status.presence || "Not Attempted",
+               data: { column: "status", controller: ("flash" if updated_by), flash_updated_by_value: updated_by } %>
+  <% else %>
+    <% completion_stats = challenge.completion_stats %>
+    <%# data-column is what the sort control looks for. These three cells used to
+        carry only a data-challenge-updates-target, so sorting by any of them threw. %>
+    <td data-column="completed"><%= completion_stats[:completed] %></td>
+    <td data-column="partiallyCompleted"><%= completion_stats[:partially_completed] %></td>
+    <td data-column="notAttempted"><%= completion_stats[:not_attempted] %></td>
+
+    <td><%= render 'application/index_actions', item: challenge %></td>
+  <% end %>
+</tr>

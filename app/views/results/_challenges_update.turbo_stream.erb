@@ -1,0 +1,12 @@
+<%# locals: (result:, updated_by: nil) %>
+<%# The team's own view of a challenge is read-only, so the whole row can be swapped
+    without any risk of clobbering something they are typing. If the challenge is in
+    a group they cannot see, the target simply is not on their page and Turbo drops
+    the action. %>
+<%= turbo_stream.replace dom_id(result.challenge, :row),
+      partial: "challenges/challenge_row",
+      locals: { challenge: result.challenge, result: result, current_user: result.user, updated_by: updated_by } %>
+
+<%= turbo_stream.replace "team_total_points",
+      partial: "application/total_points",
+      locals: { team: result.user, id: "team_total_points" } %>

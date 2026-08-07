@@ -1,6 +1,10 @@
 <% # TODO: Add undo button for edits, probably using papertrail (it says the most recent version is not compatible with Rails 7.2 but it should work fine). %>
 
-<div data-controller="scoring challenge-sorting" data-scoring-user-id-value="<%= @team.id %>" data-scoring-current-user-id-value="<%= current_user&.id %>">
+<%# Every scorer looking at this team shares one stream, so a score entered by one of
+    them lands on the others' screens without anybody reloading. %>
+<%= turbo_stream_from @team, :scoring %>
+
+<div data-controller="challenge-sorting">
   <%= render 'application/search_form', sort_options: {
     "Number" => "number",
     "Group ID" => "groupId",
@@ -25,51 +29,28 @@
     </thead>
     <tbody>
       <% @challenges.each do |challenge| %>
+        <% result = @results[challenge.id] %>
         <tr data-challenge-sorting-target="row" data-challenge-id="<%= challenge.id %>">
           <td data-column="number"><%= challenge.number %></td>
           <td data-column="groupId"><%= challenge.group_id %></td>
           <td data-column="description"><%= challenge.description %></td>
           <td data-column="points"><%= challenge.points %></td>
-         
-          <% result = @results[challenge.id] %>
+
+          <%= render 'scoring/points_field', challenge: challenge, team: @team, result: result, field: :regular_points %>
+          <%= render 'scoring/points_field', challenge: challenge, team: @team, result: result, field: :bonus_points %>
+          <%= render 'scoring/status', challenge: challenge, result: result %>
+
           <td>
-            <div class="input-group">
-              <input type="number" class="form-control form-control-sm"
-                      id="regularPoints_<%= challenge.id %>"
-                      data-scoring-target="regularPoints"
-                      data-action="change->scoring#updateScore"
-                      data-challenge-id="<%= challenge.id %>"
-                      data-user-id="<%= @team.id %>"
-                      data-points-to-win="<%= challenge.points %>"
-                      value="<%= result&.regular_points || 0 %>">
-            </div>
-          </td>
-          <td>
-            <div class="input-group">
-              <input type="number" class="form-control form-control-sm"
-                      id="bonusPoints_<%= challenge.id %>"
-                      data-scoring-target="bonusPoints"
-                      data-action="change->scoring#updateScore"
-                      data-challenge-id="<%= challenge.id %>"
-                      data-user-id="<%= @team.id %>"
-                      value="<%= result&.bonus_points || 0 %>">
-            </div>
-          </td>
-          <td data-scoring-target="status" data-challenge-id="<%= challenge.id %>">
-            <%= result&.status.presence || 'Not Attempted' %>
-          </td>
-          <td>
-            <button class="btn btn-sm btn-primary" type="button"
-                    data-action="scoring#awardFullPoints"
-                    data-challenge-id="<%= challenge.id %>"
-                    data-user-id="<%= @team.id %>">Full Points</button>
+            <%= button_to 'Full Points', scoring_update_path,
+                          params: { challenge_id: challenge.id, user_id: @team.id, regular_points: challenge.points },
+                          class: 'btn btn-sm btn-primary' %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
 
-  <p><strong>Total Points: <span data-scoring-target="totalPoints"><%= @team.total_points %></span></strong></p>
+  <p><strong>Total Points: <%= render 'application/total_points', team: @team, id: 'scoring_total_points' %></strong></p>
 </div>
 
 <h3>Group Visibility</h3>
@@ -83,23 +64,3 @@
     <% end %>
   </ul>
 </nav>
-
-<style>
-  @keyframes flash-green {
-    0% { background-color: transparent; }
-    50% { background-color: var(--bs-success); }
-    100% { background-color: transparent; }
-  }
-  .flash-green {
-    animation: flash-green 1s;
-  }
-
-  @keyframes flash-blue {
-    0% { background-color: transparent; }
-    50% { background-color: var(--bs-info); }
-    100% { background-color: transparent; }
-  }
-  .flash-blue {
-    animation: flash-blue 1s;
-  }
-</style>

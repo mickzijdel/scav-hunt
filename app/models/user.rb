@@ -41,8 +41,11 @@ class User < ApplicationRecord
     self.where(role: :team).order(:name)
   end
 
+  # Summed in SQL rather than in Ruby so it cannot be answered out of a stale loaded
+  # association -- these totals are re-rendered straight out of a Turbo broadcast,
+  # microseconds after the row that changed them was committed.
   def total_points
-    results.sum(&:total_points)
+    results.sum(:regular_points) + results.sum(:bonus_points)
   end
 
   def stats

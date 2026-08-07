@@ -30,13 +30,20 @@ class ResultTest < ActiveSupport::TestCase
     assert_equal "Partially Completed", @result.status
   end
 
-  test "after_update_data returns expected structure" do
-    json = @result.after_update_data
-    assert_equal [ :id, :user_id, :challenge_id, :regular_points, :bonus_points, :status, :total_points, :updated_by ], json.keys
-  end
-
   test "saving a result broadcasts a page refresh to the scoreboard" do
     assert_broadcasts "scoreboard", 1 do
+      @result.update!(regular_points: @result.regular_points + 1)
+    end
+  end
+
+  test "saving a result broadcasts the new score to the scorers watching this team" do
+    assert_broadcasts "#{@result.user.to_gid_param}:scoring", 1 do
+      @result.update!(regular_points: @result.regular_points + 1)
+    end
+  end
+
+  test "saving a result broadcasts the new score to the team's own challenge page" do
+    assert_broadcasts "#{@result.user.to_gid_param}:challenges", 1 do
       @result.update!(regular_points: @result.regular_points + 1)
     end
   end

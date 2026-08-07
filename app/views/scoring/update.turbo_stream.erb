@@ -1,0 +1,3 @@
+<%# An empty flash renders nothing, which also clears a previous error. %>
+<%= turbo_stream.update "alerts", partial: "layouts/alerts" %>
+<%= render "results/scoring_update", result: @result, fields: @fields, updated_by: @updated_by %>
