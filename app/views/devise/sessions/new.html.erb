@@ -1,4 +1,4 @@
-<%= stylesheet_link_tag "login"%>
+<%= stylesheet_link_tag "login" %>
 
 
 <div class="container form-container">
@@ -6,12 +6,12 @@
 <h2>Log in</h2>
 <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
   <div class="form-group-row">
-    <%= f.label :email, class: 'col-sm-2 col-form-label' %><br />
+    <%= f.label :email, class: 'col-sm-2 col-form-label' %><br>
     <%= f.email_field :email, autofocus: true, autocomplete: "email", class: 'form-control' %>
   </div>
 
   <div class="form-group-row">
-    <%= f.label :password, class: 'col-sm-2 col-form-label' %><br />
+    <%= f.label :password, class: 'col-sm-2 col-form-label' %><br>
     <%= f.password_field :password, autocomplete: "current-password", class: 'form-control' %>
   </div>
 

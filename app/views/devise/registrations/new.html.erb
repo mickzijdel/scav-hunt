@@ -1,29 +1,32 @@
-<h2>Sign up</h2>
+<%= stylesheet_link_tag "login" %>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+<div class="container form-container">
+  <div class="form-box">
+    <h2>Sign up</h2>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+    <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <%# :name and :role are required by User but Devise's sign_up sanitiser does not accept
+          them, so a sign-up always fails on those two. They have no input here to sit under,
+          which made the failure completely silent -- list them so the user sees why.
+          FIXME: this form cannot succeed as it stands. Either drop :registerable from User
+          (accounts are created by an admin through users#new) or permit :name and default
+          :role through a Devise param sanitiser. %>
+      <%= render "application/forms/errors",
+                 errors: resource.errors,
+                 model_name: resource.model_name.human.downcase,
+                 attributes: [ :base, :name, :role ] %>
+
+      <%= f.input :email, input_html: { autofocus: true, autocomplete: "email" } %>
+
+      <%= f.input :password,
+                  hint: @minimum_password_length && "#{@minimum_password_length} characters minimum",
+                  input_html: { autocomplete: "new-password" } %>
+
+      <%= f.input :password_confirmation, input_html: { autocomplete: "new-password" } %>
+
+      <%= f.button :submit, "Sign up", class: "btn btn-secondary" %>
+    <% end %>
+
+    <%= render "devise/shared/links" %>
   </div>
-
-  <div class="field">
-    <%= f.label :password %>
-    <% if @minimum_password_length %>
-    <em>(<%= @minimum_password_length %> characters minimum)</em>
-    <% end %><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>

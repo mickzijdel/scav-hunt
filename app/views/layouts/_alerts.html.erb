@@ -1,12 +1,14 @@
 <% flash.each do |key, message| %>
-    <% if key == "notice" %>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <% elsif key == "alert" %>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <% else %>
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <% end %>
-        <%= message %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+  <%# The <div> used to be opened separately in each branch of the if/elsif/else and closed
+      once at the bottom, which leaves the template with unbalanced tags as far as any parser
+      is concerned. Only the modifier class differs, so pick that first and open the tag once. %>
+  <% modifier = case key
+                when "notice" then "alert-success"
+                when "alert"  then "alert-danger"
+                else               "alert-warning"
+                end %>
+  <div class="alert <%= modifier %> alert-dismissible fade show" role="alert">
+    <%= message %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
 <% end %>

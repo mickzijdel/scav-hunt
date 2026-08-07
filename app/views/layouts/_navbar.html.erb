@@ -14,16 +14,16 @@
       <% end %>
 
       <ul class="navbar-nav mb-2 mb-lg-0">
-        <% # Navbar items is a function in the application_helper %>
+        <%# Navbar items is a function in the application_helper %>
         <% navbar_items.each_with_index do |navbar_item, index| %>
-          <% # Add in columns to pad the auto to make sure the full width of the row is taken up, which a row of only col-auto's won't do%>
+          <%# Add in columns to pad the auto to make sure the full width of the row is taken up, which a row of only col-auto's won't do %>
           <% if index > 0 %>
             <div class="col"></div>
           <% end %>
 
           <div class="col-lg-auto">
             <li class="nav-item <%= navbar_item[:item_class] %>">
-              <% # current_page? replaces an @current_path ivar that no controller ever set,
+              <%# current_page? replaces an @current_path ivar that no controller ever set,
                  # so the active state could never appear. %>
               <% current = current_page?(navbar_item[:path]) %>
               <% navbar_item_class = "nav-link mx-1#{' active' if current}" %>

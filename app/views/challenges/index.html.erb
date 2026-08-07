@@ -1,4 +1,4 @@
-<% # FIXME: It would be nice if the completion stats are also updated in real-time. Probably needs another challenge-wide stream. %>
+<%# FIXME: It would be nice if the completion stats are also updated in real-time. Probably needs another challenge-wide stream. %>
 
 <%# A team's own scores land here as they are awarded. The stream name is signed and
     rendered only into this team's page, so it is also what keeps one team's scores
@@ -11,7 +11,7 @@
     the search and sort the viewer has applied have to be put back afterwards. %>
 <div data-controller="challenge-sorting"
      data-action="turbo:before-stream-render@document->challenge-sorting#refresh">
-  <% # Different sort options for teams and scorers %>
+  <%# Different sort options for teams and scorers %>
   <%= render 'application/search_form', sort_options: current_user&.team? ? {
     "Number" => "number",
     "Description" => "description",
@@ -41,15 +41,16 @@
         <th>Description</th>
         <th>Points To Win</th>
 
-        <% if current_user&.team? %>
-          <th>Obtained Points</th>
-          <th>Bonus Points</th>
-          <th>Status</th>
-        <% else %>
-          <th>Completed</th>
-          <th>Partially Completed</th>
-          <th>Not Attempted</th>
-          <th>Actions</th>
+        <%# A team sees its own score for each challenge; everybody else sees how the field is
+            doing on it. Only the headings differ, so name them rather than repeating <th> in
+            both branches of an if. %>
+        <% score_headings = if current_user&.team?
+                              [ "Obtained Points", "Bonus Points", "Status" ]
+                            else
+                              [ "Completed", "Partially Completed", "Not Attempted", "Actions" ]
+                            end %>
+        <% score_headings.each do |heading| %>
+          <th><%= heading %></th>
         <% end %>
       </tr>
     </thead>
