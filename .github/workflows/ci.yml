@@ -172,7 +172,12 @@ jobs:
         with:
           fetch-depth: 0 # gitleaks git scans the full commit history
           persist-credentials: false
-      - uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
+      - name: Provision gitleaks from mise.toml
+        # Scoped: without install_args mise installs every tool in mise.toml —
+        # including ruby, node and yarn — for a job that only runs gitleaks.
+        uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
+        with:
+          install_args: gitleaks
       - name: Scan git history for secrets
         run: mise exec -- gitleaks git --redact --no-banner .
 
@@ -186,7 +191,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
+      - name: Provision actionlint + zizmor from mise.toml
+        # Scoped for the same reason as the gitleaks job above.
+        uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
+        with:
+          install_args: actionlint zizmor
       - name: Lint workflows (actionlint)
         run: actionlint -shellcheck=
       - name: Scan workflows with zizmor
