@@ -1,5 +1,20 @@
 # See https://git-scm.com/docs/gitattributes for more about git attribute files.
 
+# Normalise line endings to LF in the repository, checking out the platform
+# default. Without this the tree picks up CRLF when copied via Windows.
+* text=auto
+
+# Never normalise these: binary assets, and the encrypted credentials whose
+# bytes must round-trip exactly.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+config/credentials.yml.enc -text
+config/credentials/*.yml.enc -text
+
 # Mark the database schema as having been generated.
 db/schema.rb linguist-generated
 
