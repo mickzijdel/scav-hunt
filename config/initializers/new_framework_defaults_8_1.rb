@@ -64,7 +64,7 @@ Rails.configuration.action_controller.escape_json_responses = false
 # Applications that want to allow these redirects can set the config to `:log` (previous default)
 # to only log warnings, or `:notify` to send ActiveSupport notifications.
 #++
-# Rails.configuration.action_controller.action_on_path_relative_redirect = :raise
+Rails.configuration.action_controller.action_on_path_relative_redirect = :raise
 
 ###
 # Use a Ruby parser to track dependencies between Action View templates
