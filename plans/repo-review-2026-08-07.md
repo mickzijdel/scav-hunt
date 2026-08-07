@@ -224,12 +224,20 @@ Security and data-loss before refactors; the Turbo rewrite last, when it can be 
 
 ## Status — what was fixed in this pass
 
-Both suites now pass, verified over repeated randomized runs:
-
 | Suite | Before | After |
 |---|---|---|
-| `bin/rails test` | 26 runs, 4 errors | **48 runs, 0 failures, 0 errors** |
-| `bin/rails test:system` | 46 runs, 18 failures, 2 errors | **47 runs, 0 failures, 0 errors** |
+| `bin/rails test` | 26 runs, 4 errors | **48 runs, 0 failures, 0 errors** — reliably green, many runs |
+| `bin/rails test:system` | 46 runs, 18 failures, 2 errors | **47 runs, 0 failures, 0 errors** when it completes cleanly — but see below |
+
+**Honest caveat on the system suite.** It went from *deterministically* 18 failures + 2 errors
+to *intermittently* one failure. Roughly half of full 47-test runs still hit a single Capybara
+timeout somewhere in `UsersTest`; the same tests pass 4/4 in isolation. Every failure is a
+timeout (`Unable to find field`, `Unable to find modal dialog`, a missing post-submit flash) —
+never an assertion that disagrees about app behaviour, and never the same test twice running.
+It does not track CPU load (reproduced at load 1.2), and the host had ~1.2GB free RAM with a
+browser holding 11GB, so headless-Chrome memory pressure is the leading suspect. Mitigated by
+waiting on navigation, removing order-dependent `match: :first` selectors, and raising
+Capybara's wait to 10s. **Not fully resolved — worth re-checking on CI's dedicated runner.**
 
 Fixed: §1 (layout heading), §2 (StatisticsService + its test window), §3 (seeded admin
 credentials, seeds now idempotent), §4 (channel subscribe authorization, with tests that were
