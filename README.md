@@ -28,15 +28,15 @@ Versions below are the ones actually resolved in `Gemfile.lock` / `yarn.lock`.
 | | Version |
 | --- | --- |
 | Ruby | 3.3.3 |
-| Rails | 7.2.1 |
-| mysql2 (MySQL adapter) | 0.5.6 |
-| Devise (authentication) | 4.9.4 |
+| Rails | 8.1.3.1 |
+| mysql2 (MySQL adapter) | 0.5.7 |
+| Devise (authentication) | 5.0.4 |
 | CanCanCan (authorisation) | 3.6.1 |
-| Simple Form | 5.3.1 |
-| Propshaft (asset pipeline) | 1.0.0 |
-| Puma | 6.4.3 |
-| redis (ActionCable backend in production) | 5.3.0 |
-| turbo-rails / stimulus-rails | 2.0.10 / 1.3.4 |
+| Simple Form | 5.4.1 |
+| Propshaft (asset pipeline) | 1.3.2 |
+| Puma | 8.0.2 |
+| redis (ActionCable backend in production) | 5.4.1 |
+| turbo-rails / stimulus-rails | 2.0.23 / 1.3.4 |
 
 **Frontend**
 
@@ -44,13 +44,13 @@ Versions below are the ones actually resolved in `Gemfile.lock` / `yarn.lock`.
 | --- | --- |
 | Node | 22.4.1 |
 | Yarn | 1.22.19 |
-| esbuild | 0.23.1 |
-| sass | 1.79.2 |
-| Bootstrap (+ bootstrap-icons) | 5.3.3 (1.11.3) |
-| @hotwired/turbo-rails | 8.0.10 |
+| esbuild | 0.28.1 |
+| sass | 1.99.0 |
+| Bootstrap (+ bootstrap-icons) | 5.3.8 (1.13.1) |
+| @hotwired/turbo-rails | 8.0.23 |
 | @hotwired/stimulus | 3.2.2 |
-| @rails/actioncable | 7.2.100 |
-| billboard.js / d3 (statistics charts) | 3.13.0 / 7.9.0 |
+| @rails/actioncable | 8.1.301 |
+| billboard.js / d3 (statistics charts) | 4.0.3 / 7.9.0 |
 
 The Ruby, Node and Yarn versions live in `mise.toml`, which is the single source of truth —
 `.ruby-version`, `.node-version` and the `Dockerfile` ARGs must match it.
