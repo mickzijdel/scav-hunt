@@ -75,9 +75,16 @@ local linters = new Mapping<String, Step> {
     // and skips (exit 0) otherwise — a fresh/un-migrated worktree won't block commits. Keep every
     // command loop-free: hk's internal `sh` aborts on `while read` inside `$(...)`.
     // Gems (dev group, require:false): brakeman, bundler-audit, fasterer, database_consistency.
+    // brakeman is loaded through Gem.bin_path rather than as `bundle exec brakeman`, which
+    // resolves by PATH. This repo ships a Rails-default bin/brakeman binstub that does
+    // `ARGV.unshift("--ensure-latest")`, so on any machine with `.` or `./bin` on PATH the
+    // binstub shadows the gem and the step fails with "Brakeman X is not the latest version"
+    // — a network-dependent failure that hides the actual scan, and one CI (no ./bin on PATH)
+    // would not reproduce. Loading the gem's own executable makes the local and CI gates
+    // identical, which is the whole point of mirroring hk in ci.yml.
     ["brakeman"] {
         glob = "**/*.rb"
-        check = "bundle exec brakeman -q --no-pager --exit-on-warn"
+        check = "bundle exec ruby -e 'load Gem.bin_path(\"brakeman\", \"brakeman\")' -- -q --no-pager --exit-on-warn"
     }
     ["bundler-audit"] {
         glob = "**/Gemfile.lock"
