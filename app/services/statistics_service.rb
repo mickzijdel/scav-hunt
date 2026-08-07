@@ -1,12 +1,12 @@
 class StatisticsService
+  INTERVAL_MINUTES = 15
+
   def self.points_over_time(time_column)
     new.points_over_time(time_column)
   end
 
   def points_over_time(time_column)
-    start_time = Setting.get("chart_start_time")
-    # End time is at most 6 hours after the end of the scav hunt
-    end_time = [ Result.order(time_column).last&.send(time_column) || Time.current,  Setting.get("scoreboard_end_time").advance(hours: 6) ].min
+    start_time, end_time = chart_window(time_column)
 
     time_intervals = generate_time_intervals(start_time, end_time)
 
@@ -31,15 +31,29 @@ class StatisticsService
 
   private
 
+  # Both settings are admin-configurable and may simply not exist yet, so neither
+  # can be dereferenced blindly. Falling back to the data itself keeps the chart
+  # working on a fresh install where nobody has filled the settings in.
+  def chart_window(time_column)
+    start_time = Setting.get("chart_start_time") || Result.minimum(time_column) || Time.current
+    # End time is at most 6 hours after the end of the scav hunt.
+    hunt_end = Setting.get("scoreboard_end_time")&.advance(hours: 6)
+    end_time = [ Result.maximum(time_column) || Time.current, hunt_end ].compact.min
+
+    # A window that runs backwards would produce an empty time axis.
+    [ start_time, [ start_time, end_time ].max ]
+  end
+
   def generate_time_intervals(start_time, end_time)
     intervals = []
-    current_time = start_time.change(min: (start_time.min / 30) * 30, sec: 0)
+    current_time = start_time.change(min: (start_time.min / INTERVAL_MINUTES) * INTERVAL_MINUTES, sec: 0)
 
-    while current_time <= end_time + 15.minutes
+    while current_time < end_time
       intervals << current_time
-      current_time += 15.minutes
+      current_time += INTERVAL_MINUTES.minutes
     end
 
-    intervals
+    # Always finish exactly on end_time rather than a bucket beyond it.
+    intervals << end_time
   end
 end

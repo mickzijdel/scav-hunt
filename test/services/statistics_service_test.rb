@@ -33,5 +33,19 @@ class StatisticsServiceTest < ActiveSupport::TestCase
 
     assert_equal 4, data.size, "Not all teams have a series."
     assert data.all? { |inner_data| inner_data.size == data.first.size }, "Not all series have the same size"
+    assert_operator data.first.size, :>, 1, "Chart has no time axis at all"
+    assert data.drop(1).all? { |series| series.drop(1).all?(&:zero?) }, "Teams should be flat at zero"
+  end
+
+  test "points_over_time survives an unset chart_start_time" do
+    assert_nil Setting.get("chart_start_time"), "Fixture setup changed; this test no longer covers the nil path"
+
+    assert_nothing_raised { StatisticsService.points_over_time(:created_at) }
+  end
+
+  test "points_over_time survives an unset scoreboard_end_time" do
+    Setting.find_by(key: "scoreboard_end_time").destroy
+
+    assert_nothing_raised { StatisticsService.points_over_time(:created_at) }
   end
 end
