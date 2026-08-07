@@ -53,6 +53,9 @@
 # and out of the jscpd/debride/flay/fasterer scans.
 /vendor/bundle
 
+# database_consistency dumps a ~350 KB stack-trace report here when a checker errors.
+/database_consistency_*.txt
+
 # Machine-local mise overrides. The committed mise.toml is the source of truth (it carries
 # the DEV_ENV_VERSION stamp); mise.local.toml is for per-machine tweaks only.
 /mise.local.toml
