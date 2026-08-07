@@ -41,7 +41,14 @@ gem "simple_form"
 gem "csv"
 gem "activerecord-import"
 
-gem "redis"
+# Held at 5.x on purpose. Action Cable's Redis subscription adapter - the
+# production `adapter: redis` in config/cable.yml, which every live scoreboard
+# and scoring broadcast goes through - does `gem "redis", ">= 4", "< 6"` at
+# require time (actioncable/lib/action_cable/subscription_adapter/redis.rb).
+# redis 6 therefore raises Gem::LoadError the moment that adapter loads, and
+# nothing in the test suite catches it because config/cable.yml uses the test
+# adapter in test. Revisit when Rails relaxes the bound.
+gem "redis", "~> 5.3"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
