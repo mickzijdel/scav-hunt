@@ -6,7 +6,9 @@ Scoring website for the Bedlam Theatre / EUTC scavenger hunt. Teams are `User` r
 (`role` enum: `team` / `scorer` / `admin`, Devise-authenticated, CanCanCan-authorised via
 `app/models/ability.rb`); scorers award `regular_points` and `bonus_points` per
 `Challenge` through a `Result` join model, and the live scoreboard, per-team scoring screen
-and points-over-time statistics chart update over ActionCable.
+and challenge list update over **Turbo Streams** — `broadcasts_to` / `broadcast_refresh_to`
+from the models, with `turbo_stream_from` in the views. There are no bespoke Action Cable
+channels and no polling; Action Cable is present only as the transport Turbo rides on.
 
 Main surfaces (`config/routes.rb`): `home#index` (scoreboard, also `format.json`),
 `scoring#index` / `scoring#score` / `POST scoring/update`, `challenges` (with CSV
@@ -38,7 +40,6 @@ Read from the manifests in this repo. Do not take versions from memory — re-re
 | Capybara | 3.40.0 | `Gemfile.lock` |
 | capybara-playwright-driver / playwright-ruby-client | 0.5.10 / 1.62.0 | `Gemfile.lock` |
 | playwright (npm) | 1.62.1 — must equal `Playwright::COMPATIBLE_PLAYWRIGHT_VERSION` | `package.json` (exact pin, no caret) |
-| Capybara / selenium-webdriver | 3.40.0 / 4.46.0 | `Gemfile.lock` |
 | Bundler | 2.5.13 | `Gemfile.lock` (`BUNDLED WITH`) |
 | Node | 22.4.1 | `.node-version`, `mise.toml`, `Dockerfile` `ARG NODE_VERSION` |
 | Yarn | 1.22.19 | `mise.toml`, `Dockerfile` `ARG YARN_VERSION` |
@@ -104,7 +105,10 @@ hangs the whole run the moment a response carries `Content-Disposition` (the CSV
 
 
 Fixtures in `test/fixtures/*.yml` are loaded for every test (`test/test_helper.rb`, `fixtures :all`),
-tests run parallelised with threads, and SimpleCov writes `coverage/index.html`.
+tests run parallelised with **processes**, and SimpleCov writes `coverage/index.html`.
+Do not switch that back to `with: :threads`: Rails' threads executor sets `lock_threads =
+false`, so every test thread shares one pinned unlocked connection and mysql2 aborts the
+process — `bin/rails test` segfaults once the suite passes ~50 tests.
 CI runs `bin/rails db:test:prepare test test:system` against a `mysql:8.4` service.
 
 ## Lint / pre-commit
@@ -146,31 +150,30 @@ every pull request.
 These gates are currently red for reasons that predate the tooling. Do not treat them as
 regressions caused by a change you are making.
 
-1. **`bin/rails test` — 26 runs, 4 errors.** Three in `test/services/statistics_service_test.rb`:
-   `NoMethodError: undefined method 'min' for nil` at `app/services/statistics_service.rb:36`
-   in `generate_time_intervals` (`start_time` is nil when the `chart_start_time` setting is
-   absent). One in `test/channels/application_cable/connection_test.rb`.
-2. **`bin/rubocop` — 201 offences (198 autocorrectable)** in four files:
-   `config/initializers/devise.rb`, `config/initializers/simple_form.rb`,
-   `config/initializers/simple_form_bootstrap.rb`,
-   `db/migrate/20240828214914_update_users_to_challenges.rb`. Mostly `Style/StringLiterals`.
-   Fix with `bin/rubocop -A`.
-3. **`bundle exec herb analyze app/` and `herb lint app/` both fail** on one genuine markup
-   bug: `app/views/layouts/_navbar.html.erb` line 1 has a stray comma between two HTML
-   attributes (`bg-body-tertiary", data-bs-theme="dark"`). Removing the comma makes
-   `herb analyze` fully clean.
-4. **`bundle exec brakeman -q --no-pager --exit-on-warn` — 2 warnings.** Mass Assignment
-   (`PermitAttributes`) at `app/controllers/users_controller.rb:56` permitting `:role`, and
-   possible SQL injection at `app/services/statistics_service.rb:22`
-   (`team.results.where("#{time_column} <= ?", interval)`).
-5. ~~**`bundle exec bundle-audit check` — many CVEs.**~~ **Cleared.** The dependency-upgrade
+1. **`bundle exec database_consistency` — 20 findings.** The only genuinely red gate left.
+   Missing `NOT NULL` on `challenges` number/description/points/group_id and `settings.value`,
+   missing length validators, two redundant indexes, and a missing unique index on
+   `challenges.number`. The `NOT NULL` ones are migrations against populated tables, so they
+   need the nullable → backfill → constrain pattern rather than one migration.
+2. ~~**`bin/rails test` — 26 runs, 4 errors.**~~ **Fixed.** Both suites are green: unit
+   **58 runs, 0 failures, 0 errors**; system **53 runs, 0 failures, 0 errors**. The cause was
+   `chart_start_time` never being seeded or fixtured, so `Setting.get` returned nil in
+   `StatisticsService`, plus a cable test that authenticated via a cookie the connection
+   never reads.
+3. ~~**`bin/rubocop` — 201 offences.**~~ **Fixed** with `bin/rubocop -A`; now zero.
+4. ~~**herb analyze/lint fail on a stray comma.**~~ **Fixed.** `herb analyze` is 53/53 clean
+   and `herb lint` exits 0.
+5. ~~**brakeman — 2 warnings.**~~ **Fixed.** The SQL-injection one was removed by construction
+   (hash condition instead of interpolating the column name); the `:role` mass-assignment one
+   is intentional and recorded with its reasoning in `config/brakeman.ignore`.
+6. ~~**`bundle exec bundle-audit check` — many CVEs.**~~ **Cleared.** The dependency-upgrade
    pass took the tree to Rails 8.1.3.1 (via 8.0.5.1), puma 8.0.2, devise 5.0.4 and the
    transitive rack/nokogiri/rexml/addressable/bcrypt/websocket-driver fixes.
    `bundle exec bundler-audit check` now reports **No vulnerabilities found**. Keep it that way.
-6. **`.herb.yml` carries an adoption baseline**: 11 herb rules with pre-existing offences are
+7. **`.herb.yml` carries an adoption baseline**: 11 herb rules with pre-existing offences are
    parked with `enabled: false`. That is a to-do list, not a policy — fix the offences (many
    are `herb lint app/ --fix`-able) and delete the entry to re-enable each rule.
-7. **`.jscpd.json` sets `threshold: 1.1`** rather than the standard's `0`, because of two
+8. **`.jscpd.json` sets `threshold: 1.1`** rather than the standard's `0`, because of two
    pre-existing clones: `app/assets/stylesheets/login.css` ~ `app/assets/stylesheets/scoreboard.css`,
    and two blocks of `test/system/home_test.rb`. Return the threshold to `0` once those are
    de-duplicated.
