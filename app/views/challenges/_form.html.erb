@@ -1,5 +1,6 @@
-<%= simple_form_for(@challenge) do |f| %>
-  <%= render "application/forms/errors", errors: @challenge.errors, model_name: Challenge.model_name.human.downcase %>
+<%# locals: (challenge:) %>
+<%= simple_form_for(challenge) do |f| %>
+  <%= render "application/forms/errors", errors: challenge.errors, model_name: Challenge.model_name.human.downcase %>
 
   <%= f.input :number, hint: "The official number of the challenge, as displayed to the teams and scorers" %>
   <%= f.input :group_id, label: "Group ID" %>
