@@ -132,6 +132,11 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.28.1.tgz#10064ee44f4347b90c9a02b446bbf80a91632b12"
   integrity sha512-bm4Mowrv+GXMlpWX++EcXw/iLyd1o3+bJkC2DkWXYVvgZCqD/bSj9ctZeAMC3cIxgjRVR2Dufaiu4YPxr5gW1A==
 
+"@fontsource/almendra-sc@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource/almendra-sc/-/almendra-sc-5.3.0.tgz#cfe408d7eac711326baada7d7ec609eb7a7e176c"
+  integrity sha512-j4wCOAJGpyuWy4pfQZD45F/iJUd6pquGgcGtQiVidS1Ihy1LHL3yOwlhtA46W8tFYZqjpJrEnIRkIIWdEpVdQw==
+
 "@hotwired/stimulus@^3.2.2":
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@hotwired/stimulus/-/stimulus-3.2.2.tgz#071aab59c600fed95b97939e605ff261a4251608"

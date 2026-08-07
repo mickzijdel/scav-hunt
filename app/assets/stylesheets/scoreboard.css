@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css?family=Almendra SC");
 
 /* Public scoreboard (home/index.html.erb). Same footing as login.css: it is
    pulled in after the bundle, and the global reset it used to carry has been
