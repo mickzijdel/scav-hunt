@@ -19,8 +19,11 @@ class Challenge < ApplicationRecord
     "Challenge #{number} - \"#{description}\""
   end
 
+  # Every group that has at least one challenge in it, in order. Was
+  # pluck.compact.uniq.sort, which pulled a row per challenge back into Ruby to
+  # answer a question the database answers with SELECT DISTINCT ... ORDER BY.
   def self.group_ids
-    self.pluck(:group_id).compact.uniq.sort
+    where.not(group_id: nil).distinct.order(:group_id).pluck(:group_id)
   end
 
   def completion_stats

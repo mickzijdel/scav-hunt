@@ -22,6 +22,10 @@ class ChallengeTest < ActiveSupport::TestCase
     assert_not challenge.save, "Saved the challenge with a duplicate number"
   end
 
+  test "group_ids lists every populated group once, in order" do
+    assert_equal [ 1, 2, 3 ], Challenge.group_ids
+  end
+
   test "title should include number and description" do
     challenge = challenges(:one)
     expected_title = "Challenge #{challenge.number} - \"#{challenge.description}\""
