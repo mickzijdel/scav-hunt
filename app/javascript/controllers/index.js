@@ -16,8 +16,5 @@ application.register("countdown", CountdownController)
 import FlashController from "./flash_controller"
 application.register("flash", FlashController)
 
-import GroupPermissionsController from "./group_permissions_controller"
-application.register("group-permissions", GroupPermissionsController)
-
 import StatisticsController from "./statistics_controller"
 application.register("statistics", StatisticsController)

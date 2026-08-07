@@ -38,6 +38,12 @@ class GroupPermissionsTest < ApplicationSystemTestCase
       GroupPermission.exists?(user: @team, group_id: 2)
     end
 
+    # Each toggle now renders its checkbox back from the database, so the box the
+    # scorer is looking at is the server's answer rather than the click's optimistic
+    # guess -- the visible feedback the old handler had two FIXMEs asking for.
+    assert_unchecked_field "group_permission_#{@team.id}_1"
+    assert_checked_field "group_permission_#{@team.id}_2"
+
     # Reload page to verify changes persisted
     visit group_permissions_path
 
@@ -73,6 +79,12 @@ class GroupPermissionsTest < ApplicationSystemTestCase
     assert_eventually(message: "group 2 permission was never granted") do
       GroupPermission.exists?(user: @team, group_id: 2)
     end
+
+    # Each toggle now renders its checkbox back from the database, so the box the
+    # scorer is looking at is the server's answer rather than the click's optimistic
+    # guess -- the visible feedback the old handler had two FIXMEs asking for.
+    assert_unchecked_field "group_permission_#{@team.id}_1"
+    assert_checked_field "group_permission_#{@team.id}_2"
 
     # Reload page to verify changes persisted
     visit scoring_score_path(@team)

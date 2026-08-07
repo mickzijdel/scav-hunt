@@ -67,7 +67,9 @@ class User < ApplicationRecord
     group_permissions.pluck(:group_id)
   end
 
+  # group_id arrives as a String from params as often as an Integer, and comparing
+  # the two silently answered "no" every time.
   def can_see_group?(group_id)
-    visible_groups.include?(group_id)
+    visible_groups.include?(group_id.to_i)
   end
 end
