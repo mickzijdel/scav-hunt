@@ -125,3 +125,46 @@ they are why six of the sixteen hk gates are currently red.
   the client, or add optimistic locking (`lock_version` / `updated_at` precondition) so a
   stale update is rejected rather than applied. The system test now works around it by
   committing one field at a time and waiting for each save to land.
+## Found during the dependency-upgrade pass, 2026-08-07
+
+- **The Node pin (22.4.1) is now holding dependencies back.** `sass` 1.100.0+ requires
+  `chokidar` 5, which is ESM-only, so `yarn build:css` dies with `ERR_REQUIRE_ESM` — `require(esm)`
+  only landed in Node 22.12. `package.json` therefore caps sass at `<1.100.0`. Bumping the Node
+  pin (mise.toml + `.node-version` + `Dockerfile` `ARG NODE_VERSION`, all in lockstep) to a
+  current 22.x LTS would let that cap go. The same pin also blocks `esbuild` 0.25+, which
+  requires Node >= 18 but ships transitive tooling assuming newer.
+
+- **CI never installs Node or Yarn for the `test` job.** `.github/workflows/ci.yml` sets up Ruby
+  via `ruby/setup-ruby` and then runs `bin/rails db:test:prepare test test:system`, which invokes
+  `yarn install` through jsbundling/cssbundling — on whatever Node the runner image happens to
+  ship, not the 22.4.1 that `mise.toml`, `.node-version` and the `Dockerfile` all pin. After this
+  upgrade the lockfile contains `brace-expansion@5`, whose `engines` field requires
+  `20 || >=22`, so a runner image that regressed to Node 18 would break the build. The `lint`
+  and `actions-lint` jobs already use `jdx/mise-action`; the `test` job should too (or add
+  `actions/setup-node` with `node-version-file: .node-version`).
+
+- **`mise exec -- <cmd>` does not put mise's Node on `PATH` for grandchildren.**
+  `mise exec -- node --version` reports 22.4.1 but `mise exec -- which node` reports
+  `/usr/bin/node` (18.19.1), so `mise exec -- bin/rails test` runs the yarn asset build on the
+  *system* Node. It happens to work today; it silently defeats the pin. Anyone driving this repo
+  non-interactively should prepend the mise install dirs to `PATH` explicitly rather than rely on
+  `mise exec`.
+
+- **`Gemfile.lock` was resolved with Bundler 2.5.13, which predates the `cooldown:` feature.**
+  The cooldown is nevertheless applied (it is set in `~/.bundle/config`), and it held Rails back
+  from 7.2.3.2 to 7.2.3 even though 7.2.3.2 was nine days old at the time — well outside the
+  4-day window. Worth re-checking once `BUNDLED WITH` moves to a Bundler that implements
+  cooldown natively; until then, security floors need to be spelled out in the `Gemfile`.
+
+- **`Dockerfile:49` still runs `bundle exec bootsnap precompile --gemfile`, but bootsnap is gone.**
+  Commit 9ea25e5 ("Remove bootsnap because it doesn't play nice") dropped the gem —
+  `rg bootsnap Gemfile Gemfile.lock` finds nothing, and `config/boot.rb` has
+  `require "bootsnap/setup"` commented out — but the Dockerfile's precompile step was left
+  behind. `bundle exec bootsnap` with the gem absent exits non-zero, which should fail the image
+  build. Not verified with an actual `docker build` (too slow for this pass), but it looks like a
+  real break on a branch named `fix-portainer-deployment`. Delete the line.
+
+- **`rubocop-rails-omakase` is held at 1.0.0.** 1.1.0 registers rubocop-minitest via `plugins:`
+  instead of `require:`, which enables several more Minitest cops. The only resulting offence is
+  `Minitest/RefuteFalse` at `test/system/settings_test.rb:36` (`assert_equal false, ...` should be
+  `refute ...`) — autocorrectable with `bin/rubocop -A`. Fix it and drop the hold.

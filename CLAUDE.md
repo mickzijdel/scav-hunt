@@ -20,36 +20,37 @@ Read from the manifests in this repo. Do not take versions from memory — re-re
 | Package | Version | Source |
 | --- | --- | --- |
 | Ruby | 3.3.3 | `.ruby-version`, `mise.toml`, `Dockerfile` `ARG RUBY_VERSION` |
-| Rails | 7.2.1 | `Gemfile.lock` (`Gemfile`: `~> 7.2.1`) |
-| mysql2 | 0.5.6 | `Gemfile.lock` (`Gemfile`: `~> 0.5`) |
-| Devise | 4.9.4 | `Gemfile.lock` |
+| Rails | 8.1.3.1 | `Gemfile.lock` (`Gemfile` pins `~> 8.1.3` with a `>= 8.1.3.1` security floor) |
+| mysql2 | 0.5.7 | `Gemfile.lock` (`Gemfile`: `~> 0.5`) |
+| Devise | 5.0.4 | `Gemfile.lock` |
 | CanCanCan | 3.6.1 | `Gemfile.lock` |
-| Simple Form | 5.3.1 | `Gemfile.lock` |
-| turbo-rails (gem) | 2.0.10 | `Gemfile.lock` |
+| Simple Form | 5.4.1 | `Gemfile.lock` |
+| turbo-rails (gem) | 2.0.23 | `Gemfile.lock` |
 | stimulus-rails (gem) | 1.3.4 | `Gemfile.lock` |
-| Propshaft | 1.0.0 | `Gemfile.lock` |
-| Puma | 6.4.3 | `Gemfile.lock` |
-| redis | 5.3.0 | `Gemfile.lock` |
-| jbuilder | 2.13.0 | `Gemfile.lock` |
-| activerecord-import | 1.8.1 | `Gemfile.lock` |
-| RuboCop | 1.89.0 (+ rubocop-rails-omakase 1.0.0, rubocop-minitest 0.40.0, rubocop-mick 0.1.0 from git) | `Gemfile.lock` |
-| Brakeman | 6.2.1 | `Gemfile.lock` |
+| Propshaft | 1.3.2 | `Gemfile.lock` |
+| Puma | 8.0.2 | `Gemfile.lock` |
+| redis | 5.4.1 (`Gemfile`: `~> 5.3`, capped below 6 - see comment) | `Gemfile.lock` |
+| jbuilder | 2.15.1 | `Gemfile.lock` |
+| activerecord-import | 2.2.0 | `Gemfile.lock` |
+| RuboCop | 1.89.0 (+ rubocop-rails-omakase 1.0.0 - held, see below; rubocop-minitest 0.40.0; rubocop-mick 0.1.0 from git) | `Gemfile.lock` |
+| Brakeman | 8.0.5 | `Gemfile.lock` |
 | herb | 0.10.3 | `Gemfile.lock`, `.herb.yml` `version:` |
 | Capybara | 3.40.0 | `Gemfile.lock` |
 | capybara-playwright-driver / playwright-ruby-client | 0.5.10 / 1.62.0 | `Gemfile.lock` |
 | playwright (npm) | 1.62.1 — must equal `Playwright::COMPATIBLE_PLAYWRIGHT_VERSION` | `package.json` (exact pin, no caret) |
+| Capybara / selenium-webdriver | 3.40.0 / 4.46.0 | `Gemfile.lock` |
 | Bundler | 2.5.13 | `Gemfile.lock` (`BUNDLED WITH`) |
 | Node | 22.4.1 | `.node-version`, `mise.toml`, `Dockerfile` `ARG NODE_VERSION` |
 | Yarn | 1.22.19 | `mise.toml`, `Dockerfile` `ARG YARN_VERSION` |
-| @hotwired/turbo-rails | 8.0.10 (spec `^8.0.9`) | `yarn.lock` / `package.json` |
+| @hotwired/turbo-rails | 8.0.23 (spec `^8.0.9`) | `yarn.lock` / `package.json` |
 | @hotwired/stimulus | 3.2.2 | `yarn.lock` / `package.json` |
-| @rails/actioncable | 7.2.100 | `yarn.lock` / `package.json` |
-| Bootstrap | 5.3.3 (+ bootstrap-icons 1.11.3, @popperjs/core 2.11.8) | `yarn.lock` / `package.json` |
-| esbuild | 0.23.1 | `yarn.lock` / `package.json` |
-| sass | 1.79.2 (spec `^1.78.0`) | `yarn.lock` / `package.json` |
-| billboard.js | 3.13.0 | `yarn.lock` / `package.json` |
+| @rails/actioncable | 8.1.301 | `yarn.lock` / `package.json` |
+| Bootstrap | 5.3.8 (+ bootstrap-icons 1.13.1, @popperjs/core 2.11.8) | `yarn.lock` / `package.json` |
+| esbuild | 0.28.1 | `yarn.lock` / `package.json` |
+| sass | 1.99.0 (spec `>=1.78.0 <1.100.0` - capped, see below) | `yarn.lock` / `package.json` |
+| billboard.js | 4.0.3 | `yarn.lock` / `package.json` |
 | d3 | 7.9.0 | `yarn.lock` / `package.json` |
-| postcss / postcss-cli / autoprefixer | 8.4.47 / 11.0.0 / 10.4.20 | `yarn.lock` / `package.json` |
+| postcss / postcss-cli / autoprefixer | 8.5.26 / 11.0.1 / 10.5.4 | `yarn.lock` / `package.json` |
 
 `mise.toml` is the single source of truth for ruby/node/yarn and must stay in lockstep with
 `.ruby-version`, `.node-version` and the `Dockerfile` ARGs (`RUBY_VERSION`, `NODE_VERSION`,
@@ -162,8 +163,10 @@ regressions caused by a change you are making.
    (`PermitAttributes`) at `app/controllers/users_controller.rb:56` permitting `:role`, and
    possible SQL injection at `app/services/statistics_service.rb:22`
    (`team.results.where("#{time_column} <= ?", interval)`).
-5. **`bundle exec bundle-audit check` — many CVEs.** The dependency tree is well behind
-   (Rails 7.2.1). A dedicated dependency-upgrade pass owns this; do not chip at it piecemeal.
+5. ~~**`bundle exec bundle-audit check` — many CVEs.**~~ **Cleared.** The dependency-upgrade
+   pass took the tree to Rails 8.1.3.1 (via 8.0.5.1), puma 8.0.2, devise 5.0.4 and the
+   transitive rack/nokogiri/rexml/addressable/bcrypt/websocket-driver fixes.
+   `bundle exec bundler-audit check` now reports **No vulnerabilities found**. Keep it that way.
 6. **`.herb.yml` carries an adoption baseline**: 11 herb rules with pre-existing offences are
    parked with `enabled: false`. That is a to-do list, not a policy — fix the offences (many
    are `herb lint app/ --fix`-able) and delete the entry to re-enable each rule.
@@ -172,11 +175,30 @@ regressions caused by a change you are making.
    and two blocks of `test/system/home_test.rb`. Return the threshold to `0` once those are
    de-duplicated.
 
+## Deliberate version holds
+
+Four dependencies are pinned *below* their latest release on purpose. Each carries the reason
+inline in `Gemfile` / `package.json`; do not "helpfully" unpin them without dealing with the
+cause.
+
+| Held | At | Why |
+| --- | --- | --- |
+| `redis` (gem) | `~> 5.3` | Action Cable's Redis subscription adapter does `gem "redis", ">= 4", "< 6"` at require time, so redis 6 raises `Gem::LoadError` the moment production's `adapter: redis` loads. Still true on Rails 8.1. The test suite cannot catch it — `config/cable.yml` uses the test adapter. |
+| `cssbundling-rails` | `= 1.4.1` | 1.4.2+ lists `yarn.lock` as a **bun** lock file and checks bun first, so on any machine with bun installed `css:build` silently switches to `bun run build:css` and drops an untracked `bun.lock`, despite yarn 1 being pinned in `mise.toml`, the `Dockerfile` and CI. |
+| `sass` (npm) | `>=1.78.0 <1.100.0` | sass 1.100.0 moved its CLI watcher to the ESM-only chokidar 5, so `yarn build:css` dies with `ERR_REQUIRE_ESM` on the pinned Node 22.4.1 (`require(esm)` needs Node 22.12+). Lifting the cap means bumping the Node pin. |
+| `rubocop-rails-omakase` | 1.0.0 | 1.1.0 registers rubocop-minitest via `plugins:` instead of `require:`, enabling extra Minitest cops. The only offence is `Minitest/RefuteFalse` at `test/system/settings_test.rb:36` — autocorrectable with `bin/rubocop -A`; fix it and drop the hold. |
+
 ## Supply-chain seasoning
 
 `Gemfile` line 1 pins `source "https://rubygems.org", cooldown: 4` and `mise.toml` sets
 `minimum_release_age = "4d"`. Both are deliberate: a newly published version must age four
 days before it can be resolved. Do not remove them.
+
+Note that `BUNDLED WITH` is Bundler 2.5.13, which predates native `cooldown:` support, yet the
+cooldown *is* applied (it is also set in the user-level `~/.bundle/config`) and it over-filters:
+it held Rails at 7.2.3 when 7.2.3.2 was already nine days old. That is why the `Gemfile` spells
+security floors out explicitly (`gem "rails", "~> 8.1.3", ">= 8.1.3.1"`) rather than trusting
+the resolver to pick the newest allowed version.
 
 ## Secrets
 

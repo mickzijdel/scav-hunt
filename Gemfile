@@ -1,7 +1,10 @@
 source "https://rubygems.org", cooldown: 4
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2.1"
+# >= 8.1.3.1 is a security floor: it is the release that fixes the Active
+# Storage variant-processing RCE. Declaring it explicitly also stops the 4-day
+# `cooldown:` above from resolving back to an older, vulnerable 8.1.x.
+gem "rails", "~> 8.1.3", ">= 8.1.3.1"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use mysql as the database for Active Record
@@ -15,7 +18,12 @@ gem "turbo-rails"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
 # Bundle and process CSS [https://github.com/rails/cssbundling-rails]
-gem "cssbundling-rails"
+# Held at 1.4.1 on purpose. 1.4.2+ adds yarn.lock to the *bun* lock-file list,
+# so on any machine that has bun on PATH `css:install` / `css:build` silently
+# switch from yarn to `bun install` / `bun run build:css` and drop a stray
+# bun.lock in the repo - even though mise.toml, the Dockerfile and CI all pin
+# yarn 1. Unpin once the toolchain is deliberately moved to bun.
+gem "cssbundling-rails", "= 1.4.1"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
@@ -30,14 +38,21 @@ gem "jbuilder"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
-gem "devise", "~> 4.9", ">= 4.9.4"
+gem "devise", "~> 5.0", ">= 5.0.4"
 gem "cancancan"
 
 gem "simple_form"
 gem "csv"
 gem "activerecord-import"
 
-gem "redis"
+# Held at 5.x on purpose. Action Cable's Redis subscription adapter - the
+# production `adapter: redis` in config/cable.yml, which every live scoreboard
+# and scoring broadcast goes through - does `gem "redis", ">= 4", "< 6"` at
+# require time (actioncable/lib/action_cable/subscription_adapter/redis.rb).
+# redis 6 therefore raises Gem::LoadError the moment that adapter loads, and
+# nothing in the test suite catches it because config/cable.yml uses the test
+# adapter in test. Revisit when Rails relaxes the bound.
+gem "redis", "~> 5.3"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
