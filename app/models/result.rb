@@ -10,9 +10,15 @@ class Result < ApplicationRecord
   # validation error -- reachable when two scorers open the same team at once.
   validates :challenge_id, uniqueness: { scope: :user_id }
 
-  after_save :clear_scoreboard_cache, :broadcast_update
+  # after_commit, not after_save: the cache must not be dropped (nor a refresh sent
+  # to every scoreboard) for a write that then rolls back. They run in declaration
+  # order, so the cache is already cold by the time viewers re-request the page.
+  after_commit :clear_scoreboard_cache, :broadcast_scoreboard_refresh
+  after_save :broadcast_update
   before_destroy :ensure_zero_points
 
+  # Set by the controller so the broadcast can tell the scorer who made the change
+  # apart from everyone else. Not persisted.
   attr_accessor :updated_by_id
 
   # If a result changes, the scoreboard needs updating.
@@ -57,6 +63,13 @@ class Result < ApplicationRecord
   end
 
   private
+
+  # Every scoreboard viewer re-requests the page for themselves. That keeps the rank
+  # order, the scorer-only stat columns and the scoreboard_visible gate correct per
+  # session, which one broadcast of pre-rendered HTML could never be.
+  def broadcast_scoreboard_refresh
+    Turbo::StreamsChannel.broadcast_refresh_to(Scoreboard::STREAM)
+  end
 
   def ensure_zero_points
     if regular_points != 0 || bonus_points != 0

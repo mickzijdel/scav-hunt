@@ -58,25 +58,6 @@ class UserTest < ActiveSupport::TestCase
     assert_equal total_challenges, stats[:completed] + stats[:partially_completed] + stats[:not_attempted]
   end
 
-  test "scoreboard_data returns expected structure" do
-    user = users(:team_one)
-    data = user.scoreboard_data
-
-    assert_equal user.id, data[:id]
-    assert_equal user.name, data[:name]
-    assert_equal user.total_points, data[:score]
-  end
-
-  test "scoreboard_data includes stats for admin" do
-    user = users(:team_one)
-    admin_ability = Ability.new(users(:admin))
-    data = user.scoreboard_data(admin_ability)
-
-    assert_includes data.keys, :completed
-    assert_includes data.keys, :partially_completed
-    assert_includes data.keys, :not_attempted
-  end
-
   test "destroying a user with no results succeeds" do
     user = users(:team_three)
 

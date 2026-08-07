@@ -56,18 +56,6 @@ class User < ApplicationRecord
     }
   end
 
-  def scoreboard_data(ability = nil)
-    out = {
-      id: id,
-      name: name,
-      score: results.sum(&:total_points)
-    }
-
-    out.merge!(stats) if ability&.can?(:manage, :scoring)
-
-    out
-  end
-
   def visible_groups
     group_permissions.pluck(:group_id)
   end

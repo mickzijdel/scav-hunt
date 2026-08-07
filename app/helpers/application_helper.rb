@@ -1,4 +1,14 @@
 module ApplicationHelper
+  # Renders the time left until +end_time+ in the same shape the countdown Stimulus
+  # controller uses, so the first paint is already correct and the controller only
+  # has to keep it ticking.
+  def countdown_to(end_time)
+    seconds = end_time.nil? ? 0 : (end_time.to_time - Time.current).to_i
+    return "Time's up!" if seconds <= 0
+
+    "#{seconds / 1.hour}h #{(seconds / 1.minute) % 60}m #{seconds % 60}s"
+  end
+
   def navbar_items
     navbar_items = [
       { title: "Scoreboard", path: root_path }
