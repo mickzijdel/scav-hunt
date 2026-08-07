@@ -2,7 +2,7 @@
   "name": "app",
   "private": true,
   "devDependencies": {
-    "esbuild": "^0.23.1"
+    "esbuild": "^0.28.1"
   },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
@@ -15,7 +15,7 @@
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.9",
     "@popperjs/core": "^2.11.8",
-    "@rails/actioncable": "^7.2.100",
+    "@rails/actioncable": "^8.1.301",
     "autoprefixer": "^10.4.20",
     "billboard.js": "^3.13.0",
     "bootstrap": "^5.3.3",
