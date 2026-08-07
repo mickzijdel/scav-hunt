@@ -27,9 +27,12 @@ FROM base AS build
 
 ENV PATH="/usr/bin:${PATH}"
 
-# Install packages needed to build gems and node modules
+# Install packages needed to build gems and node modules.
+# default-libmysqlclient-dev + pkg-config are required to compile the mysql2 native
+# extension. default-mysql-client in the base stage is only the CLI, not the headers,
+# so without these `bundle install` fails with "mysql client is missing".
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y git && \
+    apt-get install --no-install-recommends -y git default-libmysqlclient-dev pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install JavaScript dependencies
