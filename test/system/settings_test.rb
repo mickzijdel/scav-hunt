@@ -65,6 +65,6 @@ class SettingsTest < ApplicationSystemTestCase
     Setting.set("scoreboard_end_time", (DateTime.now.utc + 3.hours).to_s)
 
     visit root_path
-    assert_selector "[data-scoreboard-target='timer']", text: /\d+h \d+m \d+s/
+    assert_selector "#timer", text: /\d+h \d+m \d+s/
   end
 end

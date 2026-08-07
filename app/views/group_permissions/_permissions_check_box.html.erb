@@ -1,0 +1,16 @@
+<%# locals: (user:, group_id:) %>
+<%# The cell is the stream target, so the response can put the checkbox back in
+    whatever state the server actually ended up in -- which is the visible feedback
+    the old fetch handler had two FIXMEs asking for. %>
+<%= tag.td id: dom_id(user, "group_#{group_id}_permission") do %>
+  <%= form_with url: group_permissions_path, method: :post,
+                data: { controller: "auto-submit", action: "change->auto-submit#submit" } do |form| %>
+    <%= form.hidden_field :user_id, value: user.id %>
+    <%= form.hidden_field :group_id, value: group_id %>
+    <%= form.check_box :permitted,
+                       { checked: user.can_see_group?(group_id),
+                         id: "group_permission_#{user.id}_#{group_id}",
+                         class: "form-check-input" },
+                       "true", "false" %>
+  <% end %>
+<% end %>

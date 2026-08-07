@@ -1,0 +1,5 @@
+<%# An empty flash renders nothing, which also clears a previous error. %>
+<%= turbo_stream.update "alerts", partial: "layouts/alerts" %>
+<%= turbo_stream.replace dom_id(@user, "group_#{@group_id}_permission"),
+      partial: "group_permissions/permissions_check_box",
+      locals: { user: @user, group_id: @group_id } %>

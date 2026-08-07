@@ -41,8 +41,11 @@ class User < ApplicationRecord
     self.where(role: :team).order(:name)
   end
 
+  # Summed in SQL rather than in Ruby so it cannot be answered out of a stale loaded
+  # association -- these totals are re-rendered straight out of a Turbo broadcast,
+  # microseconds after the row that changed them was committed.
   def total_points
-    results.sum(&:total_points)
+    results.sum(:regular_points) + results.sum(:bonus_points)
   end
 
   def stats
@@ -56,23 +59,17 @@ class User < ApplicationRecord
     }
   end
 
-  def scoreboard_data(ability = nil)
-    out = {
-      id: id,
-      name: name,
-      score: results.sum(&:total_points)
-    }
-
-    out.merge!(stats) if ability&.can?(:manage, :scoring)
-
-    out
+  def results_by_challenge
+    results.includes(:challenge).index_by(&:challenge_id)
   end
 
   def visible_groups
     group_permissions.pluck(:group_id)
   end
 
+  # group_id arrives as a String from params as often as an Integer, and comparing
+  # the two silently answered "no" every time.
   def can_see_group?(group_id)
-    visible_groups.include?(group_id)
+    visible_groups.include?(group_id.to_i)
   end
 end

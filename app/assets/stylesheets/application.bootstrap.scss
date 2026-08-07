@@ -1,2 +1,19 @@
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-icons/font/bootstrap-icons';
+
+// Applied by flash_controller.js to anything a Turbo Stream has just replaced.
+// Green means "you did this", blue means "somebody else did".
+@keyframes flash-green {
+  0% { background-color: transparent; }
+  50% { background-color: var(--bs-success); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flash-blue {
+  0% { background-color: transparent; }
+  50% { background-color: var(--bs-info); }
+  100% { background-color: transparent; }
+}
+
+.flash-green { animation: flash-green 1s; }
+.flash-blue { animation: flash-blue 1s; }

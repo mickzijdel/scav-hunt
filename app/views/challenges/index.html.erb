@@ -1,7 +1,16 @@
-<% # FIXME: It would be nice if the completion stats are also updated in real-time. Probably needs another channel. %>
+<% # FIXME: It would be nice if the completion stats are also updated in real-time. Probably needs another challenge-wide stream. %>
 
-<% # Connected to the scoring channel to update the score in real time for teams %>
-<div data-controller="challenge-updates challenge-sorting group-updates" data-challenge-updates-user-id-value="<%= current_user.id if current_user&.team? %>" data-group-updates-user-id-value="<%= current_user.id if current_user&.team? %>">
+<%# A team's own scores land here as they are awarded. The stream name is signed and
+    rendered only into this team's page, so it is also what keeps one team's scores
+    off another team's screen. %>
+<% if current_user&.team? %>
+  <%= turbo_stream_from current_user, :challenges %>
+<% end %>
+
+<%# Rows arrive from a broadcast whenever a score or a group permission changes, so
+    the search and sort the viewer has applied have to be put back afterwards. %>
+<div data-controller="challenge-sorting"
+     data-action="turbo:before-stream-render@document->challenge-sorting#refresh">
   <% # Different sort options for teams and scorers %>
   <%= render 'application/search_form', sort_options: current_user&.team? ? {
     "Number" => "number",
@@ -31,26 +40,26 @@
         <% end %>
         <th>Description</th>
         <th>Points To Win</th>
-        
+
         <% if current_user&.team? %>
           <th>Obtained Points</th>
           <th>Bonus Points</th>
           <th>Status</th>
-        <% else %>        
+        <% else %>
           <th>Completed</th>
           <th>Partially Completed</th>
           <th>Not Attempted</th>
           <th>Actions</th>
-        <% end %>    
+        <% end %>
       </tr>
     </thead>
-    <tbody data-group-updates-target="challengeList">
+    <tbody id="challenge_list">
       <%= render 'challenge_list', challenges: @challenges, results: @results, current_user: current_user %>
     </tbody>
   </table>
 
   <% if current_user&.team? %>
-    <p><strong>Total Points: <span data-challenge-updates-target="totalPoints"><%= current_user.total_points %></span></strong></p>
+    <p><strong>Total Points: <%= render 'application/total_points', team: current_user, id: 'team_total_points' %></strong></p>
   <% end %>
 
   <% if can? :create, Challenge %>

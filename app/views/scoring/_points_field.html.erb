@@ -1,0 +1,15 @@
+<%# locals: (challenge:, team:, result:, field:, updated_by: nil) %>
+<%# One form per field, on purpose. Submitting both points columns together is what
+    made two quick saves race and overwrite each other; a form that carries a single
+    column cannot revert the other one. %>
+<%= tag.td id: dom_id(challenge, field),
+           data: { controller: ("flash" if updated_by), flash_updated_by_value: updated_by } do %>
+  <%= form_with url: scoring_update_path, method: :post, class: "input-group",
+                data: { controller: "auto-submit", action: "change->auto-submit#submit" } do |form| %>
+    <%= form.hidden_field :challenge_id, value: challenge.id %>
+    <%= form.hidden_field :user_id, value: team.id %>
+    <%= form.number_field field, value: result&.public_send(field) || 0,
+                          id: "#{field.to_s.camelize(:lower)}_#{challenge.id}",
+                          class: "form-control form-control-sm" %>
+  <% end %>
+<% end %>

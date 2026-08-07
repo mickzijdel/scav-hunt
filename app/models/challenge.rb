@@ -8,6 +8,13 @@ class Challenge < ApplicationRecord
 
   scope :by_number, -> { order(:number) }
 
+  # The challenges a user is allowed to see, in the order they are displayed. Used
+  # both by challenges#index and by the broadcast that re-renders a team's list when
+  # their group permissions change, so the two cannot drift apart.
+  def self.visible_to(user)
+    accessible_by(Ability.new(user)).by_number
+  end
+
   def title
     "Challenge #{number} - \"#{description}\""
   end

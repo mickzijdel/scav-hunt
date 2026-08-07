@@ -40,6 +40,38 @@ class ChallengesTest < ApplicationSystemTestCase
     assert_no_text challenges(:three).description
   end
 
+  test "searching filters the list, and the filter survives a live row update" do
+    sign_out users(:admin)
+    team = users(:team_one)
+    GroupPermission.create!(user: team, group_id: 1)
+    GroupPermission.create!(user: team, group_id: 2)
+    sign_in team
+
+    visit challenges_url
+    assert_text challenges(:three).description
+
+    fill_in placeholder: "Search...", with: "pineapple"
+    assert_text challenges(:one).description
+    assert_no_text challenges(:three).description
+
+    # A score lands over the stream and replaces a row. Re-sorting alone used to be
+    # re-applied afterwards, which brought every filtered-out row back.
+    results(:challenge_one_by_team_one).update!(regular_points: 4242)
+
+    assert_selector "##{ActionView::RecordIdentifier.dom_id(challenges(:one), :row)}", text: "4242"
+    # If this comes back, the update dropped the active search filter.
+    assert_no_text challenges(:three).description
+  end
+
+  test "sorting reorders the list" do
+    visit challenges_url
+
+    select "Points To Win"
+
+    descriptions = all("tbody tr td[data-column='description']").map(&:text)
+    assert_equal Challenge.order(:points).pluck(:description), descriptions
+  end
+
   test "should create challenge as admin" do
     visit challenges_url
     click_on "New Challenge"

@@ -11,13 +11,31 @@ class HomePageTest < ApplicationSystemTestCase
     Setting.set("scoreboard_end_time", DateTime.new(2024, 9, 27, 14, 0, 0, "+01:00").to_s)
   end
 
+  # These assertions used to sleep past one 5s poll to prove the repainted table still
+  # carried the viewer's own column set. There is no poller any more: saving a result
+  # broadcasts a page refresh on the :scoreboard stream and every viewer re-renders
+  # the page for themselves. So trigger a real change and wait for the new score to
+  # land, which is both faster and a stronger claim than "some time passed".
+  def assert_live_refresh_keeps_columns(count)
+    score = find("tr[data-team-id='#{@team.id}'] [data-score]")
+    updated_score = score.text.to_i + 10
+
+    @result.update!(regular_points: @result.regular_points + 10)
+
+    assert_selector "tr[data-team-id='#{@team.id}'] [data-score]", text: updated_score.to_s
+
+    all("#scoreboard_rows tr").each do |row|
+      assert_equal count, row.all("td").count, "Content row does not have #{count} td elements"
+    end
+  end
+
   test "visiting the home page as guest" do
     visit root_path
 
     assert_selector "h1", text: "Scoreboard"
     # The "Time Remaining:" heading was deliberately removed from the view; the
     # timer itself is the assertion that matters.
-    assert_selector "[data-scoreboard-target='timer']"
+    assert_selector "#timer"
 
     assert_selector "table" do
       assert_selector "th", text: "Rank"
@@ -36,12 +54,7 @@ class HomePageTest < ApplicationSystemTestCase
       end
     end
 
-    # Assert it is still correct after an update
-    sleep(6)
-
-    all("table tbody tr").each do |row|
-      assert_equal 3, row.all("td").count, "Content row does not have 3 td elements"
-    end
+    assert_live_refresh_keeps_columns 3
   end
 
   test "Checking the navbar as a guest" do
@@ -81,12 +94,7 @@ class HomePageTest < ApplicationSystemTestCase
       end
     end
 
-    # Assert it is still correct after an update
-    sleep(6)
-
-    all("table tbody tr").each do |row|
-      assert_equal 3, row.all("td").count, "Content row does not have 3 td elements"
-    end
+    assert_live_refresh_keeps_columns 3
   end
 
   test "checking the navbar as team user" do
@@ -126,12 +134,7 @@ class HomePageTest < ApplicationSystemTestCase
        end
     end
 
-    # Assert it is still correct after an update
-    sleep(6)
-
-    all("table tbody tr").each do |row|
-      assert_equal 6, row.all("td").count, "Content row does not have 6 td elements"
-    end
+    assert_live_refresh_keeps_columns 6
   end
 
   test "checking the navbar as a scorer user" do
@@ -151,16 +154,14 @@ class HomePageTest < ApplicationSystemTestCase
   test "scoreboard updates" do
     visit root_path
 
-    initial_content = find("[data-scoreboard-target='tableBody']").text
+    score = "tr[data-team-id='#{@team.id}'] [data-score]"
+    assert_selector score, text: @team.total_points.to_s
 
-    # Simulate scoreboard update
-    @result.update(regular_points: @result.regular_points + 10)
+    # Simulate scoreboard update. No poll interval to wait out: the save broadcasts
+    # a page refresh and the open page re-renders itself.
+    @result.update!(regular_points: @result.regular_points + 10)
 
-    # Wait for the update interval (adjust if necessary)
-    sleep 6
-
-    updated_content = find("[data-scoreboard-target='tableBody']").text
-    assert_not_equal initial_content, updated_content, "Scoreboard should have updated"
+    assert_selector score, text: @team.reload.total_points.to_s, wait: 10
   end
 
   test "navigation links work correctly" do
@@ -191,12 +192,12 @@ class HomePageTest < ApplicationSystemTestCase
     Setting.set("scoreboard_end_time", (DateTime.now.utc + 2.hours).to_s)
 
     visit root_path
-    assert_selector "[data-scoreboard-target='timer']", text: /\d+h \d+m \d+s/
+    assert_selector "#timer", text: /\d+h \d+m \d+s/
 
     new_end_time = DateTime.now.utc + 1.day
     Setting.set("scoreboard_end_time", new_end_time.to_s)
 
     visit root_path
-    assert_selector "[data-scoreboard-target='timer']", text: /23h 59m \d+s/
+    assert_selector "#timer", text: /23h 59m \d+s/
   end
 end

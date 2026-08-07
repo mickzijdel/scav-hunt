@@ -1,0 +1,20 @@
+<%# locals: (result:, fields:, updated_by: nil) %>
+<%# Rendered twice for the scorer who made the change -- once as the form's own
+    response, once off the broadcast -- and once for everyone else. Both paths land
+    on the same targets with the same content, so applying it twice is a no-op.
+
+    Only the columns that actually changed are replaced. Replacing both would reset
+    the field a second scorer happens to be typing in. %>
+<% fields.each do |field| %>
+  <%= turbo_stream.replace dom_id(result.challenge, field),
+        partial: "scoring/points_field",
+        locals: { challenge: result.challenge, team: result.user, result: result, field: field, updated_by: updated_by } %>
+<% end %>
+
+<%= turbo_stream.replace dom_id(result.challenge, :status),
+      partial: "scoring/status",
+      locals: { challenge: result.challenge, result: result, updated_by: updated_by } %>
+
+<%= turbo_stream.replace "scoring_total_points",
+      partial: "application/total_points",
+      locals: { team: result.user, id: "scoring_total_points" } %>

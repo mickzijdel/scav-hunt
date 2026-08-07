@@ -1,0 +1,4 @@
+<%# locals: (challenge:, result:, updated_by: nil) %>
+<%= tag.td result&.status.presence || "Not Attempted",
+           id: dom_id(challenge, :status),
+           data: { column: "status", controller: ("flash" if updated_by), flash_updated_by_value: updated_by } %>
