@@ -301,18 +301,16 @@ baseline-browser-mapping@^2.10.44:
   resolved "https://registry.yarnpkg.com/baseline-browser-mapping/-/baseline-browser-mapping-2.11.12.tgz#42ac48770bf73d292f60ce8ba4dc5e7ebb242ec3"
   integrity sha512-r7WnVImvVCeFpf2DOXfy41aPWzeNg3H/A2X4dKmy1QL0MSyyk/e7z8ihJ3N6Nn2PsdhkVlqnEfnUE4a05P2aTA==
 
-billboard.js@^3.13.0:
-  version "3.18.0"
-  resolved "https://registry.yarnpkg.com/billboard.js/-/billboard.js-3.18.0.tgz#20d0f9588e5631a94df66fedd5c35fc851e2ff59"
-  integrity sha512-aci69MLwOX0HfdmQHk+v/iA7L4R+wG53hW9VwhkYzMOyqemWLjscf229XsQRrTau9EJSVyOHnr/rpVukoqppXw==
+billboard.js@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/billboard.js/-/billboard.js-4.0.3.tgz#86d5355892d5f04cd2b4d118c53c7976f66749c4"
+  integrity sha512-1D0Bq/begO+A7SYdDZDmUmvjg937YXAV8Er4u0wnwRb72qpwKmgXTZhhUy0Z/MnMI1sd+Q9Q8/B1fq8kTlyvAQ==
   dependencies:
     "@types/d3-selection" "^3.0.11"
     "@types/d3-transition" "^3.0.9"
     d3-axis "^3.0.0"
     d3-brush "^3.0.0"
     d3-drag "^3.0.0"
-    d3-dsv "^3.0.1"
-    d3-ease "^3.0.1"
     d3-hierarchy "^3.1.2"
     d3-interpolate "^3.0.1"
     d3-scale "^4.0.2"
@@ -477,7 +475,7 @@ d3-delaunay@6:
     d3-dispatch "1 - 3"
     d3-selection "3"
 
-"d3-dsv@1 - 3", d3-dsv@3, d3-dsv@^3.0.1:
+"d3-dsv@1 - 3", d3-dsv@3:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/d3-dsv/-/d3-dsv-3.0.1.tgz#c63af978f4d6a0d084a52a673922be2160789b73"
   integrity sha512-UG6OvdI5afDIFP9w4G0mNq50dSOsXHJaRE8arAS5o9ApWnIElp8GZw1Dun8vP8OyHOZ/QJUKUJwxiiCCnUwm+Q==
@@ -486,7 +484,7 @@ d3-delaunay@6:
     iconv-lite "0.6"
     rw "1"
 
-"d3-ease@1 - 3", d3-ease@3, d3-ease@^3.0.1:
+"d3-ease@1 - 3", d3-ease@3:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/d3-ease/-/d3-ease-3.0.1.tgz#9658ac38a2140d59d346160f1f6c30fda0bd12f4"
   integrity sha512-wR/XK3D3XcLIZwpbvQwQ5fK+8Ykds1ip7A2Txe0yxncXSdq1L9skcG7blcedkOX+ZcgxGAmLX1FrRGbADwzi0w==
