@@ -26,8 +26,17 @@
 # When both `If-Modified-Since` and `If-None-Match` are provided by the client
 # only consider `If-None-Match` as specified by RFC 7232 Section 6.
 # If set to `false` both conditions need to be satisfied.
+#
+# CANNOT BE SET FROM HERE. Action Pack copies this config into
+# `ActionDispatch::Http::Cache::Request.strict_freshness` in its `action_dispatch.configure`
+# railtie initializer (position 26), which runs long before `load_config_initializers`
+# (position 113) loads this file. Assigning it here is a silent no-op — verified by reading
+# back `ActionDispatch::Http::Cache::Request.strict_freshness`, which stayed `false`.
+#
+# It is therefore set in `config/application.rb` instead, which is evaluated before any
+# railtie initializer. That is also where `load_defaults 8.0` would set it.
 #++
-# Rails.application.config.action_dispatch.strict_freshness = true
+# Rails.application.config.action_dispatch.strict_freshness = true  # <- see above; set in application.rb
 
 ###
 # Set `Regexp.timeout` to `1`s by default to improve security over Regexp Denial-of-Service attacks.
