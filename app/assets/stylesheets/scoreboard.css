@@ -8,17 +8,32 @@ body {
   background-image: var(--hunt-gradient);
 }
 
+/* Sizes are clamped rather than raw `vw`. Teams read this scoreboard on their
+   phones during the hunt, and a bare `5vw`/`2vw` renders 18.75px/7.5px on a
+   375px screen -- the table text was effectively unreadable. The middle term
+   keeps the desktop rendering exactly what it was; the bounds stop the text
+   shrinking below legible on a phone or ballooning on a projector. */
 #timer {
   text-align: center;
-  font-family: "Courier New";
-  font-size: 5vw;
+  font-family: "Courier New", monospace;
+  font-size: clamp(2rem, 5vw, 5rem);
 }
 
-.table {
+/* Scoped to the scoreboard's own table -- its tbody carries #scoreboard_rows.
+   This used to be a bare `.table`, which redefined width, alignment, font and
+   size for every Bootstrap table that might ever render on this page. */
+.table:has(> #scoreboard_rows) {
   width: 70%;
+  margin-inline: auto;
   text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  font-family: "Almendra SC";
-  font-size: 2vw;
+  font-family: "Almendra SC", serif;
+  font-size: clamp(1rem, 2vw, 2rem);
+}
+
+/* 70% of a phone screen leaves the scorer view's six columns nothing to work
+   with, so below Bootstrap's md breakpoint let the table use the full width. */
+@media (max-width: 767.98px) {
+  .table:has(> #scoreboard_rows) {
+    width: 100%;
+  }
 }
