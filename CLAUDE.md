@@ -35,7 +35,9 @@ Read from the manifests in this repo. Do not take versions from memory — re-re
 | RuboCop | 1.89.0 (+ rubocop-rails-omakase 1.0.0, rubocop-minitest 0.40.0, rubocop-mick 0.1.0 from git) | `Gemfile.lock` |
 | Brakeman | 6.2.1 | `Gemfile.lock` |
 | herb | 0.10.3 | `Gemfile.lock`, `.herb.yml` `version:` |
-| Capybara / selenium-webdriver | 3.40.0 / 4.25.0 | `Gemfile.lock` |
+| Capybara | 3.40.0 | `Gemfile.lock` |
+| capybara-playwright-driver / playwright-ruby-client | 0.5.10 / 1.62.0 | `Gemfile.lock` |
+| playwright (npm) | 1.62.1 — must equal `Playwright::COMPATIBLE_PLAYWRIGHT_VERSION` | `package.json` (exact pin, no caret) |
 | Bundler | 2.5.13 | `Gemfile.lock` (`BUNDLED WITH`) |
 | Node | 22.4.1 | `.node-version`, `mise.toml`, `Dockerfile` `ARG NODE_VERSION` |
 | Yarn | 1.22.19 | `mise.toml`, `Dockerfile` `ARG YARN_VERSION` |
@@ -85,8 +87,20 @@ container maps host `2024` → container `3000` and reads `SCAV_HUNT_DATABASE_*`
 
 ```sh
 bin/rails test          # models, services, channels
-bin/rails test:system   # Capybara + selenium-webdriver (Chrome)
+bin/rails test:system   # Capybara + Playwright (Chromium)
 ```
+
+System tests use `driven_by :playwright` (native in Rails 7.2) — the Capybara DSL is
+unchanged, only the driver. The browser binary is a separate download from the npm package:
+`npx playwright install chromium`. The `playwright` npm version in `package.json` is an
+**exact** pin that must equal `Playwright::COMPATIBLE_PLAYWRIGHT_VERSION` from the
+`playwright-ruby-client` gem; bump the two together or the driver refuses to start.
+
+`test/application_system_test_case.rb` sets `Capybara.save_path = "tmp/screenshots"`. That is
+load-bearing, not cosmetic: the driver's `download` handler does an unconditional
+`FileUtils.mkdir_p(Capybara.save_path)`, and Rails leaves that setting nil, so leaving it out
+hangs the whole run the moment a response carries `Content-Disposition` (the CSV export test).
+
 
 Fixtures in `test/fixtures/*.yml` are loaded for every test (`test/test_helper.rb`, `fixtures :all`),
 tests run parallelised with threads, and SimpleCov writes `coverage/index.html`.

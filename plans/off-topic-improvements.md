@@ -103,3 +103,25 @@ they are why six of the sixteen hk gates are currently red.
   check counts `#`-prefixed lines inside fenced code blocks. The nginx sample in `README.md`
   legitimately contains `# New server block ...`, which the audit reports as a second H1. The
   check should skip fenced blocks.
+
+## Found while swapping the system-test driver to Playwright, 2026-08-07
+
+### App bugs
+
+- **`app/javascript/controllers/scoring_controller.js:18` — concurrent score saves race and
+  lose writes.** `updateScore` re-reads *both* `regularPoints` and `bonusPoints` from the DOM
+  and posts them together, fire-and-forget, with no sequencing or request id. Two saves in
+  flight at once (edit both fields quickly, or two scorers on the same team) therefore race:
+  the later-landing response wins, and because its payload carries the other field's pre-edit
+  value it silently reverts that field in both the UI *and* the database. Reproduced in
+  `test/system/scoring_test.rb`, which persisted `bonus_points: 0` after 10 was entered.
+  Selenium's per-keystroke typing latency usually let the two saves serialise, so this only
+  surfaced once Playwright started filling fields instantly — the bug itself is not new and
+  is reachable by a fast human.
+
+  `ScoringController#update` (server side) has the matching gap: it takes both columns from
+  the request and overwrites unconditionally, so it cannot detect a stale write either.
+  Fixes worth considering: send only the changed field, serialise per (challenge, user) on
+  the client, or add optimistic locking (`lock_version` / `updated_at` precondition) so a
+  stale update is rejected rather than applied. The system test now works around it by
+  committing one field at a time and waiting for each save to land.

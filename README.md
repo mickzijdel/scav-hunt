@@ -104,7 +104,22 @@ yarn build:css
 
 ```bash
 bin/rails test         # models, services, channels
-bin/rails test:system  # Capybara + Selenium system tests (needs Chrome)
+bin/rails test:system  # Capybara + Playwright system tests (needs Chromium, see below)
+```
+
+System tests drive Chromium through Playwright. `yarn install` brings in the `playwright` npm
+package, but the browser binary is a separate download — do it once per machine:
+
+```bash
+npx playwright install chromium
+```
+
+The `playwright` npm version is pinned exactly to the version
+`playwright-ruby-client` reports as `COMPATIBLE_PLAYWRIGHT_VERSION`; the two are a matched
+pair, not a range. After bumping either, re-check them:
+
+```bash
+bundle exec ruby -e 'require "playwright"; puts Playwright::COMPATIBLE_PLAYWRIGHT_VERSION'
 ```
 
 `bin/rails test -h` lists the options, for example how to run a single test file. Test
