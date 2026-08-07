@@ -114,7 +114,10 @@ jobs:
       - name: Make bin files executable
         run: chmod +x bin/*
       - name: Rails security scan (brakeman)
-        run: bundle exec brakeman -q --no-pager --exit-on-warn
+        # Loaded via Gem.bin_path, not `bundle exec brakeman`, so PATH can't resolve the
+        # repo's bin/brakeman binstub instead — that binstub injects --ensure-latest and
+        # would fail on the gem being behind rather than on the scan. Mirrors the hk step.
+        run: bundle exec ruby -e 'load Gem.bin_path("brakeman", "brakeman")' -- -q --no-pager --exit-on-warn
       - name: Dependency CVE scan (bundler-audit)
         # Best-effort DB refresh (network); `check` always gates against the bundled-or-updated DB.
         run: |
