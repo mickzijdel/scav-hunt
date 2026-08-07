@@ -59,14 +59,15 @@ they are why six of the sixteen hk gates are currently red.
 
 - **`.jscpd.json` sets `threshold: 1.1` instead of the standard's `0`.** Two pre-existing
   clones: `app/assets/stylesheets/login.css:1-7` ~ `scoreboard.css:3-9`, and
-  `test/system/home_test.rb:21-46` ~ `66-91`. De-duplicate both, then put the threshold back
+  `test/system/home_test.rb:40-60` ~ `80-100` (the guest and team-user table assertions, which
+  differ only in an extra navbar check). De-duplicate both, then put the threshold back
   to `0` so any new duplication fails the gate.
 
 - **`config/initializers/simple_form_bootstrap.rb` is excluded from jscpd** — it is
   simple_form generator boilerplate with three internal clones. Excluded rather than
   refactored, in the same spirit as `db/schema.rb`.
 
-- **`bundle exec debride` — ~140 suspect LOC.** Notably `Result#broadcast_update`,
+- **`bundle exec debride` — ~140 suspect LOC.** Notably
   `Result#ensure_zero_points`, `User#clear_scoreboard_cache`, and the `new`/`edit`/`show`
   actions on `UsersController`. Advisory — debride cannot see calls from views, ActionCable or
   routes, so verify before deleting anything.
@@ -104,24 +105,28 @@ they are why six of the sixteen hk gates are currently red.
   legitimately contains `# New server block ...`, which the audit reports as a second H1. The
   check should skip fenced blocks.
 
-## Found while swapping the system-test driver to Playwright, 2026-08-07
+## Found while moving the app onto Turbo, 2026-08-07
 
 ### App bugs
 
-- **`app/javascript/controllers/scoring_controller.js:18` — concurrent score saves race and
-  lose writes.** `updateScore` re-reads *both* `regularPoints` and `bonusPoints` from the DOM
-  and posts them together, fire-and-forget, with no sequencing or request id. Two saves in
-  flight at once (edit both fields quickly, or two scorers on the same team) therefore race:
-  the later-landing response wins, and because its payload carries the other field's pre-edit
-  value it silently reverts that field in both the UI *and* the database. Reproduced in
-  `test/system/scoring_test.rb`, which persisted `bonus_points: 0` after 10 was entered.
-  Selenium's per-keystroke typing latency usually let the two saves serialise, so this only
-  surfaced once Playwright started filling fields instantly — the bug itself is not new and
-  is reachable by a fast human.
+- **`app/javascript/controllers/statistics_controller.js` logs the whole dataset to the
+  console** on every render (`console.log("StatisticsController:", title, data)`). It is the
+  last `console.log` left in the app now that the channel plumbing is gone; the two charts on
+  `/statistics` dump their full point series into the browser console in production.
 
-  `ScoringController#update` (server side) has the matching gap: it takes both columns from
-  the request and overwrites unconditionally, so it cannot detect a stale write either.
-  Fixes worth considering: send only the changed field, serialise per (challenge, user) on
-  the client, or add optimistic locking (`lock_version` / `updated_at` precondition) so a
-  stale update is rejected rather than applied. The system test now works around it by
-  committing one field at a time and waiting for each save to land.
+- **`ChallengesController#index` assigns `@challenges` twice.** `load_and_authorize_resource`
+  has already set it to `Challenge.accessible_by(current_ability)` by the time the action body
+  overwrites it with `Challenge.visible_to(current_user).includes(:results)`, so the first
+  relation is built and thrown away. Harmless (it is lazy) but confusing; `skip_load_resource
+  only: :index` would say what is meant.
+
+- **Completion stats on `/challenges` are still not live** (the FIXME at the top of the view).
+  They are per-challenge rather than per-team, so they need a challenge-wide stream rather than
+  the per-user one the scores use — `Result` would broadcast to `[challenge, :stats]` and the
+  scorer view would subscribe. Small, and now that the scores go over Turbo it is a five-line
+  addition rather than a fourth channel.
+
+- **`Challenge#completion_stats` and `User#stats` are N+1s.** Both are called once per row while
+  rendering (`challenges/_challenge_row`, `home/index`), and each runs two or three COUNT
+  queries. Fine at scavenger-hunt scale, but they are the reason a broadcast re-render of the
+  scorer's challenge list is the most expensive thing the app does.
