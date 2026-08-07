@@ -219,3 +219,56 @@ hook because the shared git dir would have broken commits on `master`).
    suite to verify against.
 
 Security and data-loss before refactors; the Turbo rewrite last, when it can be verified.
+
+---
+
+## Status — what was fixed in this pass
+
+Both suites now pass, verified over repeated randomized runs:
+
+| Suite | Before | After |
+|---|---|---|
+| `bin/rails test` | 26 runs, 4 errors | **48 runs, 0 failures, 0 errors** |
+| `bin/rails test:system` | 46 runs, 18 failures, 2 errors | **47 runs, 0 failures, 0 errors** |
+
+Fixed: §1 (layout heading), §2 (StatisticsService + its test window), §3 (seeded admin
+credentials, seeds now idempotent), §4 (channel subscribe authorization, with tests that were
+verified to fail against the unfixed code), §5 (JSON gating + per-ability cache key + the
+lazy-relation cache), §6 (CSV import reporting), §7 (user destroy), §34 (result uniqueness
+validation). Plus rubocop to zero, brakeman to zero, herb analyze/lint clean, and the dead
+navbar dropdown removed with the active-page state restored.
+
+**Two findings discovered during the fixing, not in the original review:**
+
+### 🔴 Both hand-rolled `fetch` helpers crashed on a missing CSRF meta tag
+`group_permissions_controller.js:16`, `scoring_controller.js:60` read
+`document.querySelector('meta[name="csrf-token"]').content` unguarded. `csrf_meta_tags` renders
+nothing when forgery protection is off, so the lookup returned `null` and the whole Stimulus
+action died with a `TypeError` **before the request was sent** — silently, since neither caller
+reports errors. Found by capturing browser console logs, not by reading. Fixed.
+
+### 🟢 Password reset is unreachable from the UI
+`app/views/devise/sessions/new.html.erb` had `<%#= render "devise/shared/links" %>` — the same
+commented-out-ERB mistake as §1. Removing the dead tag preserves current behaviour, but it means
+there is no "Forgot your password?" link anywhere. Worth a product decision, especially since
+§22 recommends dropping `:registerable` (which is what that partial's "Sign up" link would
+otherwise expose).
+
+## Still red in CI — each needs its own pass
+
+- **`bundler-audit`** — CVE advisories across ~21 gems (rails, rack, nokogiri, puma, devise,
+  websocket-driver…). This is the [[dependency-upgrade]] pass; deliberately not touched here.
+- **`database_consistency`** — 20 remaining findings: missing NOT NULL on `challenges`
+  number/description/points/group_id and `settings.value`, missing length validators, redundant
+  indexes, and a missing unique index on `challenges.number` (§34's other half). The NOT NULL
+  ones are migrations on populated tables, so they need the multi-step nullable → backfill →
+  constrain pattern rather than a single migration.
+
+Everything else in `hk run check --all` is green: actionlint, zizmor, gitleaks, rubocop,
+brakeman, herb-analyze, herb-lint, jscpd, debride, flay, fasterer, and the test suite.
+
+## Not done — the largest remaining item
+
+**§8, the Turbo collapse (~300 net lines).** Deferred by agreement: it rewrites the app's core
+scoring path, and it was worth having a green suite to verify against first. That safety net now
+exists, so it is a much safer change than it was this morning.
