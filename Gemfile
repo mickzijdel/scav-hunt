@@ -1,7 +1,11 @@
 source "https://rubygems.org", cooldown: 4
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2.1"
+# >= 7.2.3.2 is a security floor: it is the 7.2 release that fixes the Active
+# Storage variant-processing RCE (GHSA / CVE fixed in 7.2.3.2, 8.0.5.1, 8.1.3.1).
+# Declaring it explicitly also stops the 4-day `cooldown:` above from resolving
+# back to an older, vulnerable 7.2.x.
+gem "rails", "~> 7.2.3", ">= 7.2.3.2"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use mysql as the database for Active Record
