@@ -1,7 +1,15 @@
 class Challenge < ApplicationRecord
   validates :number, :description, :points, :group_id, presence: true
   validates :points, :number, numericality: { only_integer: true }
-  validates :number, :description, uniqueness: true
+  # Number is the challenge's identity -- it is what the CSV import matches rows on
+  # and what the list is ordered by -- and is backed by a unique index.
+  #
+  # Description deliberately is NOT unique. It was, unindexed, so every single save
+  # paid a full table scan to enforce a rule the database never held; and two
+  # challenges legitimately sharing wording is entirely plausible in a hunt that
+  # repeats a task across groups. Nothing in the app treats the description as a key.
+  validates :number, uniqueness: true
+  validates :description, length: { maximum: 255 }
 
   has_many :results, dependent: :destroy
   has_many :users, through: :results

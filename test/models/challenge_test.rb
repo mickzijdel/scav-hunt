@@ -22,6 +22,12 @@ class ChallengeTest < ActiveSupport::TestCase
     assert_not challenge.save, "Saved the challenge with a duplicate number"
   end
 
+  test "two challenges may share a description" do
+    duplicate = Challenge.new(number: 991, description: challenges(:one).description, points: 100, group_id: 1)
+
+    assert duplicate.save, duplicate.errors.full_messages.to_sentence
+  end
+
   test "group_ids lists every populated group once, in order" do
     assert_equal [ 1, 2, 3 ], Challenge.group_ids
   end
