@@ -15,6 +15,7 @@ class UsersTest < ApplicationSystemTestCase
   test "creating a User" do
     visit users_url
     click_on "New User"
+    assert_selector "h1", text: "New User"
 
     fill_in "Name", with: "New User"
     fill_in "Email", with: "newuser@example.com"
@@ -28,7 +29,12 @@ class UsersTest < ApplicationSystemTestCase
 
   test "updating a User" do
     visit users_url
-    click_on "Edit", match: :first
+    # Target a specific row rather than match: :first -- the index is ordered by
+    # role then name, so a user created by another test can take the first slot.
+    within "tr", text: @user.name do
+      click_on "Edit"
+    end
+    assert_selector "h1", text: /Edit/
 
     fill_in "Name", with: "Updated User"
     click_on "Update User"
@@ -39,6 +45,7 @@ class UsersTest < ApplicationSystemTestCase
   test "creating a user requires a password" do
     visit users_url
     click_on "New User"
+    assert_selector "h1", text: "New User"
 
     fill_in "Name", with: "New Test User"
     fill_in "Email", with: "newtest@example.com"
@@ -56,7 +63,12 @@ class UsersTest < ApplicationSystemTestCase
 
   test "editing a user does not require a password change" do
     visit users_url
-    click_on "Edit", match: :first
+    # Target a specific row rather than match: :first -- the index is ordered by
+    # role then name, so a user created by another test can take the first slot.
+    within "tr", text: @user.name do
+      click_on "Edit"
+    end
+    assert_selector "h1", text: /Edit/
 
     fill_in "Name", with: "Updated User Name"
     click_on "Update User"
@@ -67,7 +79,12 @@ class UsersTest < ApplicationSystemTestCase
 
   test "editing a user allows optional password change" do
     visit users_url
-    click_on "Edit", match: :first
+    # Target a specific row rather than match: :first -- the index is ordered by
+    # role then name, so a user created by another test can take the first slot.
+    within "tr", text: @user.name do
+      click_on "Edit"
+    end
+    assert_selector "h1", text: /Edit/
 
     fill_in "Name", with: "Updated User with New Password"
     fill_in "Password", with: "newpassword123"
@@ -80,7 +97,12 @@ class UsersTest < ApplicationSystemTestCase
 
   test "editing a user with mismatched passwords shows an error" do
     visit users_url
-    click_on "Edit", match: :first
+    # Target a specific row rather than match: :first -- the index is ordered by
+    # role then name, so a user created by another test can take the first slot.
+    within "tr", text: @user.name do
+      click_on "Edit"
+    end
+    assert_selector "h1", text: /Edit/
 
     fill_in "Name", with: "Mismatched Password User"
     fill_in "Password", with: "newpassword123"

@@ -6,8 +6,10 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
 
   # Capybara's 2s default is not enough for a Turbo navigation on a loaded
-  # machine, which showed up as intermittent "Unable to find field" errors.
-  Capybara.default_max_wait_time = 5
+  # machine or on CI. Every intermittent failure seen in the full 47-test run
+  # was a timeout of this kind ("Unable to find field", "Unable to find modal
+  # dialog") on tests that pass consistently in isolation.
+  Capybara.default_max_wait_time = 10
 
   # Capybara's matchers only retry against the DOM. Some of this app's writes
   # happen over fetch/WebSocket with no rendered confirmation, so the only
