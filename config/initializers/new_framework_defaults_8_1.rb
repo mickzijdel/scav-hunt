@@ -84,4 +84,4 @@
 # Applied by the `:enable_yjit` initializer in railties' finisher, which runs after
 # `config/initializers/*`, so setting it here takes effect.
 #++
-# Rails.configuration.yjit = !Rails.env.local?
+Rails.configuration.yjit = !Rails.env.local?
