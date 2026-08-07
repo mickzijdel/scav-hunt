@@ -54,6 +54,20 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+  # Minitest-specific cops. Omakase already bundles (and deliberately disables)
+  # rubocop-rails + rubocop-performance, so those are not re-declared here.
+  gem "rubocop-minitest", require: false
+  # House cops that omakase cannot express, e.g. Mick/ParamsMutation.
+  gem "rubocop-mick", github: "mickzijdel/rubocop-mick", require: false
+
+  # --- dev-env standard audit tooling (dev-hooks:dev-env-setup) ---------------
+  # All are glob-gated in hk.pkl and mirrored by .github/workflows/ci.yml.
+  gem "herb", require: false                   # HTML-aware ERB parser + linter
+  gem "bundler-audit", require: false          # gem CVE / insecure-source scan
+  gem "debride", require: false                # dead-method detection
+  gem "flay", require: false                   # Ruby structural duplication (advisory)
+  gem "fasterer", require: false               # performance anti-patterns (advisory)
+  gem "database_consistency", require: false   # models vs. schema consistency
 end
 
 group :development do
