@@ -1,93 +1,190 @@
+# Mirrors the local hk hooks (hk.pkl) so CI and pre-commit can't drift.
+#
+# Actions are pinned to a commit SHA with the release tag in a trailing comment (supply-chain
+# safety — tags are mutable and an account takeover can repoint them). Bump with `pinact run -u`
+# and verify with the dev-env-setup skill's scripts/check_action_refs.sh.
 name: CI
 
 on:
-  pull_request:
   push:
-    branches: [ main ]
+    branches: [master]
+  pull_request:
+
+# Default GITHUB_TOKEN to read-only; a job needing more declares its own permissions: block.
+permissions:
+  contents: read
 
 jobs:
-  scan_ruby:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Make bin files executable
-        run: chmod +x bin/*
-
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
-
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-
       - name: Make bin files executable
         run: chmod +x bin/*
-
       - name: Lint code for consistent style
+        # rubocop loads the rubocop-minitest and rubocop-mick plugins via .rubocop.yml.
         run: bin/rubocop -f github
+      - name: Analyze ERB templates for parse errors (herb)
+        run: bundle exec herb analyze app/
+      - name: Lint ERB templates (herb)
+        # `herb lint` delegates to npx @herb-tools/linter (version pinned to the herb gem); the
+        # runner ships Node. --github emits Actions annotations; --fail-level error (default) gates.
+        run: bundle exec herb lint app/ --github
+      - name: Executable bits on shipped scripts
+        # Any tracked file whose first line is a shebang must be mode 100755 in the
+        # index — with core.fileMode=false a local chmod never reaches git, and a
+        # 100644 script dies with exit 126 on every fresh clone. Checks the INDEX, so
+        # the `chmod +x bin/*` step above doesn't mask it. Mirrors the hk
+        # `exec-bit-scripts` step so CI and pre-commit agree.
+        run: |
+          bad=$(git ls-files -s | awk -F'\t' '$1 ~ /^100644/ { if ((getline line < $2) > 0 && line ~ /^#!/) print $2; close($2) }')
+          if [ -n "$bad" ]; then
+            echo "Shebang scripts missing the executable bit in the git index. Fix: git update-index --chmod=+x <file>"
+            echo "$bad"
+            exit 1
+          fi
 
   test:
     runs-on: ubuntu-latest
 
     services:
       mysql:
-        image: mysql
+        # Digest-pinned (tags are mutable). Was a bare `mysql`, i.e. whatever :latest happened
+        # to be that day. Refresh with:
+        #   docker buildx imagetools inspect mysql:8.4 --format '{{.Manifest.Digest}}'
+        image: mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-      # redis:
-      #   image: redis
-      #   ports:
-      #     - 6379:6379
-      #   options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl default-mysql-client libjemalloc2 libvips
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            google-chrome-stable curl default-mysql-client libjemalloc2 libvips
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-
       - name: Make bin files executable
         run: chmod +x bin/*
-
       - name: Run tests
         env:
           RAILS_ENV: test
           DATABASE_URL: mysql2://127.0.0.1:3306
-          # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test test:system
-
+      - name: Model/DB consistency (database_consistency)
+        # The test DB is prepared above, so this gates (not advisory). Checks model
+        # validations/associations against the actual schema (missing NOT NULL, indexes, etc.).
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: mysql2://127.0.0.1:3306
+        run: bundle exec database_consistency
       - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore
+
+  # Security scanning — mirrors Rails 8's default scan_ruby/scan_js jobs, plus a gem CVE check.
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Make bin files executable
+        run: chmod +x bin/*
+      - name: Rails security scan (brakeman)
+        run: bundle exec brakeman -q --no-pager --exit-on-warn
+      - name: Dependency CVE scan (bundler-audit)
+        # Best-effort DB refresh (network); `check` always gates against the bundled-or-updated DB.
+        run: |
+          bundle exec bundle-audit update >/dev/null 2>&1 || true
+          bundle exec bundle-audit check
+      - name: JS dependency scan (importmap audit)
+        # Only meaningful for importmap-rails apps; this app bundles with esbuild, so it skips.
+        run: '[ -f bin/importmap ] && bin/importmap audit || echo "no bin/importmap — skipping"'
+
+  # Run the MIT-licensed gitleaks CLI (via mise, version-pinned in mise.lock) rather than
+  # gitleaks/gitleaks-action: the action requires a paid GITLEAKS_LICENSE on org-owned repos,
+  # while the CLI is free for all repos and is exactly what the local hk pre-commit hook runs.
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # gitleaks git scans the full commit history
+          persist-credentials: false
+      - uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
+      - name: Scan git history for secrets
+        run: mise exec -- gitleaks git --redact --no-banner .
+
+  # GitHub Actions workflow checks — mirrors the hk `actionlint` + `zizmor` steps. actionlint
+  # covers schema/expression/`needs:` correctness (its shellcheck-of-run: pass is off, see the hk
+  # step); zizmor covers security — credential persistence, template injection, over-broad
+  # GITHUB_TOKEN. zizmor uses offline audits only, so no token is needed.
+  actions-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
+      - name: Lint workflows (actionlint)
+        run: actionlint -shellcheck=
+      - name: Scan workflows with zizmor
+        run: zizmor --no-progress .github/workflows/
+
+  # Noisier audits — mirror the hk `check` hook.
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Dead code (debride)
+        run: bundle exec debride --exclude vendor,node_modules,tmp,log .
+      - name: Duplication (flay — Ruby structural, advisory)
+        # flay has no dir --exclude, so scope to source dirs — otherwise it (like debride) scans
+        # the bundler-cache vendor/bundle gems. Mirrors hk.
+        run: bundle exec flay app lib || true # flay exits 0 anyway; surfaces structural clones
+      - name: Performance anti-patterns (fasterer — advisory)
+        run: bundle exec fasterer || true
+      - name: Duplication (jscpd — polyglot gate)
+        # -f scopes to code formats (no config equivalent); .jscpd.json carries
+        # minTokens/threshold/reporters/gitignore/ignore globs. Runner + version policy are
+        # shared with the hk pre-commit gate via scripts/run-jscpd.sh; --require keeps CI
+        # strict (an unrunnable jscpd fails the job).
+        run: bash scripts/run-jscpd.sh --require ruby,erb,javascript,typescript,css,scss,sass,vue
+      - name: Large files
+        run: |
+          limit=512000
+          large=$(git ls-files | while read -r f; do
+            s=$(stat -c%s "$f" 2>/dev/null || echo 0)
+            if [ "$s" -gt "$limit" ]; then echo "$f ($s bytes)"; fi
+          done)
+          if [ -n "$large" ]; then echo "Files exceed ${limit} bytes:"; echo "$large"; exit 1; fi
