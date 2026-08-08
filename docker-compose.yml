@@ -4,7 +4,9 @@ services:
       context: .
       dockerfile: ./Dockerfile
     ports:
-      - "2024:3000"
+      # Host port is configurable so several instances can share one Docker host.
+      # Set APP_PORT in .env (per instance); defaults to the original 2024.
+      - "${APP_PORT:-2024}:3000"
     environment:
       RAILS_MASTER_KEY: "${RAILS_MASTER_KEY}"
       SCAV_HUNT_DATABASE_PASSWORD: "${DATABASE_PASSWORD}"
@@ -40,8 +42,10 @@ services:
 
   redis:
     image: "redis:7.4"
-    ports:
-      - "6379:6379"
+    # Deliberately NOT published to the host. Only the rails service talks to it, over
+    # the compose network at redis://redis:6379/1 (see REDIS_URL above). Publishing it
+    # bound an unauthenticated Redis to 0.0.0.0:6379 on the host, and made a second
+    # instance on the same host impossible.
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     volumes:

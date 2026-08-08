@@ -6,7 +6,7 @@ statistics charts update live over ActionCable.
 
 Code by [Mick Zijdel](https://github.com/mickzijdel), styling and specification by [Lewis Eggeling](https://github.com/BasalShark/ )
 
-**IMPORTANT NOTE**: The Rails server is accessible within _the Docker container or in development*_ on port `3000`. However, the server is accessible within _the Docker Host/outside of the Docker container_ on port `2024`.
+**IMPORTANT NOTE**: The Rails server is accessible within _the Docker container or in development*_ on port `3000`. However, the server is accessible within _the Docker Host/outside of the Docker container_ on port `2024` by default. Set `APP_PORT` in `.env` to publish it somewhere else — which is what lets you run more than one instance on the same Docker host (see [Running several instances on one host](#running-several-instances-on-one-host)).
 
 ## Contents
 
@@ -157,7 +157,7 @@ The deploy steps (first-time only) are:
 4) Run `sudo docker compose -f docker-compose.yml up -d`  
     a) This will create new containers and start them detached so it will still run when you log out.
 5) Setup your Nginx configuration file using the options below.  
-    a) If you're not using Nginx (or an alternative) as a reverse proxy, everything should just work if you connect to port `2024` (you can change this port in the `docker-compose.yml` file, for example to the default http port `80` or https port `443`). This is untested though. Feel free to let Mick know and he might be able to help, but it's probably easiest if you just run Nginx as a reverse proxy.
+    a) If you're not using Nginx (or an alternative) as a reverse proxy, everything should just work if you connect to port `2024` (set `APP_PORT` in `.env` to publish it elsewhere, for example the default http port `80` or https port `443`). This is untested though. Feel free to let Mick know and he might be able to help, but it's probably easiest if you just run Nginx as a reverse proxy.
 7) That's it! You can check if the containers are running using `sudo docker ps`
 
 Note: the Dockerfile already carries `RUN bundle config set frozen false` before the `bundle install` step, which works around the minor lockfile inconsistencies you can get when developing on Windows and deploying on Linux. It is not best practice — your deployed packages might not exactly match development — so remove it once the lockfile is reliably in sync.
@@ -179,9 +179,39 @@ RAILS_MASTER_KEY=<the master key>
 DATABASE_NAME=scav_hunt_production
 DATABASE_PASSWORD=<Anything you want>
 HOST_URL=<host website, like scavhunt.bedlamtheatre.co.uk. Do not include the scheme. You only need to include the port if you need to specify it when connecting to the website in the browser>
+APP_PORT=<optional; host port to publish the app on. Defaults to 2024>
 ```
 
 `.env` is gitignored, and so is `config/master.key`. Neither may ever be committed.
+
+### Running several instances on one host
+
+Two things used to make a second instance on the same Docker host impossible: the app
+published a hardcoded `2024`, and Redis published `6379`. Redis is no longer published at
+all — only the `rails` service talks to it, over the compose network — and the app's host
+port now comes from `APP_PORT`.
+
+Give each instance its own directory, its own `.env` with a distinct `APP_PORT`, and its
+own Compose project name. The project name is what keeps the containers, network and
+volumes apart; without it the second instance would reuse the first one's database volume.
+
+```sh
+# first instance
+cd /srv/scav-hunt-2026
+echo "APP_PORT=2024" >> .env
+COMPOSE_PROJECT_NAME=scav-hunt-2026 docker compose up -d
+
+# second instance, same host
+cd /srv/scav-hunt-test
+echo "APP_PORT=2025" >> .env
+COMPOSE_PROJECT_NAME=scav-hunt-test docker compose up -d
+```
+
+Compose derives the project name from the directory name if you don't set it, so two
+differently-named directories already get separate volumes — setting it explicitly just
+makes that guarantee visible rather than incidental. Point a separate Nginx server block
+at each `APP_PORT`, and give each instance its own `HOST_URL` so ActionCable's allowed
+origins match the hostname it is actually served on.
 
 ### Websockets / ActionCable setup
 In production, this website uses Redis as an [ActionCable](https://guides.rubyonrails.org/action_cable_overview.html) backend. The main consequences are
