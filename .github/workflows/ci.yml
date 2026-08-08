@@ -118,14 +118,20 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: mysql2://127.0.0.1:3306
+          # The user matters: without one, Rails falls back to database.yml's
+          # `username: scav_hunt`, which does not exist in the service container --
+          # the service is started with MYSQL_ALLOW_EMPTY_PASSWORD, i.e. root only.
+          DATABASE_URL: mysql2://root@127.0.0.1:3306
         run: bin/rails db:test:prepare test test:system
       - name: Model/DB consistency (database_consistency)
         # The test DB is prepared above, so this gates (not advisory). Checks model
         # validations/associations against the actual schema (missing NOT NULL, indexes, etc.).
         env:
           RAILS_ENV: test
-          DATABASE_URL: mysql2://127.0.0.1:3306
+          # The user matters: without one, Rails falls back to database.yml's
+          # `username: scav_hunt`, which does not exist in the service container --
+          # the service is started with MYSQL_ALLOW_EMPTY_PASSWORD, i.e. root only.
+          DATABASE_URL: mysql2://root@127.0.0.1:3306
         run: bundle exec database_consistency
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
