@@ -41,7 +41,7 @@ local linters = new Mapping<String, Step> {
     // an image built on a different Ruby than the tests ran against. Mirrored by the
     // `versions` job in ci.yml so pre-commit and CI agree.
     ["versions"] {
-        glob = List("mise.toml", ".ruby-version", ".node-version", "Dockerfile", "docker-compose.yml", ".github/workflows/ci.yml")
+        glob = List("mise.toml", ".ruby-version", ".node-version", "Dockerfile", "docker-compose.yml", "compose.yaml", "config/deploy.yml", ".devcontainer/compose.yaml", ".github/workflows/*.yml")
         check = "bash scripts/check_version_sync.sh"
     }
     ["exec-bit-scripts"] {
