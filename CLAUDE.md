@@ -41,7 +41,7 @@ Read from the manifests in this repo. Do not take versions from memory — re-re
 | capybara-playwright-driver / playwright-ruby-client | 0.5.13 / 1.64.0 | `Gemfile.lock` |
 | playwright (npm) | 1.64.0 — must equal `Playwright::COMPATIBLE_PLAYWRIGHT_VERSION` | `package.json` (exact pin, no caret) |
 | Bundler | 4.0.23 | `Gemfile.lock` (`BUNDLED WITH`) |
-| Node | 22.4.1 | `.node-version`, `mise.toml`, `Dockerfile` `ARG NODE_VERSION` |
+| Node | 22.23.4 | `.node-version`, `mise.toml`, `Dockerfile` `ARG NODE_VERSION` |
 | Yarn | 1.22.19 | `mise.toml`, `Dockerfile` `ARG YARN_VERSION` |
 | @hotwired/turbo-rails | 8.0.23 (spec `^8.0.9`) | `yarn.lock` / `package.json` |
 | @hotwired/stimulus | 3.2.2 | `yarn.lock` / `package.json` |

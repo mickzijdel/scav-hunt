@@ -42,7 +42,7 @@ Versions below are the ones actually resolved in `Gemfile.lock` / `yarn.lock`.
 
 | | Version |
 | --- | --- |
-| Node | 22.4.1 |
+| Node | 22.23.4 |
 | Yarn | 1.22.19 |
 | esbuild | 0.28.2 |
 | sass | 1.99.0 |
@@ -71,7 +71,7 @@ and mise itself.
 4. Install the toolchain and the dependencies, then create the database:
 
 ```bash
-mise install       # ruby 3.4.10, node 22.4.1, yarn 1.22.19 + the lint tooling
+mise install       # ruby 3.4.10, node 22.23.4, yarn 1.22.19 + the lint tooling
 bundle install
 yarn install
 bin/rails db:setup
