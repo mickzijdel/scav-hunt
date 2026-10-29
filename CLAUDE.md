@@ -48,10 +48,10 @@ Read from the manifests in this repo. Do not take versions from memory — re-re
 | @rails/actioncable | 8.1.400 | `yarn.lock` / `package.json` |
 | Bootstrap | 5.3.8 (+ bootstrap-icons 1.13.2, @popperjs/core 2.11.8) | `yarn.lock` / `package.json` |
 | esbuild | 0.28.2 | `yarn.lock` / `package.json` |
-| sass | 1.99.0 (spec `>=1.78.0 <1.100.0` - capped, see below) | `yarn.lock` / `package.json` |
+| sass | 1.106.1 | `yarn.lock` / `package.json` |
 | billboard.js | 4.1.3 | `yarn.lock` / `package.json` |
 | d3 | 7.9.0 | `yarn.lock` / `package.json` |
-| postcss / postcss-cli / autoprefixer | 8.5.26 / 11.0.1 / 10.5.4 | `yarn.lock` / `package.json` |
+| postcss / postcss-cli / autoprefixer | 8.5.31 / 12.0.0 / 10.6.1 | `yarn.lock` / `package.json` |
 
 `mise.toml` is the single source of truth for ruby/node/yarn and must stay in lockstep with
 `.ruby-version`, `.node-version` and the `Dockerfile` ARGs (`RUBY_VERSION`, `NODE_VERSION`,
@@ -180,15 +180,14 @@ regressions caused by a change you are making.
 
 ## Deliberate version holds
 
-Three dependencies are pinned *below* their latest release on purpose. Each carries the reason
-inline in `Gemfile` / `package.json`; do not "helpfully" unpin them without dealing with the
+Two dependencies are pinned *below* their latest release on purpose. Each carries the reason
+inline in the `Gemfile`; do not "helpfully" unpin them without dealing with the
 cause.
 
 | Held | At | Why |
 | --- | --- | --- |
 | `redis` (gem) | `~> 5.3` | Action Cable's Redis subscription adapter does `gem "redis", ">= 4", "< 6"` at require time, so redis 6 raises `Gem::LoadError` the moment production's `adapter: redis` loads. Still true on Rails 8.1. The test suite cannot catch it — `config/cable.yml` uses the test adapter. |
 | `cssbundling-rails` | `= 1.4.1` | 1.4.2+ lists `yarn.lock` as a **bun** lock file and checks bun first, so on any machine with bun installed `css:build` silently switches to `bun run build:css` and drops an untracked `bun.lock`, despite yarn 1 being pinned in `mise.toml`, the `Dockerfile` and CI. |
-| `sass` (npm) | `>=1.78.0 <1.100.0` | sass 1.100.0 moved its CLI watcher to the ESM-only chokidar 5, so `yarn build:css` dies with `ERR_REQUIRE_ESM` on the pinned Node 22.4.1 (`require(esm)` needs Node 22.12+). Lifting the cap means bumping the Node pin. |
 
 ## Supply-chain seasoning
 

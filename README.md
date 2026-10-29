@@ -45,7 +45,7 @@ Versions below are the ones actually resolved in `Gemfile.lock` / `yarn.lock`.
 | Node | 22.23.4 |
 | Yarn | 1.22.19 |
 | esbuild | 0.28.2 |
-| sass | 1.99.0 |
+| sass | 1.106.1 |
 | Bootstrap (+ bootstrap-icons) | 5.3.8 (1.13.2) |
 | @hotwired/turbo-rails | 8.0.23 |
 | @hotwired/stimulus | 3.2.2 |
