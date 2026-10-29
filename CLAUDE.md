@@ -21,11 +21,11 @@ Read from the manifests in this repo. Do not take versions from memory — re-re
 
 | Package | Version | Source |
 | --- | --- | --- |
-| Ruby | 3.3.3 | `.ruby-version`, `mise.toml`, `Dockerfile` `ARG RUBY_VERSION` |
-| Rails | 8.1.3.1 | `Gemfile.lock` (`Gemfile` pins `~> 8.1.3` with a `>= 8.1.3.1` security floor) |
+| Ruby | 3.4.10 | `.ruby-version`, `mise.toml`, `Dockerfile` `ARG RUBY_VERSION` |
+| Rails | 8.1.4 | `Gemfile.lock` (`Gemfile` pins `~> 8.1.3` with a `>= 8.1.3.1` security floor) |
 | mysql2 | 0.5.7 | `Gemfile.lock` (`Gemfile`: `~> 0.5`) |
 | Devise | 5.0.4 | `Gemfile.lock` |
-| CanCanCan | 3.6.1 | `Gemfile.lock` |
+| CanCanCan | 3.7.0 | `Gemfile.lock` |
 | Simple Form | 5.4.1 | `Gemfile.lock` |
 | turbo-rails (gem) | 2.0.23 | `Gemfile.lock` |
 | stimulus-rails (gem) | 1.3.4 | `Gemfile.lock` |
@@ -33,23 +33,23 @@ Read from the manifests in this repo. Do not take versions from memory — re-re
 | Puma | 8.0.2 | `Gemfile.lock` |
 | redis | 5.4.1 (`Gemfile`: `~> 5.3`, capped below 6 - see comment) | `Gemfile.lock` |
 | jbuilder | 2.15.1 | `Gemfile.lock` |
-| activerecord-import | 2.2.0 | `Gemfile.lock` |
-| RuboCop | 1.89.0 (+ rubocop-rails-omakase 1.0.0 - held, see below; rubocop-minitest 0.40.0; rubocop-mick 0.1.0 from git) | `Gemfile.lock` |
-| Brakeman | 8.0.5 | `Gemfile.lock` |
-| herb | 0.10.3 | `Gemfile.lock`, `.herb.yml` `version:` |
+| activerecord-import | 3.0.0 | `Gemfile.lock` |
+| RuboCop | 1.92.1 (+ rubocop-rails-omakase 1.1.0; rubocop-minitest 0.41.0; rubocop-mick 0.1.0 from git) | `Gemfile.lock` |
+| Brakeman | 8.1.0 | `Gemfile.lock` |
+| herb | 0.11.1 | `Gemfile.lock`, `.herb.yml` `version:` |
 | Capybara | 3.40.0 | `Gemfile.lock` |
-| capybara-playwright-driver / playwright-ruby-client | 0.5.10 / 1.62.0 | `Gemfile.lock` |
-| playwright (npm) | 1.62.1 — must equal `Playwright::COMPATIBLE_PLAYWRIGHT_VERSION` | `package.json` (exact pin, no caret) |
-| Bundler | 2.5.13 | `Gemfile.lock` (`BUNDLED WITH`) |
+| capybara-playwright-driver / playwright-ruby-client | 0.5.13 / 1.64.0 | `Gemfile.lock` |
+| playwright (npm) | 1.64.0 — must equal `Playwright::COMPATIBLE_PLAYWRIGHT_VERSION` | `package.json` (exact pin, no caret) |
+| Bundler | 4.0.23 | `Gemfile.lock` (`BUNDLED WITH`) |
 | Node | 22.4.1 | `.node-version`, `mise.toml`, `Dockerfile` `ARG NODE_VERSION` |
 | Yarn | 1.22.19 | `mise.toml`, `Dockerfile` `ARG YARN_VERSION` |
 | @hotwired/turbo-rails | 8.0.23 (spec `^8.0.9`) | `yarn.lock` / `package.json` |
 | @hotwired/stimulus | 3.2.2 | `yarn.lock` / `package.json` |
-| @rails/actioncable | 8.1.301 | `yarn.lock` / `package.json` |
-| Bootstrap | 5.3.8 (+ bootstrap-icons 1.13.1, @popperjs/core 2.11.8) | `yarn.lock` / `package.json` |
-| esbuild | 0.28.1 | `yarn.lock` / `package.json` |
+| @rails/actioncable | 8.1.400 | `yarn.lock` / `package.json` |
+| Bootstrap | 5.3.8 (+ bootstrap-icons 1.13.2, @popperjs/core 2.11.8) | `yarn.lock` / `package.json` |
+| esbuild | 0.28.2 | `yarn.lock` / `package.json` |
 | sass | 1.99.0 (spec `>=1.78.0 <1.100.0` - capped, see below) | `yarn.lock` / `package.json` |
-| billboard.js | 4.0.3 | `yarn.lock` / `package.json` |
+| billboard.js | 4.1.3 | `yarn.lock` / `package.json` |
 | d3 | 7.9.0 | `yarn.lock` / `package.json` |
 | postcss / postcss-cli / autoprefixer | 8.5.26 / 11.0.1 / 10.5.4 | `yarn.lock` / `package.json` |
 
@@ -196,9 +196,9 @@ cause.
 `minimum_release_age = "4d"`. Both are deliberate: a newly published version must age four
 days before it can be resolved. Do not remove them.
 
-Note that `BUNDLED WITH` is Bundler 2.5.13, which predates native `cooldown:` support, yet the
-cooldown *is* applied (it is also set in the user-level `~/.bundle/config`) and it over-filters:
-it held Rails at 7.2.3 when 7.2.3.2 was already nine days old. That is why the `Gemfile` spells
+`BUNDLED WITH` is Bundler 4.0.23, which enforces `cooldown:` natively (Bundler before 4.0.13
+ignored it). Earlier the cooldown over-filtered: it held Rails at 7.2.3 when 7.2.3.2 was
+already nine days old. That is why the `Gemfile` spells
 security floors out explicitly (`gem "rails", "~> 8.1.3", ">= 8.1.3.1"`) rather than trusting
 the resolver to pick the newest allowed version.
 

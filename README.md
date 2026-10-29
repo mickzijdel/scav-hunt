@@ -27,11 +27,11 @@ Versions below are the ones actually resolved in `Gemfile.lock` / `yarn.lock`.
 
 | | Version |
 | --- | --- |
-| Ruby | 3.3.3 |
-| Rails | 8.1.3.1 |
+| Ruby | 3.4.10 |
+| Rails | 8.1.4 |
 | mysql2 (MySQL adapter) | 0.5.7 |
 | Devise (authentication) | 5.0.4 |
-| CanCanCan (authorisation) | 3.6.1 |
+| CanCanCan (authorisation) | 3.7.0 |
 | Simple Form | 5.4.1 |
 | Propshaft (asset pipeline) | 1.3.2 |
 | Puma | 8.0.2 |
@@ -44,13 +44,13 @@ Versions below are the ones actually resolved in `Gemfile.lock` / `yarn.lock`.
 | --- | --- |
 | Node | 22.4.1 |
 | Yarn | 1.22.19 |
-| esbuild | 0.28.1 |
+| esbuild | 0.28.2 |
 | sass | 1.99.0 |
-| Bootstrap (+ bootstrap-icons) | 5.3.8 (1.13.1) |
+| Bootstrap (+ bootstrap-icons) | 5.3.8 (1.13.2) |
 | @hotwired/turbo-rails | 8.0.23 |
 | @hotwired/stimulus | 3.2.2 |
-| @rails/actioncable | 8.1.301 |
-| billboard.js / d3 (statistics charts) | 4.0.3 / 7.9.0 |
+| @rails/actioncable | 8.1.400 |
+| billboard.js / d3 (statistics charts) | 4.1.3 / 7.9.0 |
 
 The Ruby, Node and Yarn versions live in `mise.toml`, which is the single source of truth —
 `.ruby-version`, `.node-version` and the `Dockerfile` ARGs must match it.
@@ -71,7 +71,7 @@ and mise itself.
 4. Install the toolchain and the dependencies, then create the database:
 
 ```bash
-mise install       # ruby 3.3.3, node 22.4.1, yarn 1.22.19 + the lint tooling
+mise install       # ruby 3.4.10, node 22.4.1, yarn 1.22.19 + the lint tooling
 bundle install
 yarn install
 bin/rails db:setup
