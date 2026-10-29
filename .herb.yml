@@ -6,7 +6,7 @@
 #
 # Website: https://herb-tools.dev  ·  Configuration: https://herb-tools.dev/configuration
 
-version: 0.10.3
+version: 0.11.1
 
 # # Framework / template engine (defaults: ruby / erubi)
 # framework: ruby
