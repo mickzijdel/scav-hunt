@@ -180,7 +180,7 @@ regressions caused by a change you are making.
 
 ## Deliberate version holds
 
-Four dependencies are pinned *below* their latest release on purpose. Each carries the reason
+Three dependencies are pinned *below* their latest release on purpose. Each carries the reason
 inline in `Gemfile` / `package.json`; do not "helpfully" unpin them without dealing with the
 cause.
 
@@ -189,7 +189,6 @@ cause.
 | `redis` (gem) | `~> 5.3` | Action Cable's Redis subscription adapter does `gem "redis", ">= 4", "< 6"` at require time, so redis 6 raises `Gem::LoadError` the moment production's `adapter: redis` loads. Still true on Rails 8.1. The test suite cannot catch it — `config/cable.yml` uses the test adapter. |
 | `cssbundling-rails` | `= 1.4.1` | 1.4.2+ lists `yarn.lock` as a **bun** lock file and checks bun first, so on any machine with bun installed `css:build` silently switches to `bun run build:css` and drops an untracked `bun.lock`, despite yarn 1 being pinned in `mise.toml`, the `Dockerfile` and CI. |
 | `sass` (npm) | `>=1.78.0 <1.100.0` | sass 1.100.0 moved its CLI watcher to the ESM-only chokidar 5, so `yarn build:css` dies with `ERR_REQUIRE_ESM` on the pinned Node 22.4.1 (`require(esm)` needs Node 22.12+). Lifting the cap means bumping the Node pin. |
-| `rubocop-rails-omakase` | 1.0.0 | 1.1.0 registers rubocop-minitest via `plugins:` instead of `require:`, enabling extra Minitest cops. The only offence is `Minitest/RefuteFalse` at `test/system/settings_test.rb:36` — autocorrectable with `bin/rubocop -A`; fix it and drop the hold. |
 
 ## Supply-chain seasoning
 

@@ -36,7 +36,7 @@ class SettingsTest < ApplicationSystemTestCase
     end
 
     assert_text "Setting \"#{Setting::KEYS["scoreboard_visible"][:title]}\" updated successfully."
-    assert_equal false, Setting.get("scoreboard_visible")
+    refute Setting.get("scoreboard_visible")
   end
 
   # Turbo throws away a 200 response to a form submission, so the failure path only

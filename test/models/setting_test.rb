@@ -58,7 +58,7 @@ class SettingTest < ActiveSupport::TestCase
 
     assert_empty setting.errors
     assert_predicate setting, :persisted?
-    assert_equal true, Setting.get("scoreboard_visible")
+    assert Setting.get("scoreboard_visible")
   end
 
   test "an unknown key is refused" do
